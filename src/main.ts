@@ -80,7 +80,31 @@ function runBrand(): void {
   });
 }
 
+/** --pirate=<seed> --pirateout=<fichier.png> : rend l'affiche pirate, puis quitte. */
+function runPirate(): void {
+  const seed = argOf("pirate") || `pirate:${Date.now()}`;
+  const out = path.resolve(argOf("pirateout") || "export/pirate.png");
+  const format = argOf("format") === "story" ? "story" : "carre";
+  fs.mkdirSync(path.dirname(out), { recursive: true });
+  const win = new BrowserWindow({ show: false, width: 1200, height: 1200 });
+  void win.loadFile(path.join(__dirname, "index.html"));
+  win.webContents.once("did-finish-load", () => {
+    setTimeout(async () => {
+      const dataUrl = await win.webContents.executeJavaScript(
+        `window.renderPirate(${JSON.stringify(seed)}, ${JSON.stringify(format)})`,
+      ) as string;
+      fs.writeFileSync(out, Buffer.from(dataUrl.replace(/^data:image\/png;base64,/, ""), "base64"));
+      console.log(out);
+      app.quit();
+    }, 500);
+  });
+}
+
 app.whenReady().then(() => {
+  if (process.argv.some((a) => a.startsWith("--pirate="))) {
+    runPirate();
+    return;
+  }
   if (process.argv.some((a) => a.startsWith("--brand"))) {
     runBrand();
     return;

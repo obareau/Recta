@@ -1,6 +1,7 @@
 // Rendu des affiches de communiqué — canvas, style écran phosphore C.G.U.
 
 import type { Communique } from "./logic";
+import type { Pirate } from "./pirate-content";
 
 export type PosterFormat = "carre" | "story";
 
@@ -222,4 +223,139 @@ export function drawPoster(ctx: CanvasRenderingContext2D, c: Communique, format:
   // Scanlines CRT.
   ctx.fillStyle = "rgba(0,0,0,0.16)";
   for (let sy2 = 0; sy2 < h; sy2 += 3) ctx.fillRect(0, sy2, w, 1);
+}
+
+const NOISE = "▓▒░█▚▞╳◊¤§±ØΩ#%&/\\<>|01";
+
+/** ~8% des caractères d'une ligne remplacés par du bruit (reste lisible). */
+function corrupt(rngLike: () => number, text: string): string {
+  const chars = text.split("");
+  for (let i = 0; i < chars.length; i++) {
+    if (chars[i] !== " " && rngLike() < 0.08) chars[i] = NOISE[(rngLike() * NOISE.length) | 0];
+  }
+  return chars.join("");
+}
+
+/**
+ * Affiche PIRATE — l'interface Recta détournée par Nova 7 / Renégats.
+ * En-tête C.G.U. rayé (vert), tampon NON CONFORME, message lisible à ~90%.
+ * `rand` : source d'aléa (pour le bruit) ; passer Math.random au rendu.
+ */
+export function drawPiratePoster(
+  ctx: CanvasRenderingContext2D, p: Pirate, format: PosterFormat, rand: () => number = Math.random,
+): void {
+  const { w, h } = FORMATS[format];
+  const M = Math.round(w * 0.07);
+  const cx = w / 2;
+  const FC = p.color; // couleur de la faction
+
+  ctx.fillStyle = "#050505";
+  ctx.fillRect(0, 0, w, h);
+
+  // Double cadre, couleur faction.
+  ctx.strokeStyle = FC;
+  ctx.lineWidth = 6;
+  ctx.strokeRect(M * 0.5, M * 0.5, w - M, h - M);
+  ctx.lineWidth = 2;
+  ctx.strokeRect(M * 0.68, M * 0.68, w - M * 1.36, h - M * 1.36);
+
+  let y = h * 0.135;
+  ctx.textAlign = "center";
+
+  // En-tête officiel du C.G.U. — rayé, en vert (canal détourné).
+  ctx.fillStyle = C2;
+  ctx.font = `bold ${Math.round(w * 0.03)}px monospace`;
+  ctx.fillText("CONSEIL DES GOUVERNANCES UNIES", cx, y);
+  ctx.font = `${Math.round(w * 0.022)}px monospace`;
+  ctx.fillText("L'ORACULUM — DIFFUSION OBLIGATOIRE", cx, y + w * 0.035);
+  // Rature verte.
+  ctx.strokeStyle = C2;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(cx - w * 0.34, y - w * 0.008);
+  ctx.lineTo(cx + w * 0.34, y + w * 0.045);
+  ctx.stroke();
+
+  // Canal détourné.
+  y += w * 0.09;
+  ctx.fillStyle = FC;
+  ctx.font = `bold ${Math.round(w * 0.03)}px monospace`;
+  ctx.fillText(`◂◂ CANAL DÉTOURNÉ — ${p.tag} ▸▸`, cx, y);
+  ctx.font = `${Math.round(w * 0.02)}px monospace`;
+  ctx.fillText(`COMMUNIQUÉ N° ${p.num}/█ — INTERCEPTÉ`, cx, y + w * 0.035);
+
+  // Emblème : l'œil barré, couleur faction.
+  y += w * 0.12;
+  ctx.save();
+  ctx.strokeStyle = FC;
+  ctx.lineWidth = w * 0.02;
+  ctx.beginPath();
+  ctx.arc(cx, y, w * 0.07, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.fillStyle = FC;
+  ctx.beginPath();
+  ctx.arc(cx, y, w * 0.03, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#050505";
+  ctx.fillRect(cx - w * 0.075, y - w * 0.012, w * 0.15, w * 0.024);
+  // Barre diagonale.
+  ctx.strokeStyle = FC;
+  ctx.lineWidth = w * 0.012;
+  ctx.beginPath();
+  ctx.moveTo(cx - w * 0.085, y + w * 0.085);
+  ctx.lineTo(cx + w * 0.085, y - w * 0.085);
+  ctx.stroke();
+  ctx.restore();
+
+  // Corps : les lignes de la transmission, bruit léger.
+  y += w * 0.13;
+  ctx.fillStyle = "#f0f0f0";
+  for (const line of p.lines) {
+    const size = fitBlock(
+      (s) => (t: string) => { ctx.font = `bold ${Math.round(s)}px monospace`; return ctx.measureText(t).width; },
+      corrupt(rand, line), w - M * 2.6, w * 0.14, w * 0.04, 1.35, w * 0.024,
+    );
+    ctx.font = `bold ${Math.round(size.size)}px monospace`;
+    for (const l of size.lines) { ctx.fillText(l, cx, y); y += size.lineH; }
+    y += w * 0.02;
+  }
+
+  // Signature.
+  y += w * 0.02;
+  ctx.fillStyle = FC;
+  ctx.font = `italic bold ${Math.round(w * 0.036)}px monospace`;
+  ctx.fillText(p.sign, cx, Math.max(y, h - M * 2.3));
+
+  // Tampon NON CONFORME, de travers, couleur faction, au premier plan.
+  ctx.save();
+  ctx.translate(w - M * 2.0, h - M * 2.2);
+  ctx.rotate(-0.2);
+  ctx.strokeStyle = FC;
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.arc(0, 0, w * 0.075, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.fillStyle = FC;
+  ctx.font = `bold ${Math.round(w * 0.026)}px monospace`;
+  ctx.fillText("NON", 0, -w * 0.006);
+  ctx.font = `${Math.round(w * 0.019)}px monospace`;
+  ctx.fillText("CONFORME", 0, w * 0.024);
+  ctx.restore();
+
+  // Pied.
+  ctx.fillStyle = FC;
+  ctx.font = `bold ${Math.round(w * 0.03)}px monospace`;
+  ctx.fillText("robotariis.com", cx, h - M * 1.3);
+  ctx.fillStyle = "#7a7a7a";
+  ctx.font = `${Math.round(w * 0.017)}px monospace`;
+  ctx.fillText("ce signal n'existe pas · le C.G.U. ne contrôle pas cette fréquence", cx, h - M * 0.9);
+
+  // Glitch : décalage RVB léger + scanlines.
+  ctx.globalAlpha = 0.5;
+  ctx.globalCompositeOperation = "screen";
+  ctx.drawImage(ctx.canvas, 3, 0);
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = "source-over";
+  ctx.fillStyle = "rgba(0,0,0,0.18)";
+  for (let sy = 0; sy < h; sy += 3) ctx.fillRect(0, sy, w, 1);
 }

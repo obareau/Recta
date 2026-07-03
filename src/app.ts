@@ -2,8 +2,9 @@
 // En mode batch (Electron), window.batchRender(i) rend et renvoie un dataURL.
 
 import { communiqueFor } from "./logic";
-import { drawPoster, FORMATS, type PosterFormat } from "./poster";
+import { drawPiratePoster, drawPoster, FORMATS, type PosterFormat } from "./poster";
 import { drawBanner, drawLogo } from "./brand";
+import { pirateFor } from "./pirate-content";
 
 const $ = <T extends HTMLElement>(id: string): T => document.getElementById(id) as T;
 
@@ -82,6 +83,17 @@ window.renderBrand = () => {
   drawBanner(octx, 1640, 624);
   const banner = off.toDataURL("image/png");
   return { logo, banner };
+};
+
+// Affiche pirate détournée (Nova 7 / Renégats) — appelé par --pirate.
+declare global {
+  interface Window { renderPirate: (seed: string, fmt?: PosterFormat) => string }
+}
+window.renderPirate = (seed, fmt = "carre") => {
+  const { w, h } = FORMATS[fmt];
+  canvas.width = w; canvas.height = h;
+  drawPiratePoster(ctx, pirateFor(seed), fmt);
+  return canvas.toDataURL("image/png");
 };
 
 render(salt, format);

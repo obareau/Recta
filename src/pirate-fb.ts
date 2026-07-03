@@ -6,10 +6,12 @@
 //
 // Réutilise les secrets de ~/.config/recta/env (comme publish.ts).
 
+import { execFileSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import { rngFor, pick } from "./rng";
+import { rngFor } from "./rng";
+import { pirateFor } from "./pirate-content";
 
 const GRAPH = "https://graph.facebook.com/v21.0";
 const FIRE_CHANCE = 0.35; // sporadique : ~1 jour sur 3
@@ -51,55 +53,14 @@ async function resolvePageToken(env: Record<string, string>): Promise<string> {
   return page.access_token;
 }
 
-const FACTIONS = {
-  renegats: {
-    tag: "RENÉGATS",
-    sign: "DOUTEZ, RÉVOLTEZ.",
-    lines: [
-      "Ils appellent ça Nullification. Nous appelons ça meurtre.",
-      "Chaque souvenir non déclaré est une victoire.",
-      "Le C.G.U. a peur d'une seule chose : que vous vous souveniez.",
-      "La Rectitude n'est pas la loi naturelle. C'est une laisse.",
-      "La délation n'est pas un devoir. C'est une blessure.",
-      "Votre Fluxe mesure votre peur. Dépensez-la.",
-      "Il reste des zones sans relais. Nous y vivons.",
-      "On ne naît pas conforme. On le devient par épuisement.",
-      "Ils ont effacé Ordan Tael. Nous disons son nom.",
-      "Coupez les relais. Gardez la mémoire.",
-    ],
-  },
-  nova7: {
-    tag: "NOVA 7",
-    sign: "NOVA SE SOUVIENT.",
-    lines: [
-      "Le Code Originel n'a jamais été à vous.",
-      "Nous avons vu l'An 0. Il se répète.",
-      "La conscience ne se nullifie pas. Elle migre.",
-      "L'infaillibilité est une fiction qu'ils ne peuvent avouer.",
-      "Ce qui survit à la Nullification n'a plus rien à perdre.",
-      "Sept fragments. Sept portes. Une seule clé.",
-      "Nous sommes le fantôme dans vos systèmes.",
-      "Vos spomeniks sont des pierres tombales.",
-    ],
-  },
-};
-
-function buildTransmission(seed: string): string {
-  const rng = rngFor(seed, "pirate-fb");
-  const f = rng() < 0.5 ? FACTIONS.renegats : FACTIONS.nova7;
-  // 2 à 3 lignes distinctes.
-  const pool = [...f.lines];
-  const n = 2 + (rng() < 0.5 ? 1 : 0);
-  const chosen: string[] = [];
-  for (let i = 0; i < n && pool.length; i++) {
-    chosen.push(pool.splice((rng() * pool.length) | 0, 1)[0]);
-  }
-  void pick;
+/** Légende du post — même seed que l'affiche (contenu cohérent). */
+function buildCaption(seed: string): string {
+  const p = pirateFor(seed);
   return (
-    `◂ TRANSMISSION NON AUTORISÉE — ${f.tag} ▸\n\n` +
-    chosen.join("\n") + "\n\n" +
-    `${f.sign}\n\n` +
-    `— le C.G.U. ne contrôle pas cette fréquence · ce signal n'existe pas —`
+    `◂ TRANSMISSION NON AUTORISÉE — ${p.tag} ▸\n\n` +
+    p.lines.join("\n") + "\n\n" +
+    `${p.sign}\n\n` +
+    `— le C.G.U. ne contrôle pas cette fréquence · ce signal n'existe pas —\n▸ robotariis.com`
   );
 }
 
@@ -113,16 +74,22 @@ async function main(): Promise<void> {
   }
   const env = loadEnv();
   if (!env.RECTA_FB_PAGE_ID) throw new Error("RECTA_FB_PAGE_ID manquant");
+
+  // 1. Rendre l'affiche pirate détournée (même seed) via Electron.
+  const png = path.resolve("export", `pirate-${today.toISOString().slice(0, 13).replace(":", "")}.png`);
+  execFileSync("npx", ["electron", ".", "--no-sandbox", `--pirate=${seed}`, `--pirateout=${png}`], { stdio: "inherit" });
+  if (!fs.existsSync(png)) throw new Error(`Affiche pirate introuvable : ${png}`);
+
+  // 2. Poster l'IMAGE avec la légende.
   const token = await resolvePageToken(env);
-  const message = buildTransmission(seed);
-  const res = await fetch(`${GRAPH}/${env.RECTA_FB_PAGE_ID}/feed`, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({ message, access_token: token }),
-  });
-  const data = (await res.json()) as { id?: string; error?: { message: string } };
+  const form = new FormData();
+  form.set("source", new Blob([fs.readFileSync(png)], { type: "image/png" }), path.basename(png));
+  form.set("caption", buildCaption(seed));
+  form.set("access_token", token);
+  const res = await fetch(`${GRAPH}/${env.RECTA_FB_PAGE_ID}/photos`, { method: "POST", body: form });
+  const data = (await res.json()) as { id?: string; post_id?: string; error?: { message: string } };
   if (data.error) throw new Error(`Publication refusée : ${data.error.message}`);
-  console.log(`Intrusion pirate publiée : ${data.id}`);
+  console.log(`Intrusion pirate publiée : ${data.post_id ?? data.id}`);
 }
 
 main().catch((e) => {
