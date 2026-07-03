@@ -40,21 +40,24 @@ async function graph<T>(pathname: string, params: Record<string, string>): Promi
 
 /** Token utilisateur court → longue durée → token de la Page. */
 async function resolvePageToken(env: Record<string, string>): Promise<string> {
-  let token = env.RECTA_FB_TOKEN;
+  const token = env.RECTA_FB_TOKEN;
   if (!token) throw new Error("RECTA_FB_TOKEN manquant dans ~/.config/recta/env");
-  if (env.RECTA_FB_APP_ID && env.RECTA_FB_APP_SECRET) {
-    const long = await graph<{ access_token: string }>("/oauth/access_token", {
-      grant_type: "fb_exchange_token",
-      client_id: env.RECTA_FB_APP_ID,
-      client_secret: env.RECTA_FB_APP_SECRET,
-      fb_exchange_token: token,
+  // Le token stocké est déjà un token de Page longue durée (obtenu au setup) :
+  // on l'utilise directement. Sinon (token utilisateur), on résout la Page.
+  const appToken = env.RECTA_FB_APP_ID && env.RECTA_FB_APP_SECRET
+    ? `${env.RECTA_FB_APP_ID}|${env.RECTA_FB_APP_SECRET}` : token;
+  try {
+    const info = await graph<{ data?: { type?: string } }>("/debug_token", {
+      input_token: token, access_token: appToken,
     });
-    token = long.access_token;
+    if (info.data?.type === "PAGE") return token;
+  } catch {
+    // debug_token indisponible : on tente la résolution utilisateur ci-dessous.
   }
-  // Si c'est un token utilisateur, récupère celui de la Page visée.
   const pages = await graph<{ data?: { id: string; access_token: string }[] }>("/me/accounts", { access_token: token });
   const page = pages.data?.find((p) => p.id === env.RECTA_FB_PAGE_ID);
-  return page?.access_token ?? token; // déjà un token de Page sinon
+  if (!page) throw new Error(`La Page ${env.RECTA_FB_PAGE_ID} n'est pas accessible avec ce token.`);
+  return page.access_token;
 }
 
 async function main(): Promise<void> {
