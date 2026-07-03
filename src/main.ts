@@ -100,7 +100,27 @@ function runPirate(): void {
   });
 }
 
+/** --invite[=fichier.png] : génère l'affiche d'invitation, puis quitte. */
+function runInvite(): void {
+  const out = path.resolve(argOf("invite") || "export/invitation.png");
+  fs.mkdirSync(path.dirname(out), { recursive: true });
+  const win = new BrowserWindow({ show: false, width: 1200, height: 1200 });
+  void win.loadFile(path.join(__dirname, "index.html"));
+  win.webContents.once("did-finish-load", () => {
+    setTimeout(async () => {
+      const dataUrl = await win.webContents.executeJavaScript(`window.renderInvite()`) as string;
+      fs.writeFileSync(out, Buffer.from(dataUrl.replace(/^data:image\/png;base64,/, ""), "base64"));
+      console.log(out);
+      app.quit();
+    }, 500);
+  });
+}
+
 app.whenReady().then(() => {
+  if (process.argv.some((a) => a.startsWith("--invite"))) {
+    runInvite();
+    return;
+  }
   if (process.argv.some((a) => a.startsWith("--pirate="))) {
     runPirate();
     return;

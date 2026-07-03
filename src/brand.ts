@@ -117,3 +117,56 @@ export function drawBanner(ctx: CanvasRenderingContext2D, w = 1640, h = 624): vo
 
   scanlines(ctx, w, h, 0.13);
 }
+
+/**
+ * Affiche d'invitation — carré 1080, style C.G.U. « convocation ».
+ * Le Conseil vous convoque à rejoindre la fréquence : sarcasme officiel.
+ */
+export function drawInvite(ctx: CanvasRenderingContext2D, size = 1080): void {
+  const w = size, h = size, cx = w / 2;
+  const M = Math.round(w * 0.07);
+  ctx.fillStyle = C0;
+  ctx.fillRect(0, 0, w, h);
+  radarGrid(ctx, w, h);
+  ctx.strokeStyle = C2;
+  ctx.lineWidth = 6;
+  ctx.strokeRect(M * 0.5, M * 0.5, w - M, h - M);
+  ctx.lineWidth = 2;
+  ctx.strokeRect(M * 0.68, M * 0.68, w - M * 1.36, h - M * 1.36);
+
+  ctx.textAlign = "center";
+  let y = h * 0.15;
+  ctx.fillStyle = C2;
+  ctx.font = `bold ${Math.round(w * 0.03)}px monospace`;
+  ctx.fillText("CONSEIL DES GOUVERNANCES UNIES", cx, y);
+  y += w * 0.036;
+  ctx.font = `${Math.round(w * 0.022)}px monospace`;
+  ctx.fillText("AVIS DE CONVOCATION — PRÉSENCE RECOMMANDÉE", cx, y);
+
+  y += w * 0.12;
+  emblem(ctx, cx, y, w * 0.11);
+
+  y += w * 0.19;
+  ctx.fillStyle = C3;
+  ctx.font = `bold ${Math.round(w * 0.062)}px monospace`;
+  ctx.fillText("REJOIGNEZ", cx, y);
+  ctx.fillText("LA FRÉQUENCE", cx, y + w * 0.075);
+
+  y += w * 0.16;
+  ctx.fillStyle = C2;
+  ctx.font = `${Math.round(w * 0.03)}px monospace`;
+  ctx.fillText("Abonnez-vous à la Page Robotariis.", cx, y);
+  ctx.fillText("Un communiqué diffusé chaque jour.", cx, y + w * 0.045);
+  ctx.fillStyle = C1;
+  ctx.font = `italic ${Math.round(w * 0.023)}px monospace`;
+  ctx.fillText("l'absence est consignée.", cx, y + w * 0.092);
+
+  ctx.fillStyle = C3;
+  ctx.font = `bold ${Math.round(w * 0.032)}px monospace`;
+  ctx.fillText("facebook · robotariis.com", cx, h - M * 1.25);
+  ctx.fillStyle = C1;
+  ctx.font = `${Math.round(w * 0.018)}px monospace`;
+  ctx.fillText("univers de science-fiction — œuvre de l'Oraculum", cx, h - M * 0.85);
+
+  scanlines(ctx, w, h, 0.15);
+}

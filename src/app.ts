@@ -3,7 +3,7 @@
 
 import { communiqueFor } from "./logic";
 import { drawPiratePoster, drawPoster, FORMATS, type PosterFormat } from "./poster";
-import { drawBanner, drawLogo } from "./brand";
+import { drawBanner, drawInvite, drawLogo } from "./brand";
 import { pirateFor } from "./pirate-content";
 
 const $ = <T extends HTMLElement>(id: string): T => document.getElementById(id) as T;
@@ -93,6 +93,16 @@ window.renderPirate = (seed, fmt = "carre") => {
   const { w, h } = FORMATS[fmt];
   canvas.width = w; canvas.height = h;
   drawPiratePoster(ctx, pirateFor(seed), fmt);
+  return canvas.toDataURL("image/png");
+};
+
+// Affiche d'invitation — appelé par --invite.
+declare global {
+  interface Window { renderInvite: () => string }
+}
+window.renderInvite = () => {
+  canvas.width = 1080; canvas.height = 1080;
+  drawInvite(ctx, 1080);
   return canvas.toDataURL("image/png");
 };
 
