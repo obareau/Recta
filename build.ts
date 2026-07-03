@@ -33,6 +33,7 @@ async function main(): Promise<void> {
   fs.mkdirSync("dist-web", { recursive: true });
   fs.copyFileSync("src/index.html", "dist-web/index.html");
   fs.copyFileSync("dist/app.js", "dist-web/app.js");
+  fs.copyFileSync("src/pirate.js", "dist-web/pirate.js");
 }
 
 main().catch((e) => {
