@@ -62,7 +62,29 @@ function createWindow(): void {
   void win.loadFile(path.join(__dirname, "index.html"));
 }
 
+/** --brand=dossier : génère logo.png (500) + banner.png (1640×624), puis quitte. */
+function runBrand(): void {
+  const outDir = path.resolve(argOf("brand") || "brand");
+  fs.mkdirSync(outDir, { recursive: true });
+  const win = new BrowserWindow({ show: false, width: 1700, height: 700 });
+  void win.loadFile(path.join(__dirname, "index.html"));
+  win.webContents.once("did-finish-load", () => {
+    setTimeout(async () => {
+      const both = await win.webContents.executeJavaScript(`window.renderBrand()`) as { logo: string; banner: string };
+      fs.writeFileSync(path.join(outDir, "logo.png"), Buffer.from(both.logo.replace(/^data:image\/png;base64,/, ""), "base64"));
+      fs.writeFileSync(path.join(outDir, "banner.png"), Buffer.from(both.banner.replace(/^data:image\/png;base64,/, ""), "base64"));
+      console.log(path.join(outDir, "logo.png"));
+      console.log(path.join(outDir, "banner.png"));
+      app.quit();
+    }, 600);
+  });
+}
+
 app.whenReady().then(() => {
+  if (process.argv.some((a) => a.startsWith("--brand"))) {
+    runBrand();
+    return;
+  }
   const n = parseInt(argOf("n") ?? "", 10);
   if (Number.isFinite(n) && n > 0) {
     runBatch(n);

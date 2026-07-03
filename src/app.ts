@@ -3,6 +3,7 @@
 
 import { communiqueFor } from "./logic";
 import { drawPoster, FORMATS, type PosterFormat } from "./poster";
+import { drawBanner, drawLogo } from "./brand";
 
 const $ = <T extends HTMLElement>(id: string): T => document.getElementById(id) as T;
 
@@ -65,6 +66,22 @@ declare global {
 window.batchRender = (i, fmt = "carre") => {
   render(i, fmt);
   return canvas.toDataURL("image/png");
+};
+
+// Identité visuelle (logo + bannière) — appelé par le main en mode --brand.
+declare global {
+  interface Window { renderBrand: () => { logo: string; banner: string } }
+}
+window.renderBrand = () => {
+  const off = document.createElement("canvas");
+  const octx = off.getContext("2d")!;
+  off.width = 500; off.height = 500;
+  drawLogo(octx, 500);
+  const logo = off.toDataURL("image/png");
+  off.width = 1640; off.height = 624;
+  drawBanner(octx, 1640, 624);
+  const banner = off.toDataURL("image/png");
+  return { logo, banner };
 };
 
 render(salt, format);
