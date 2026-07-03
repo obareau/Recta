@@ -36,6 +36,11 @@ npx tsx build.ts && electron . --no-sandbox --n=10 --outdir=/chemin/dossier --fo
 Les affiches du jour sont **déterministes** (seed = date + numéro) : relancer l'export
 reproduit la même série — pratique pour la programmation éditoriale.
 
+Chaque export écrit aussi la **note de lore** du communiqué dans le vault d'écriture
+(`~/robotariis-writing/com-recta/`, désactivable via `--vault=off`) : frontmatter canonique,
+relations `connecte:` vers le C.G.U. et les lieux Atlas cités — les communiqués font partie
+intégrante du canon, et l'Atlas les voit.
+
 ## Publication automatique (Facebook / réseaux)
 
 L'export en lot est la première moitié du pipeline. Pour poster automatiquement :

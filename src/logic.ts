@@ -11,7 +11,19 @@ export interface Communique {
   corps: string;     // le texte du communiqué
   devise: string;    // slogan canonique de la Rectitude
   mention: string;   // mention légale en minuscule — c'était marqué
+  /** Slugs Atlas des lieux canoniques cités dans le corps. */
+  refs: string[];
 }
+
+/** Lieux du lexique → slugs Atlas (pour relier la note vault au graphe). */
+const ATLAS_REFS: [string, string][] = [
+  ["Anciens Docks", "anciens-docks"],
+  ["Sigma-7", "sigma-7"],
+  ["Port Alpha", "port-alpha"],
+  ["ceinture d'Helion", "helion"],
+  ["Jardins suspendus", "jardins-suspendus-de-ydara"],
+  ["Colonie Émeraude", "colonie-emeraude"],
+];
 
 const LEX: Record<string, string[]> = {
   lieu: [
@@ -183,5 +195,41 @@ export function communiqueFor(seed: string, d: Date, salt: number = 0): Communiq
     corps,
     devise: pick(rng, DEVISES),
     mention: pick(rng, MENTIONS),
+    refs: ATLAS_REFS.filter(([label]) => corps.includes(label)).map(([, slug]) => slug),
   };
+}
+
+/**
+ * Note vault (robotariis-writing/com-recta/) : le communiqué devient du
+ * lore versionné, avec le frontmatter maison — l'Atlas le verra via
+ * `connecte:` (le C.G.U. émetteur + les lieux cités).
+ */
+export function vaultNote(c: Communique, d: Date): { filename: string; content: string } {
+  const iso = d.toISOString().slice(0, 10);
+  const slugNum = c.numero.replace(/[^A-Za-z0-9]+/g, "-").toLowerCase();
+  const connecte = ["cgu-rectitude", ...c.refs];
+  const content = `---
+name: Communiqué N° ${c.numero} — ${c.type}
+type: communique
+statut: canonique
+epoque: ere-fragmentation
+tags: [communique, cgu, rectitude, oraculum, recta, canon]
+date_creation: ${iso}
+date_revision: ${iso}
+# ─ Relations (Atlas) ─
+connecte: [${connecte.join(", ")}]
+---
+
+# Communiqué N° ${c.numero} — ${c.type}
+
+> Émis par l'Oraculum, en Omniglossa Recta. Diffusion obligatoire.
+> Généré par [Recta](https://github.com/obareau/Recta) le ${iso}.
+
+${c.corps}
+
+**Devise :** *${c.devise}*
+
+<small>${c.mention}</small>
+`;
+  return { filename: `com-${slugNum}.md`, content };
 }
