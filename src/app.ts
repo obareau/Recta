@@ -37,6 +37,25 @@ $("btnSave").addEventListener("click", () => {
   a.click();
 });
 
+// Export par lot : 10 communiqués téléchargés d'affilée (le navigateur
+// demandera une fois l'autorisation des téléchargements multiples).
+$("btnBatch").addEventListener("click", async () => {
+  const info = $("batchInfo");
+  const stamp = new Date().toISOString().slice(0, 10);
+  const startSalt = salt + 1;
+  for (let i = 0; i < 10; i++) {
+    salt = startSalt + i;
+    render(salt, format);
+    info.textContent = `Diffusion ${i + 1}/10…`;
+    const a = document.createElement("a");
+    a.href = canvas.toDataURL("image/png");
+    a.download = `communique-recta-${stamp}-${String(i + 1).padStart(2, "0")}.png`;
+    a.click();
+    await new Promise((r) => setTimeout(r, 350)); // laisse respirer le navigateur
+  }
+  info.textContent = "10 communiqués diffusés. La Rectitude vous remercie.";
+});
+
 // ── Mode batch (piloté par le main Electron) ─────────────────────────
 declare global {
   interface Window {

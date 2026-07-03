@@ -10,6 +10,7 @@ export interface Communique {
   numero: string;    // référence administrative
   corps: string;     // le texte du communiqué
   devise: string;    // slogan canonique de la Rectitude
+  mention: string;   // mention légale en minuscule — c'était marqué
 }
 
 const LEX: Record<string, string[]> = {
@@ -111,6 +112,17 @@ const TYPES: TypeSpec[] = [
   },
 ];
 
+// Codas combinatoires — même mécanique que la speakerine de Radio Robotariis :
+// une phrase de conclusion optionnelle, tirée de gabarits à trous.
+const CODAS = [
+  "Les agents de {service} veillent.",
+  "{vertu} n'attend pas.",
+  "Le présent avis annule le précédent, qui n'a jamais existé.",
+  "Toute question sera considérée comme une réponse.",
+  "Ce message se répétera jusqu'à conformité de {lieu}.",
+  "La coopération de {lieu} a été appréciée par avance.",
+];
+
 // Slogans canoniques — gravés en lettres d'or sur les bâtiments du C.G.U.
 const DEVISES = [
   "La Rectitude ne pardonne pas l'écart.",
@@ -144,14 +156,29 @@ export function numeroFor(d: Date, salt: number): string {
   return `${String(d.getFullYear()).slice(2)}-${String(day).padStart(3, "0")}/${String.fromCharCode(65 + (salt % 26))}`;
 }
 
+// Mentions légales — en caractères minuscules sur l'affiche. C'était marqué.
+const MENTIONS = [
+  "L'ignorance de la présente Directive n'exonère pas de la Nullification.",
+  "La lecture de ce communiqué vaut acceptation. Le non-lu vaut aveu.",
+  "Toute reproduction est interdite. Toute non-diffusion aussi.",
+  "Conservez ce communiqué. Sa perte devra être déclarée sous trois cycles.",
+  "Les réclamations sont recevables au bureau 0 du Cartulaire, niveau inexistant.",
+  "Ce texte a été relu par l'Inquisitio Mentis pendant que vous le lisiez.",
+  "La version en vigueur est celle que vous n'avez pas lue.",
+];
+
 /** Un communiqué déterministe par seed. */
 export function communiqueFor(seed: string, d: Date, salt: number = 0): Communique {
   const rng = rngFor(seed, `communique:${salt}`);
   const spec = pick(rng, TYPES);
+  let corps = expand(pick(rng, spec.corps), rng);
+  // Une fois sur deux, une coda — la bureaucratie aime conclure.
+  if (rng() < 0.5) corps += " " + expand(pick(rng, CODAS), rng);
   return {
     type: spec.type,
     numero: numeroFor(d, salt),
-    corps: expand(pick(rng, spec.corps), rng),
+    corps,
     devise: pick(rng, DEVISES),
+    mention: pick(rng, MENTIONS),
   };
 }
