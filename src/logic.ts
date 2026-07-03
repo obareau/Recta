@@ -70,7 +70,7 @@ const TYPES: TypeSpec[] = [
   {
     type: "DIRECTIVE",
     corps: [
-      "La détention de {objet} est désormais soumise à déclaration auprès de {service}. Les détenteurs volontaires bénéficieront d'{sanction} allégée.",
+      "La détention de {objet} est désormais soumise à déclaration auprès de {service}. Les détenteurs volontaires se verront accorder une clémence proportionnée : {sanction}.",
       "Il est rappelé que {objet} nuisent à {vertu}. Leur remise à {service} est un geste de civisme. Leur dissimulation, un aveu.",
     ],
   },
@@ -173,7 +173,10 @@ export function communiqueFor(seed: string, d: Date, salt: number = 0): Communiq
   const spec = pick(rng, TYPES);
   let corps = expand(pick(rng, spec.corps), rng);
   // Une fois sur deux, une coda — la bureaucratie aime conclure.
-  if (rng() < 0.5) corps += " " + expand(pick(rng, CODAS), rng);
+  if (rng() < 0.5) {
+    const coda = expand(pick(rng, CODAS), rng);
+    corps += " " + coda.charAt(0).toUpperCase() + coda.slice(1); // phrase : majuscule
+  }
   return {
     type: spec.type,
     numero: numeroFor(d, salt),
