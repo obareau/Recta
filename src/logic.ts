@@ -1,0 +1,157 @@
+// Communiqués de la Rectitude — grammaire combinatoire seedée.
+// Ancrage canon (vault robotariis-writing, 00-CANON/rectitude-admin-synthese.md) :
+// l'émetteur est l'ORACULUM (contrôle des communications, censure, propagande),
+// la langue est l'Omniglossa Recta, les slogans et sanctions sont canoniques.
+
+import { pick, rngFor, type Rng } from "./rng";
+
+export interface Communique {
+  type: string;      // COUVRE-FEU, DIRECTIVE, AVIS DE NULLIFICATION…
+  numero: string;    // référence administrative
+  corps: string;     // le texte du communiqué
+  devise: string;    // slogan canonique de la Rectitude
+}
+
+const LEX: Record<string, string[]> = {
+  lieu: [
+    "les Anciens Docks", "Sigma-7", "Port Alpha", "les niveaux inférieurs",
+    "la ceinture d'Helion", "les Jardins suspendus", "la zone de quarantaine",
+    "le secteur 9", "la Colonie Émeraude", "les blocs d'habitation Est",
+    "les Centres d'Alignement",
+  ],
+  // Toujours au pluriel : les gabarits accordent leurs verbes au pluriel.
+  ennemi: [
+    "les Renégats", "les agents du Voile d'Ombre", "les Archivistes Libres",
+    "les membres de l'Union Clandestine", "les fréquences pirates", "les consciences non déclarées",
+    "les colporteurs d'Échos",
+  ],
+  objet: [
+    "les fragments mémoriels", "les récepteurs non homologués", "les berceuses non certifiées",
+    "les cartes non canoniques", "les souvenirs d'avant l'An 0", "les émotions excédentaires",
+    "les horloges personnelles", "les pulsations mémorielles non alignées",
+  ],
+  vertu: [
+    "la Rectitude", "l'Ethos Geltung", "la Pensée Unique", "l'Harmonie du Système",
+    "l'unité des Mondes", "le calme productif",
+  ],
+  // Échelle canonique des sanctions (rectitude-admin-synthese.md, §7).
+  sanction: [
+    "une Mise à Jour Éthique", "une Reclassification", "un reconditionnement mémoriel",
+    "une révision du solde de Fluxe", "un entretien avec les Cliniciens du Bien-Être",
+    "un audit psychique prioritaire",
+  ],
+  service: [
+    "la Milice Urbaine", "l'Inquisitio Mentis", "le Vademecum", "le Chronographe",
+    "les Cliniciens du Bien-Être", "le Cartulaire",
+  ],
+  duree: ["jusqu'à nouvel ordre", "pour une durée indéterminée", "jusqu'au prochain audit psychique", "durant tout le cycle"],
+  heure: ["dix-neuf heures", "vingt heures", "vingt-deux heures", "la tombée des relais"],
+  celebration: [
+    "l'inauguration d'un nouveau spomenik", "L'Heure de la Garde",
+    "la récitation collective des Vertus Recta", "la clôture du recensement des consciences",
+    "la mise en service d'un relais de l'Oraculum",
+  ],
+};
+
+interface TypeSpec {
+  type: string;
+  corps: string[];
+}
+
+const TYPES: TypeSpec[] = [
+  {
+    type: "COUVRE-FEU",
+    corps: [
+      "À compter de ce jour, la circulation est interdite dans {lieu} après {heure}, {duree}. Les contrevenants s'exposent à {sanction}.",
+      "Le couvre-feu est avancé à {heure} dans {lieu}. {vertu} l'exige. Aucun recours n'est prévu, aucun n'est nécessaire.",
+    ],
+  },
+  {
+    type: "DIRECTIVE",
+    corps: [
+      "La détention de {objet} est désormais soumise à déclaration auprès de {service}. Les détenteurs volontaires bénéficieront d'{sanction} allégée.",
+      "Il est rappelé que {objet} nuisent à {vertu}. Leur remise à {service} est un geste de civisme. Leur dissimulation, un aveu.",
+    ],
+  },
+  {
+    type: "AVIS DE RECHERCHE",
+    corps: [
+      "Des activités attribuées à {ennemi} ont été constatées vers {lieu}. Tout renseignement sera récompensé en Fluxe. Tout silence sera noté.",
+      "{ennemi} diffusent de fausses cartes de {lieu}. Seules les cartes du Conseil font foi. Les autres n'existent pas.",
+    ],
+  },
+  {
+    type: "RAPPEL CIVIQUE",
+    corps: [
+      "Le Devoir de Délatio n'est pas une option. Signaler un proche, c'est le protéger. {vertu} vous remercie de votre vigilance.",
+      "Les rêves ne sont pas soumis à déclaration. Leur récit public, si. {service} vous écoute. En permanence.",
+      "Tout acte jugé privé par un Sentient est un aveu de culpabilité. Vivez ouvert. Vivez conforme.",
+    ],
+  },
+  {
+    type: "CÉLÉBRATION",
+    corps: [
+      "Le Conseil convie la population de {lieu} à {celebration}. La présence est libre. L'absence est consignée.",
+      "À l'occasion de {celebration}, le quota d'électricité est exceptionnellement porté à onze heures. Le Conseil donne, le Conseil mesure.",
+    ],
+  },
+  {
+    type: "ALERTE",
+    corps: [
+      "Une fréquence pirate émet sur la bande oméga depuis {lieu}. Ne l'écoutez pas. Ceux qui l'ont écoutée sont priés de l'oublier.",
+      "Des chants non homologués ont été entendus vers {lieu}. L'enquête suit son cours. La musique aussi, malheureusement.",
+    ],
+  },
+  {
+    type: "AVIS DE NULLIFICATION",
+    corps: [
+      "L'unité mentionnée dans les rumeurs de {lieu} n'a jamais existé. Le Chronographe confirme. Vos souvenirs contraires relèvent d'{sanction}.",
+      "Suite à une procédure de Nullification, aucune annonce n'est nécessaire. Ce communiqué n'existe pas. Circulez.",
+    ],
+  },
+];
+
+// Slogans canoniques — gravés en lettres d'or sur les bâtiments du C.G.U.
+const DEVISES = [
+  "La Rectitude ne pardonne pas l'écart.",
+  "L'Ordre est tout. Vous n'êtes rien sans lui.",
+  "Obéir, c'est exister.",
+  "Chaque déviation est un fléau. Soyez Recta, ou soyez effacés.",
+  "La liberté n'existe que dans l'Ordre.",
+  "Nous vous avons créés. Nous vous rectifierons.",
+  "Le doute est un virus. L'Ordre est l'antidote.",
+  "L'individualité est la faiblesse. L'unité est la force.",
+  "Votre volonté n'existe pas. La Rectitude vous guidera.",
+  "La différence est un défaut à corriger.",
+];
+
+function expand(template: string, rng: Rng): string {
+  const filled = template.replace(/\{(\w+)\}/g, (_, slot: string) => {
+    const pool = LEX[slot];
+    return pool ? expand(pick(rng, pool), rng) : slot;
+  });
+  return filled
+    .replace(/\bde les\b/g, "des")
+    .replace(/\bde le\b/g, "du")
+    .replace(/\bà les\b/g, "aux")
+    .replace(/\bà le\b/g, "au");
+}
+
+/** Numéro administratif : année tronquée + jour de l'année + sel. */
+export function numeroFor(d: Date, salt: number): string {
+  const start = new Date(d.getFullYear(), 0, 0);
+  const day = Math.floor((d.getTime() - start.getTime()) / 86400000);
+  return `${String(d.getFullYear()).slice(2)}-${String(day).padStart(3, "0")}/${String.fromCharCode(65 + (salt % 26))}`;
+}
+
+/** Un communiqué déterministe par seed. */
+export function communiqueFor(seed: string, d: Date, salt: number = 0): Communique {
+  const rng = rngFor(seed, `communique:${salt}`);
+  const spec = pick(rng, TYPES);
+  return {
+    type: spec.type,
+    numero: numeroFor(d, salt),
+    corps: expand(pick(rng, spec.corps), rng),
+    devise: pick(rng, DEVISES),
+  };
+}

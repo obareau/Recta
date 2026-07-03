@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Communiqués de la Rectitude — C.G.U.</title>
+<style>
+  :root { --c0: #040804; --c1: #1e4a24; --c2: #5fae4e; --c3: #d8ff9a; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--c0);
+    color: var(--c3);
+    font-family: "DejaVu Sans Mono", "Consolas", monospace;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  #app { width: min(560px, 100%); border: 1px solid var(--c2); padding: 20px; }
+  h1 { font-size: 14px; letter-spacing: 3px; }
+  h1 span { color: var(--c2); }
+  .sub { font-size: 10px; color: var(--c2); letter-spacing: 1px; margin: 4px 0 14px; }
+  #poster { width: 100%; display: block; border: 1px solid var(--c1); image-rendering: auto; }
+  .row { display: flex; gap: 8px; margin-top: 12px; }
+  select, button {
+    background: var(--c0); color: var(--c3); border: 1px solid var(--c2);
+    font-family: inherit; font-size: 12px; padding: 7px 10px; cursor: pointer;
+  }
+  select { flex: 1; }
+  button:hover { background: var(--c1); }
+  button.primary { background: var(--c1); font-weight: bold; letter-spacing: 1px; }
+  button.primary:hover { background: var(--c2); color: var(--c0); }
+  footer { margin-top: 12px; font-size: 10px; color: var(--c1); display: flex; justify-content: space-between; }
+  footer a { color: var(--c2); text-decoration: none; }
+</style>
+</head>
+<body>
+  <div id="app">
+    <h1>COMMUNIQUÉS DE LA RECTITUDE <span>// C.G.U.</span></h1>
+    <div class="sub">L'ORACULUM DIFFUSE. VOUS ÉCOUTEZ. UN COMMUNIQUÉ PAR RÉGÉNÉRATION.</div>
+    <canvas id="poster" width="1080" height="1080"></canvas>
+    <div class="row">
+      <select id="format">
+        <option value="carre" selected>Carré 1080×1080 (post)</option>
+        <option value="story">Story 1080×1920</option>
+      </select>
+      <button id="btnNew" class="primary">⟳ NOUVEAU</button>
+      <button id="btnSave">💾 PNG</button>
+    </div>
+    <footer>
+      <div>La désobéissance commence par la lecture.</div>
+      <div><a href="https://obareau.github.io/terra-incognita/radio/">RADIO ▸</a> <a href="https://obareau.github.io/terra-incognita/">CARTES ▸</a></div>
+    </footer>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

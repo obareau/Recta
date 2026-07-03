@@ -1,0 +1,26 @@
+{
+  "name": "recta",
+  "version": "0.1.0",
+  "description": "Communiqués de la Rectitude — générateur d'affiches de propagande du C.G.U. pour l'univers ROBOTARIIS. Teasers réseaux sociaux, export PNG en lot.",
+  "author": "Olivier Bareau",
+  "license": "MIT",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc --noEmit && tsx build.ts",
+    "start": "tsx build.ts && electron . --no-sandbox",
+    "dev": "tsx build.ts && electron . --no-sandbox",
+    "test": "jest",
+    "export": "tsx build.ts && electron . --no-sandbox --n=5 --outdir=export",
+    "export:story": "tsx build.ts && electron . --no-sandbox --n=5 --outdir=export --format=story"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@types/node": "^22.5.0",
+    "electron": "^33.0.0",
+    "esbuild": "^0.24.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}
