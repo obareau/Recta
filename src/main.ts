@@ -116,7 +116,31 @@ function runInvite(): void {
   });
 }
 
+/** --tactique=<seed> --tactiqueout=<fichier.png> : rend l'affiche brève, puis quitte. */
+function runTactique(): void {
+  const seed = argOf("tactique") || `tactique:${Date.now()}`;
+  const out = path.resolve(argOf("tactiqueout") || "export/tactique.png");
+  const format = argOf("format") === "story" ? "story" : "carre";
+  fs.mkdirSync(path.dirname(out), { recursive: true });
+  const win = new BrowserWindow({ show: false, width: 1200, height: 1200 });
+  void win.loadFile(path.join(__dirname, "index.html"));
+  win.webContents.once("did-finish-load", () => {
+    setTimeout(async () => {
+      const dataUrl = await win.webContents.executeJavaScript(
+        `window.renderTactique(${JSON.stringify(seed)}, ${JSON.stringify(format)})`,
+      ) as string;
+      fs.writeFileSync(out, Buffer.from(dataUrl.replace(/^data:image\/png;base64,/, ""), "base64"));
+      console.log(out);
+      app.quit();
+    }, 500);
+  });
+}
+
 app.whenReady().then(() => {
+  if (process.argv.some((a) => a.startsWith("--tactique="))) {
+    runTactique();
+    return;
+  }
   if (process.argv.some((a) => a.startsWith("--invite"))) {
     runInvite();
     return;

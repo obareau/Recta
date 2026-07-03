@@ -2,6 +2,7 @@
 
 import type { Communique } from "./logic";
 import type { Pirate } from "./pirate-content";
+import type { Tactique } from "./tactiques";
 
 export type PosterFormat = "carre" | "story";
 
@@ -357,5 +358,73 @@ export function drawPiratePoster(
   ctx.globalAlpha = 1;
   ctx.globalCompositeOperation = "source-over";
   ctx.fillStyle = "rgba(0,0,0,0.18)";
+  for (let sy = 0; sy < h; sy += 3) ctx.fillRect(0, sy, w, 1);
+}
+
+/**
+ * Affiche brève « TACTIQUE RECTA » — protocole de décision du C.G.U.,
+ * style officiel sobre (vert phosphore). Le code, le segment, la directive.
+ */
+export function drawTactique(ctx: CanvasRenderingContext2D, t: Tactique, format: PosterFormat): void {
+  const { w, h } = FORMATS[format];
+  const M = Math.round(w * 0.07);
+  const cx = w / 2;
+
+  ctx.fillStyle = C0;
+  ctx.fillRect(0, 0, w, h);
+  ctx.strokeStyle = C2;
+  ctx.lineWidth = 6;
+  ctx.strokeRect(M * 0.5, M * 0.5, w - M, h - M);
+  ctx.lineWidth = 2;
+  ctx.strokeRect(M * 0.68, M * 0.68, w - M * 1.36, h - M * 1.36);
+
+  ctx.textAlign = "center";
+  let y = h * 0.16;
+  ctx.fillStyle = C2;
+  ctx.font = `bold ${Math.round(w * 0.03)}px monospace`;
+  ctx.fillText("CONSEIL DES GOUVERNANCES UNIES", cx, y);
+  y += w * 0.036;
+  ctx.font = `${Math.round(w * 0.022)}px monospace`;
+  ctx.fillText("PROTOCOLE DE DÉCISION — TACTIQUE RECTA", cx, y);
+
+  // Le code, en très grand (comme le TYPE d'un communiqué).
+  y += w * 0.11;
+  ctx.fillStyle = C3;
+  ctx.font = `bold ${Math.round(w * 0.11)}px monospace`;
+  ctx.fillText(t.code, cx, y);
+  y += w * 0.05;
+  ctx.fillStyle = C2;
+  ctx.font = `${Math.round(w * 0.026)}px monospace`;
+  ctx.fillText(`${t.segLabel.toUpperCase()}`, cx, y);
+
+  // Filet.
+  y += w * 0.05;
+  ctx.strokeStyle = C1;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(cx - w * 0.18, y);
+  ctx.lineTo(cx + w * 0.18, y);
+  ctx.stroke();
+
+  // La directive, centrée, taille adaptée à l'espace restant.
+  y += w * 0.08;
+  const bottom = h - M * 2.1;
+  ctx.fillStyle = C3;
+  const body = fitBlock(
+    (s) => (str: string) => { ctx.font = `bold ${Math.round(s)}px monospace`; return ctx.measureText(str).width; },
+    t.text, w - M * 2.8, Math.max(w * 0.1, bottom - y), w * 0.05, 1.4, w * 0.024,
+  );
+  ctx.font = `bold ${Math.round(body.size)}px monospace`;
+  for (const line of body.lines) { ctx.fillText(line, cx, y); y += body.lineH; }
+
+  // Pied.
+  ctx.fillStyle = C3;
+  ctx.font = `bold ${Math.round(w * 0.03)}px monospace`;
+  ctx.fillText("robotariis.com", cx, h - M * 1.25);
+  ctx.fillStyle = C1;
+  ctx.font = `${Math.round(w * 0.017)}px monospace`;
+  ctx.fillText("usage opérationnel uniquement — le calcul est clos", cx, h - M * 0.85);
+
+  ctx.fillStyle = "rgba(0,0,0,0.16)";
   for (let sy = 0; sy < h; sy += 3) ctx.fillRect(0, sy, w, 1);
 }

@@ -2,9 +2,10 @@
 // En mode batch (Electron), window.batchRender(i) rend et renvoie un dataURL.
 
 import { communiqueFor } from "./logic";
-import { drawPiratePoster, drawPoster, FORMATS, type PosterFormat } from "./poster";
+import { drawPiratePoster, drawPoster, drawTactique, FORMATS, type PosterFormat } from "./poster";
 import { drawBanner, drawInvite, drawLogo } from "./brand";
 import { pirateFor } from "./pirate-content";
+import { resolveTactique } from "./tactiques-gen";
 
 const $ = <T extends HTMLElement>(id: string): T => document.getElementById(id) as T;
 
@@ -103,6 +104,17 @@ declare global {
 window.renderInvite = () => {
   canvas.width = 1080; canvas.height = 1080;
   drawInvite(ctx, 1080);
+  return canvas.toDataURL("image/png");
+};
+
+// Affiche brève « Tactique Recta » — appelé par --tactique.
+declare global {
+  interface Window { renderTactique: (seed: string, fmt?: PosterFormat) => string }
+}
+window.renderTactique = (seed, fmt = "carre") => {
+  const { w, h } = FORMATS[fmt];
+  canvas.width = w; canvas.height = h;
+  drawTactique(ctx, resolveTactique(seed), fmt);
   return canvas.toDataURL("image/png");
 };
 
