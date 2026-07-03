@@ -12,7 +12,8 @@
     "test": "jest",
     "export": "tsx build.ts && electron . --no-sandbox --n=5 --outdir=export",
     "export:story": "tsx build.ts && electron . --no-sandbox --n=5 --outdir=export --format=story",
-    "publish": "tsx build.ts && tsx src/publish.ts"
+    "publish": "tsx build.ts && tsx src/publish.ts",
+    "pirate": "tsx src/pirate-fb.ts"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
