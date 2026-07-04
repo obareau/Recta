@@ -25,10 +25,12 @@ interface Pack {
 const PACKS: Record<Lang, Pack> = {
   fr: {
     templates: [
-      "{Perso} {geste}, {lieu}. {Norme} Ce jour-là, {rupture}. {chute}",
-      "{Lieu}. {Perso} {geste}. {Norme} Puis {rupture}. {chute}",
+      "{Perso} {geste}, {lieu}. {Norme} {Detail} Ce jour-là, {rupture}. {Reaction} {chute}",
+      "{Lieu}. {Perso} {geste}. {Detail} {Norme} Puis {rupture}. {Reaction} {chute}",
     ],
     lex: {
+      detail: ["Les relais bourdonnaient comme toujours.", "La lumière des tubes était froide, réglementaire.", "Dehors, une sirène montait puis se taisait.", "L'écran clignotait au rythme du Chronographe.", "L'air sentait la poussière et le métal chaud.", "Le registre pesait entre les mains."],
+      reaction: ["Un instant, la Rectitude sembla loin.", "Rien ne bougea, sauf le doute.", "Le bouton d'alarme resta intact.", "Personne alentour — rien que le bourdonnement.", "Quelque chose refusa d'être déclaré.", "La main s'arrêta net au-dessus du registre."],
       perso: ["L1L1TH", "Zoe", "l'archiviste du niveau bas", "une veilleuse de nuit", "Haiku-12", "le préposé au Chronographe", "un tri-cycliste sans matricule", "Lux-03"],
       geste: ["comptait les fluxes", "recopiait un registre", "attendait le couvre-feu", "effaçait des noms", "réparait un relais mort", "classait des silences"],
       lieu: ["dans les Anciens Docks", "à Sigma-7", "sous les miradors de Port Alpha", "dans une galerie clandestine", "à la Colonie Émeraude", "près de la bande morte"],
@@ -41,10 +43,12 @@ const PACKS: Record<Lang, Pack> = {
   },
   en: {
     templates: [
-      "{Perso} {geste}, {lieu}. {Norme} That day, {rupture}. {chute}",
-      "{Lieu}. {Perso} {geste}. {Norme} Then {rupture}. {chute}",
+      "{Perso} {geste}, {lieu}. {Norme} {Detail} That day, {rupture}. {Reaction} {chute}",
+      "{Lieu}. {Perso} {geste}. {Detail} {Norme} Then {rupture}. {Reaction} {chute}",
     ],
     lex: {
+      detail: ["The relays hummed as always.", "The tube light was cold, regulation-issue.", "Outside, a siren rose and fell silent.", "The screen blinked to the Chronograph's beat.", "The air smelled of dust and hot metal.", "The ledger sat heavy in the hands."],
+      reaction: ["For a moment, Rectitude felt far away.", "Nothing moved but the doubt.", "The alarm button stayed untouched.", "No one around — only the hum.", "Something refused to be declared.", "The hand stopped over the ledger."],
       perso: ["L1L1TH", "Zoe", "the lower-level archivist", "a night watcher", "Haiku-12", "the Chronograph clerk", "an unregistered tri-cyclist", "Lux-03"],
       geste: ["was counting fluxes", "was copying a ledger", "waited for curfew", "was erasing names", "was fixing a dead relay", "was filing silences"],
       lieu: ["in the Old Docks", "at Sigma-7", "under the watchtowers of Port Alpha", "in a clandestine gallery", "at Emerald Colony", "near the dead band"],
@@ -57,10 +61,12 @@ const PACKS: Record<Lang, Pack> = {
   },
   es: {
     templates: [
-      "{Perso} {geste}, {lieu}. {Norme} Aquel día, {rupture}. {chute}",
-      "{Lieu}. {Perso} {geste}. {Norme} Luego {rupture}. {chute}",
+      "{Perso} {geste}, {lieu}. {Norme} {Detail} Aquel día, {rupture}. {Reaction} {chute}",
+      "{Lieu}. {Perso} {geste}. {Detail} {Norme} Luego {rupture}. {Reaction} {chute}",
     ],
     lex: {
+      detail: ["Los relés zumbaban como siempre.", "La luz de los tubos era fría, reglamentaria.", "Afuera, una sirena subió y calló.", "La pantalla parpadeaba al ritmo del Cronógrafo.", "El aire olía a polvo y metal caliente.", "El registro pesaba en las manos."],
+      reaction: ["Por un instante, la Rectitud pareció lejana.", "Nada se movió salvo la duda.", "El botón de alarma quedó intacto.", "Nadie alrededor, solo el zumbido.", "Algo se negó a ser declarado.", "La mano se detuvo sobre el registro."],
       perso: ["L1L1TH", "Zoe", "la archivista del nivel bajo", "una vigilante nocturna", "Haiku-12", "el encargado del Cronógrafo", "un triciclista sin matrícula", "Lux-03"],
       geste: ["contaba los flujos", "copiaba un registro", "esperaba el toque de queda", "borraba nombres", "reparaba un relé muerto", "archivaba silencios"],
       lieu: ["en los Viejos Muelles", "en Sigma-7", "bajo las torres de Puerto Alfa", "en una galería clandestina", "en la Colonia Esmeralda", "cerca de la banda muerta"],
@@ -73,10 +79,12 @@ const PACKS: Record<Lang, Pack> = {
   },
   it: {
     templates: [
-      "{Perso} {geste}, {lieu}. {Norme} Quel giorno, {rupture}. {chute}",
-      "{Lieu}. {Perso} {geste}. {Norme} Poi {rupture}. {chute}",
+      "{Perso} {geste}, {lieu}. {Norme} {Detail} Quel giorno, {rupture}. {Reaction} {chute}",
+      "{Lieu}. {Perso} {geste}. {Detail} {Norme} Poi {rupture}. {Reaction} {chute}",
     ],
     lex: {
+      detail: ["I relè ronzavano come sempre.", "La luce dei tubi era fredda, regolamentare.", "Fuori, una sirena salì e tacque.", "Lo schermo lampeggiava al ritmo del Cronografo.", "L'aria sapeva di polvere e metallo caldo.", "Il registro pesava tra le mani."],
+      reaction: ["Per un istante, la Rettitudine parve lontana.", "Non si mosse nulla, tranne il dubbio.", "Il pulsante d'allarme restò intatto.", "Nessuno intorno, solo il ronzio.", "Qualcosa si rifiutò di essere dichiarato.", "La mano si fermò sul registro."],
       perso: ["L1L1TH", "Zoe", "l'archivista del livello basso", "una sentinella notturna", "Haiku-12", "l'addetto al Cronografo", "un triciclista senza matricola", "Lux-03"],
       geste: ["contava i flussi", "ricopiava un registro", "aspettava il coprifuoco", "cancellava dei nomi", "riparava un relè morto", "archiviava silenzi"],
       lieu: ["nei Vecchi Moli", "a Sigma-7", "sotto le torri di Porto Alfa", "in una galleria clandestina", "alla Colonia Smeraldo", "vicino alla banda morta"],
@@ -89,10 +97,12 @@ const PACKS: Record<Lang, Pack> = {
   },
   ja: {
     templates: [
-      "{lieu}、{Perso}は{geste}。{Norme}その日、{rupture}。{chute}",
-      "{Perso}は{lieu}{geste}。{Norme}やがて、{rupture}。{chute}",
+      "{lieu}、{Perso}は{geste}。{Norme}{Detail}その日、{rupture}。{Reaction}{chute}",
+      "{Perso}は{lieu}{geste}。{Detail}{Norme}やがて、{rupture}。{Reaction}{chute}",
     ],
     lex: {
+      detail: ["中継器はいつものように唸っていた。", "管球の光は冷たく、規則通りだった。", "外でサイレンが上がり、また静まった。", "画面はクロノグラフの拍子で点滅していた。", "空気は埃と熱い金属の匂いがした。", "台帳は手の中で重かった。"],
+      reaction: ["一瞬、レクティチュードは遠く感じられた。", "動くのは疑いだけだった。", "警報ボタンは押されないままだった。", "周りには誰もいない。ただ唸りだけ。", "何かが、申告されることを拒んだ。", "手は台帳の上で止まった。"],
       perso: ["L1L1TH", "Zoe", "下層の記録官", "夜の見張り", "Haiku-12", "クロノグラフ係", "登録番号のない三輪走者", "Lux-03"],
       geste: ["フラックスを数えていた", "台帳を書き写していた", "外出禁止を待っていた", "名前を消していた", "死んだ中継器を直していた", "沈黙を分類していた"],
       lieu: ["旧ドックで", "シグマ7で", "ポート・アルファの監視塔の下で", "地下の通路で", "エメラルド植民地で", "死んだ周波数帯のそばで"],
