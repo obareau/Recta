@@ -10,9 +10,9 @@ import { execSync } from "node:child_process";
 
 const COLS = 80;
 const ROWS = 24;
-const FONT_SIZE = 14;
-const LINE_HEIGHT = 18;
-const CHAR_WIDTH = 9; // monoespace
+const FONT_SIZE = 18; // augmenté pour mieux lisibilité
+const LINE_HEIGHT = 22;
+const CHAR_WIDTH = 11; // monoespace
 const SVG_WIDTH = COLS * CHAR_WIDTH;
 const SVG_HEIGHT = ROWS * LINE_HEIGHT;
 
@@ -135,17 +135,18 @@ export async function generateVideoMP4(opts: VideoGenOptions): Promise<string> {
     fs.writeFileSync(svgPath, svg);
   }
 
-  // Encoder en MP4 avec ffmpeg (SVG → PNG → H264)
+  // Encoder en MP4 avec ffmpeg (SVG → MP4 H264 + audio muet pour Mastodon)
   const mp4Path = path.join(outDir, `console-${Date.now()}.mp4`);
   const ffmpegCmd = [
     `ffmpeg -framerate 25`,
     `-pattern_type glob -i "${path.join(svgDir, "*.svg")}"`,
-    `-vf "scale=320:240"`,
-    `-c:v libx264 -preset ultrafast -crf 28`,
+    `-f lavfi -i anullsrc=r=44100:cl=mono -c:a aac -b:a 64k -shortest`,
+    `-vf "scale=640:480"`,
+    `-c:v libx264 -preset ultrafast -crf 25`,
     `-y "${mp4Path}"`,
   ].join(" ");
 
-  console.log("Encodage vidéo...");
+  console.log("Encodage vidéo (H264 + audio)...");
   execSync(ffmpegCmd, { stdio: "inherit" });
   fs.rmSync(framesDir, { recursive: true });
 
