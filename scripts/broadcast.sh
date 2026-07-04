@@ -6,7 +6,8 @@
 #   broadcast.sh micro        → micro-nouvelle quotidienne
 #   broadcast.sh console      → vidéo télématique (Bluesky)
 #   broadcast.sh zinepub      → Zine hebdomadaire (samedi 08:00)
-#   broadcast.sh renegat      → avis R3N3G4TS
+#   broadcast.sh renegat      → avis R3N3G4TS (recherchés)
+#   broadcast.sh hybrid       → HybR1D rallié/aligné
 # En cas d'échec total, notifie via ntfy (topic robotariis).
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
@@ -24,6 +25,7 @@ case "$FLUX" in
   console)    CMD="npm run console";                  TITLE="Vidéo télématique diffusée";      TAG="film_frames" ;;
   zinepub)    CMD="npm run zinepub";                  TITLE="Zine propagande hebdomadaire";    TAG="newspaper" ;;
   renegat)    CMD="npm run renegat";                   TITLE="Avis de recherche R3N3G4T";     TAG="wanted" ;;
+  hybrid)     CMD="npm run hybrid";                    TITLE="HybR1D aligné diffusé";           TAG="dna" ;;
 esac
 
 if $CMD >"$LOG" 2>&1; then

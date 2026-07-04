@@ -73,8 +73,11 @@ export async function postImage(env: Env, png: Buffer, text: string, alt: string
   const auth = { Authorization: `Bearer ${token}` };
 
   // 1. Upload du média (v2 = traitement asynchrone possible ; l'id suffit).
+  const isJpeg = png.length >= 3 && png[0] === 0xff && png[1] === 0xd8 && png[2] === 0xff;
+  const mime = isJpeg ? "image/jpeg" : "image/png";
+  const fname = isJpeg ? "recta.jpg" : "recta.png";
   const media = new FormData();
-  media.set("file", new Blob([new Uint8Array(png)], { type: "image/png" }), "recta.png");
+  media.set("file", new Blob([new Uint8Array(png)], { type: mime }), fname);
   media.set("description", clamp(alt, 1500));
   const mres = await fetch(`${url}/api/v2/media`, { method: "POST", headers: auth, body: media });
   const mdata = (await mres.json()) as { id?: string; error?: string };

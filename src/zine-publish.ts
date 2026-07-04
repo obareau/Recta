@@ -40,18 +40,25 @@ async function main(): Promise<void> {
     return;
   }
 
-  // Convertir PDF → PNG (première page) pour Bluesky
-  const pngPath = pdfPath.replace(/\.pdf$/, ".png");
-  console.log(`Conversion PDF → PNG...`);
-  execSync(`convert -density 150 "${pdfPath}[0]" "${pngPath}"`, { stdio: "pipe" });
+  // Convertir 4 pages PDF → PNG pour Bluesky carousel
+  const pngPaths: string[] = [];
+  console.log(`Conversion PDF → PNG (4 pages)...`);
+  for (let i = 0; i < 4; i++) {
+    const pngPath = pdfPath.replace(/\.pdf$/, `-p${i + 1}.png`);
+    execSync(`convert -density 150 "${pdfPath}[${i}]" "${pngPath}"`, { stdio: "pipe" });
+    pngPaths.push(pngPath);
+  }
 
-  // Poster sur Bluesky (couverture Zine + caption)
+  // Poster sur Bluesky (4 pages en carousel + caption)
   const caption = `📰 ZINE RECTA — Semaine ${week}\n\nPropagande hebdomadaire du C.G.U.\nFeuilleton narratif procédural.\n8 pages — Format DIY imprimable.\n\n🔗 robotariis.bsky.social`;
 
   try {
-    const png = fs.readFileSync(pngPath);
-    const uri = await bluesky.postImage(env, png, caption, "Zine Recta couverture");
-    console.log(`✓ bluesky : ${uri}`);
+    const images = pngPaths.map((p, i) => ({
+      png: fs.readFileSync(p),
+      alt: `Zine Recta page ${i + 1}`,
+    }));
+    const uri = await bluesky.postImages(env, images, caption);
+    console.log(`✓ bluesky (4 pages) : ${uri}`);
   } catch (e) {
     console.error(`✗ bluesky : ${(e as Error).message}`);
     throw e;

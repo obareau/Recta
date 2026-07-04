@@ -12,6 +12,12 @@ export const BSKY_LIMIT = 300;
 interface Session { accessJwt: string; did: string; }
 interface BlobRef { $type: "blob"; ref: { $link: string }; mimeType: string; size: number; }
 
+/** Détecte le type MIME d'une image d'après ses octets magiques (JPEG/PNG). */
+export function detectImageMime(buf: Buffer): string {
+  if (buf.length >= 3 && buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return "image/jpeg";
+  return "image/png";
+}
+
 async function xrpc<T>(
   method: string, endpoint: string,
   opts: { token?: string; json?: unknown; body?: Buffer; contentType?: string } = {},
@@ -43,19 +49,29 @@ async function createSession(env: Env): Promise<Session> {
 
 /** Poste une image + texte sur Bluesky. Retourne l'URI at:// du post. */
 export async function postImage(env: Env, png: Buffer, text: string, alt: string): Promise<string> {
+  return postImages(env, [{ png, alt }], text);
+}
+
+/** Poste jusqu'à 4 images dans un SEUL post Bluesky (album). Retourne l'URI at://. */
+export async function postImages(
+  env: Env,
+  images: { png: Buffer; alt: string }[],
+  text: string,
+): Promise<string> {
   const session = await createSession(env);
-  const blob = await xrpc<{ blob: BlobRef }>("POST", "com.atproto.repo.uploadBlob", {
-    token: session.accessJwt, body: png, contentType: "image/png",
-  });
+  const uploaded = [];
+  for (const img of images.slice(0, 4)) {
+    const blob = await xrpc<{ blob: BlobRef }>("POST", "com.atproto.repo.uploadBlob", {
+      token: session.accessJwt, body: img.png, contentType: detectImageMime(img.png),
+    });
+    uploaded.push({ alt: clamp(img.alt, 1000), image: blob.blob });
+  }
   const record = {
     $type: "app.bsky.feed.post",
     text: clamp(text, BSKY_LIMIT),
     createdAt: new Date().toISOString(),
     langs: ["fr", "en"],
-    embed: {
-      $type: "app.bsky.embed.images",
-      images: [{ alt: clamp(alt, 1000), image: blob.blob }],
-    },
+    embed: { $type: "app.bsky.embed.images", images: uploaded },
   };
   const out = await xrpc<{ uri: string }>("POST", "com.atproto.repo.createRecord", {
     token: session.accessJwt,
