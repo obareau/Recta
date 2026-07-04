@@ -26,6 +26,12 @@ case "$FLUX" in
   zinepub)    CMD="npm run zinepub";                  TITLE="Zine propagande hebdomadaire";    TAG="newspaper" ;;
   renegat)    CMD="npm run renegat";                   TITLE="Avis de recherche R3N3G4T";     TAG="wanted" ;;
   hybrid)     CMD="npm run hybrid";                    TITLE="HybR1D aligné diffusé";           TAG="dna" ;;
+  faction)    # Alternance quotidienne : jours pairs = HybR1D (rallié), impairs = R3N3G4T (recherché).
+    if [ $(( 10#$(date +%j) % 2 )) -eq 0 ]; then
+      CMD="npm run hybrid";  TITLE="HybR1D aligné diffusé";       TAG="dna"
+    else
+      CMD="npm run renegat"; TITLE="Avis de recherche R3N3G4T";   TAG="wanted"
+    fi ;;
 esac
 
 if $CMD >"$LOG" 2>&1; then
