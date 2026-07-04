@@ -64,6 +64,29 @@ export async function postImage(env: Env, png: Buffer, text: string, alt: string
   return out.uri;
 }
 
+/** Poste une vidéo MP4 + texte sur Bluesky. Retourne l'URI at:// du post. */
+export async function postVideo(env: Env, mp4: Buffer, text: string): Promise<string> {
+  const session = await createSession(env);
+  const blob = await xrpc<{ blob: BlobRef }>("POST", "com.atproto.repo.uploadBlob", {
+    token: session.accessJwt, body: mp4, contentType: "video/mp4",
+  });
+  const record = {
+    $type: "app.bsky.feed.post",
+    text: clamp(text, BSKY_LIMIT),
+    createdAt: new Date().toISOString(),
+    langs: ["fr", "en"],
+    embed: {
+      $type: "app.bsky.embed.video",
+      video: blob.blob,
+    },
+  };
+  const out = await xrpc<{ uri: string }>("POST", "com.atproto.repo.createRecord", {
+    token: session.accessJwt,
+    json: { repo: session.did, collection: "app.bsky.feed.post", record },
+  });
+  return out.uri;
+}
+
 /** Mettre à jour la bio du profil. */
 export async function updateProfile(env: Env, bio: string): Promise<void> {
   if (!env.RECTA_BSKY_HANDLE || !env.RECTA_BSKY_PASSWORD)

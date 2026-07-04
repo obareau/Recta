@@ -13,6 +13,58 @@ function base(env: Env): string {
   return inst.startsWith("http") ? inst.replace(/\/$/, "") : `https://${inst}`;
 }
 
+/** Poste une vidéo MP4 + texte sur Mastodon. Retourne l'URL du statut. */
+export async function postVideo(env: Env, mp4: Buffer, text: string): Promise<string> {
+  const instance = env.RECTA_MASTO_INSTANCE;
+  const token = env.RECTA_MASTO_TOKEN;
+
+  if (!instance || !token) {
+    throw new Error("RECTA_MASTO_INSTANCE et RECTA_MASTO_TOKEN manquants");
+  }
+
+  const baseUrl = `https://${instance}`;
+
+  // Upload du vidéo
+  const formData = new FormData();
+  const blob = new Blob([new Uint8Array(mp4)], { type: "video/mp4" });
+  formData.append("file", blob, "recta.mp4");
+
+  const mediaRes = await fetch(`${baseUrl}/api/v2/media`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  if (!mediaRes.ok) {
+    throw new Error(`Mastodon media upload failed: ${mediaRes.status}`);
+  }
+
+  const media = (await mediaRes.json()) as any;
+  const mediaId = media.id;
+
+  // Post du statut
+  const sres = await fetch(`${baseUrl}/api/v1/statuses`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      status: clamp(text, MASTO_LIMIT),
+      media_ids: [mediaId],
+      visibility: "public",
+    }),
+  });
+
+  const sdata = (await sres.json()) as any;
+  if (!sres.ok || sdata.error) {
+    throw new Error(`Mastodon statut : ${sdata.error ?? sres.status}`);
+  }
+  return sdata.url ?? "?";
+}
+
 /** Poste une image + texte sur Mastodon. Retourne l'URL du statut. */
 export async function postImage(env: Env, png: Buffer, text: string, alt: string): Promise<string> {
   const token = env.RECTA_MASTO_TOKEN;

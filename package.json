@@ -20,12 +20,16 @@
     "micro": "tsx build.ts && electron . --no-sandbox --micro",
     "micropub": "tsx build.ts && tsx src/micro-publish.ts",
     "renegat": "tsx build.ts && tsx src/renegat-publish.ts",
-    "update-bio": "tsx build.ts && tsx src/bio-update.ts",
-    "cross-post-x": "tsx build.ts && tsx src/cross-post-x.ts"
+    "videopub": "tsx build.ts && tsx src/video-publish.ts",
+    "update-bio": "tsx build.ts && tsx src/bio-update.ts"
+  },
+  "dependencies": {
+    "pngjs": "^7.0.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
     "@types/node": "^22.5.0",
+    "@types/pngjs": "^6.0.5",
     "electron": "^33.0.0",
     "esbuild": "^0.24.0",
     "jest": "^29.7.0",
