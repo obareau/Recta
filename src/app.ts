@@ -126,7 +126,7 @@ window.renderTactique = (seed, fmt = "carre") => {
 // `dayOffset` avance dans le récit ; `madness`/`senderId` forcent un aperçu.
 declare global {
   interface Window {
-    renderBeat: (opts?: { dayOffset?: number; madness?: number; senderId?: string; fmt?: PosterFormat }) => string;
+    renderBeat: (opts?: { dayOffset?: number; madness?: number; senderId?: string; lang?: Lang; fmt?: PosterFormat }) => string;
   }
 }
 window.renderBeat = (opts = {}) => {
@@ -136,7 +136,7 @@ window.renderBeat = (opts = {}) => {
   const d = new Date();
   if (opts.dayOffset) d.setDate(d.getDate() + opts.dayOffset);
   const forceSender = opts.senderId ? ALL_SENDERS.find((s) => s.id === opts.senderId) : undefined;
-  const beat = narrativeBeat(d, { madness: opts.madness, forceSender });
+  const beat = narrativeBeat(d, { madness: opts.madness, forceSender, lang: opts.lang });
   drawPoster(ctx, beat.communique, fmt);
   return canvas.toDataURL("image/png");
 };

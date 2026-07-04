@@ -11,27 +11,33 @@
 import { execFileSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { narrativeBeat } from "./narrative";
+import { narrativeBeat, langForDay } from "./narrative";
 import { beatCaptions } from "./i18n-captions";
 import { loadEnv } from "./social/env";
 import { broadcast, networksFromArgs } from "./social/broadcast";
+import type { Lang } from "./i18n";
+
+function argOf(name: string): string | undefined {
+  return process.argv.find((a) => a.startsWith(`--${name}=`))?.slice(name.length + 3);
+}
 
 async function main(): Promise<void> {
   const env = loadEnv();
   const dry = process.argv.includes("--dry");
   const networks = networksFromArgs(process.argv);
   const today = new Date();
-  const beat = narrativeBeat(today);
+  const lang = (argOf("lang") as Lang) || langForDay(today);
+  const beat = narrativeBeat(today, { lang });
 
-  // 1. Rendre l'affiche du beat du jour (émetteur + folie réels) via Electron.
+  // 1. Rendre l'affiche du beat du jour (émetteur + folie + langue réels) via Electron.
   const outDir = path.resolve("export");
-  const png = path.join(outDir, `beat-${today.toISOString().slice(0, 10)}.png`);
-  execFileSync("npx", ["electron", ".", "--no-sandbox", "--beat", `--beatout=${png}`, "--format=story"], { stdio: "inherit" });
+  const png = path.join(outDir, `beat-${today.toISOString().slice(0, 10)}-${lang}.png`);
+  execFileSync("npx", ["electron", ".", "--no-sandbox", "--beat", `--beatout=${png}`, `--lang=${lang}`, "--format=story"], { stdio: "inherit" });
   if (!fs.existsSync(png)) throw new Error(`Affiche introuvable : ${png}`);
 
-  // 2. Légende adaptée à l'émetteur du jour.
+  // 2. Légende adaptée à l'émetteur du jour + langue.
   const caps = beatCaptions(beat);
-  console.log(`Beat du jour — jour ${beat.storyDay}, acte ${beat.act}, émetteur ${beat.sender.name} (folie ${beat.madness.toFixed(2)}).`);
+  console.log(`Beat du jour — jour ${beat.storyDay}, acte ${beat.act}, langue ${lang}, émetteur ${beat.sender.name} (folie ${beat.madness.toFixed(2)}).`);
 
   // 3. Diffusion.
   const results = await broadcast(env, fs.readFileSync(png), caps, networks, { dry, date: today });

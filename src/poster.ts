@@ -3,7 +3,7 @@
 import type { Communique } from "./logic";
 import type { Pirate } from "./pirate-content";
 import type { Tactique } from "./tactiques";
-import { GGR_MENTION, isCJK } from "./i18n";
+import { GGR_MENTION, LABELS, isCJK } from "./i18n";
 import { uiFor, type MicroNouvelle } from "./micronouvelle";
 
 export type PosterFormat = "carre" | "story";
@@ -148,8 +148,9 @@ export function drawPoster(ctx: CanvasRenderingContext2D, c: Communique, format:
   const frameW = w - M * 2.2; // largeur utile à l'intérieur du double cadre
 
   // En-tête — l'émetteur du communiqué (défaut : l'Oraculum / C.G.U.).
+  const lang = c.lang ?? "fr";
   const org = c.emitter?.org ?? "CONSEIL DES GOUVERNANCES UNIES";
-  const sub = c.emitter?.sub ?? "L'ORACULUM — DIFFUSION OBLIGATOIRE";
+  const sub = c.emitter?.sub ?? `L'ORACULUM — ${LABELS[lang].mandatoryDiffusion}`;
   ctx.textAlign = "center";
   ctx.fillStyle = c.emitter?.accent ?? C2;
   const h1 = fitBlock(measurerFor(ctx, (s) => `bold ${Math.round(s)}px monospace`),
@@ -159,7 +160,7 @@ export function drawPoster(ctx: CanvasRenderingContext2D, c: Communique, format:
   y += w * 0.038;
   ctx.fillStyle = C2;
   const h2 = fitBlock(measurerFor(ctx, (s) => `${Math.round(s)}px monospace`),
-    `${sub} — COMMUNIQUÉ N° ${c.numero}`, frameW, w * 0.03, w * 0.023, 1.2, w * 0.014);
+    `${sub} — ${LABELS[lang].communiqueNo} ${c.numero}`, frameW, w * 0.03, w * 0.023, 1.2, w * 0.014);
   ctx.font = `${Math.round(h2.size)}px monospace`;
   ctx.fillText(h2.lines[0], cx, y);
 

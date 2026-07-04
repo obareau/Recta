@@ -34,6 +34,69 @@ export function isCJK(lang: Lang): boolean {
   return lang === "ja";
 }
 
+/**
+ * Étiquettes d'en-tête localisées (libellés génériques). Les NOMS PROPRES
+ * (C.G.U., CONSEIL DES GOUVERNANCES UNIES, NOVA-7, Oraculum, Recta, personnages)
+ * restent en dur ailleurs — jamais traduits.
+ */
+export interface Labels {
+  communiqueNo: string;         // « COMMUNIQUÉ N° »
+  mandatoryDiffusion: string;   // « DIFFUSION OBLIGATOIRE »
+  personalTransmission: string; // en-tête d'une transmission de personnage
+  unlistedChannel: string;      // en-tête NOVA-7
+  doNotArchive: string;         // sous-titre NOVA-7
+  tacticProtocol: string;       // en-tête d'une Tactique Recta
+  operationalOnly: string;      // pied d'une tactique
+}
+
+export const LABELS: Record<Lang, Labels> = {
+  fr: {
+    communiqueNo: "COMMUNIQUÉ N°",
+    mandatoryDiffusion: "DIFFUSION OBLIGATOIRE",
+    personalTransmission: "◂ TRANSMISSION PERSONNELLE ▸",
+    unlistedChannel: "◈ CANAL NON RÉPERTORIÉ ◈",
+    doNotArchive: "SIGNAL AUTO-RÉPLIQUANT — NE PAS ARCHIVER",
+    tacticProtocol: "PROTOCOLE DE DÉCISION — TACTIQUE RECTA",
+    operationalOnly: "usage opérationnel uniquement — le calcul est clos",
+  },
+  en: {
+    communiqueNo: "COMMUNIQUÉ No.",
+    mandatoryDiffusion: "MANDATORY BROADCAST",
+    personalTransmission: "◂ PERSONAL TRANSMISSION ▸",
+    unlistedChannel: "◈ UNLISTED CHANNEL ◈",
+    doNotArchive: "SELF-REPLICATING SIGNAL — DO NOT ARCHIVE",
+    tacticProtocol: "DECISION PROTOCOL — RECTA TACTIC",
+    operationalOnly: "operational use only — the calculation is closed",
+  },
+  es: {
+    communiqueNo: "COMUNICADO N.º",
+    mandatoryDiffusion: "DIFUSIÓN OBLIGATORIA",
+    personalTransmission: "◂ TRANSMISIÓN PERSONAL ▸",
+    unlistedChannel: "◈ CANAL NO REGISTRADO ◈",
+    doNotArchive: "SEÑAL AUTORREPLICANTE — NO ARCHIVAR",
+    tacticProtocol: "PROTOCOLO DE DECISIÓN — TÁCTICA RECTA",
+    operationalOnly: "uso operativo únicamente — el cálculo está cerrado",
+  },
+  it: {
+    communiqueNo: "COMUNICATO N.",
+    mandatoryDiffusion: "DIFFUSIONE OBBLIGATORIA",
+    personalTransmission: "◂ TRASMISSIONE PERSONALE ▸",
+    unlistedChannel: "◈ CANALE NON REGISTRATO ◈",
+    doNotArchive: "SEGNALE AUTOREPLICANTE — NON ARCHIVIARE",
+    tacticProtocol: "PROTOCOLLO DI DECISIONE — TATTICA RECTA",
+    operationalOnly: "uso operativo soltanto — il calcolo è chiuso",
+  },
+  ja: {
+    communiqueNo: "公報 No.",
+    mandatoryDiffusion: "強制配信",
+    personalTransmission: "◂ 個人送信 ▸",
+    unlistedChannel: "◈ 未登録チャンネル ◈",
+    doNotArchive: "自己複製信号 — 保存禁止",
+    tacticProtocol: "決定プロトコル — RECTA 戦術",
+    operationalOnly: "運用目的のみ — 計算は完了",
+  },
+};
+
 /** Élision / contractions propres à chaque langue, appliquées après expansion. */
 export function elide(text: string, lang: Lang): string {
   switch (lang) {

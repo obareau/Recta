@@ -183,13 +183,14 @@ function runClip(): void {
   });
 }
 
-/** --beat --beatout=<png> [--madness=0..1] [--sender=<id>] [--format=story] :
+/** --beat --beatout=<png> [--madness=0..1] [--sender=<id>] [--lang=fr|en|es|it|ja] [--format=story] :
  *  rend l'affiche du beat narratif (feuilleton), puis quitte. */
 function runBeat(): void {
   const out = path.resolve(argOf("beat") || argOf("beatout") || "export/beat.png");
   const format = argOf("format") === "story" ? "story" : "carre";
   const madness = argOf("madness");
   const sender = argOf("sender");
+  const lang = argOf("lang");
   fs.mkdirSync(path.dirname(out), { recursive: true });
   const win = new BrowserWindow({ show: false, width: 1200, height: 1200 });
   void win.loadFile(path.join(__dirname, "index.html"));
@@ -197,7 +198,7 @@ function runBeat(): void {
     setTimeout(async () => {
       const opts = JSON.stringify({
         madness: madness !== undefined ? Number(madness) : undefined,
-        senderId: sender, fmt: format,
+        senderId: sender, lang, fmt: format,
       });
       const dataUrl = await win.webContents.executeJavaScript(`window.renderBeat(${opts})`) as string;
       fs.writeFileSync(out, Buffer.from(dataUrl.replace(/^data:image\/png;base64,/, ""), "base64"));

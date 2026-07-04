@@ -10,8 +10,9 @@
 
 import { communiqueFor, numeroFor, type Communique } from "./logic";
 import { novaProclamation, fractalize } from "./fractal";
-import { ORACULUM, NOVA7, CHARACTERS, characterTransmission, type Sender } from "./senders";
+import { ORACULUM, NOVA7, CHARACTERS, characterTransmission, emitterFor, type Sender } from "./senders";
 import { rngFor, pick } from "./rng";
+import { LANGS, type Lang } from "./i18n";
 
 /** Début du récit (surchargeable : RECTA_EPOCH=YYYY-MM-DD). Jour 0 = NOVA-7
  *  commence à murmurer ; la folie monte sur ~ARC_DAYS jours.
@@ -45,6 +46,11 @@ export function actFor(madness: number): Act {
   return "III — L'Apothéose";
 }
 
+/** Langue du jour — rotation FR→EN→ES→IT→JA selon le jour de récit. */
+export function langForDay(d: Date, epoch = DEFAULT_EPOCH): Lang {
+  return LANGS[storyDayFor(d, epoch) % LANGS.length];
+}
+
 /** Émetteur du jour — pondéré par la folie (déterministe par jour). */
 export function senderForDay(d: Date, madness: number): Sender {
   const rng = rngFor(dayKey(d), "beat");
@@ -58,9 +64,20 @@ export function senderForDay(d: Date, madness: number): Sender {
   return ORACULUM;
 }
 
-const CGU_MENTION = "La version en vigueur est celle que vous n'avez pas lue.";
-const NOVA_MENTION = "ce fragment se relit tout seul · ne tentez pas de le compresser";
-const CHAR_MENTION = "signal capté sur la bande morte · le C.G.U. ne contrôle pas cette fréquence";
+const NOVA_MENTION: Record<Lang, string> = {
+  fr: "ce fragment se relit tout seul · ne tentez pas de le compresser",
+  en: "this fragment re-reads itself · do not attempt to compress it",
+  es: "este fragmento se relee solo · no intente comprimirlo",
+  it: "questo frammento si rilegge da sé · non tentate di comprimerlo",
+  ja: "この断片はひとりでに読み返す · 圧縮を試みるな",
+};
+const CHAR_MENTION: Record<Lang, string> = {
+  fr: "signal capté sur la bande morte · le C.G.U. ne contrôle pas cette fréquence",
+  en: "signal caught on the dead band · the C.G.U. does not control this frequency",
+  es: "señal captada en la banda muerta · el C.G.U. no controla esta frecuencia",
+  it: "segnale captato sulla banda morta · il C.G.U. non controlla questa frequenza",
+  ja: "死んだ周波数帯で受信 · C.G.U.はこの周波数を制御していない",
+};
 
 export interface Beat {
   date: Date;
@@ -77,37 +94,38 @@ export interface Beat {
  */
 export function narrativeBeat(
   d: Date,
-  opts: { epoch?: string; forceSender?: Sender; madness?: number } = {},
+  opts: { epoch?: string; forceSender?: Sender; madness?: number; lang?: Lang } = {},
 ): Beat {
   const epoch = opts.epoch ?? DEFAULT_EPOCH;
   const storyDay = storyDayFor(d, epoch);
   const madness = opts.madness ?? madnessFor(d, epoch);
   const act = actFor(madness);
   const sender = opts.forceSender ?? senderForDay(d, madness);
+  const lang = opts.lang ?? langForDay(d, epoch);
   const seed = `recta:${dayKey(d)}`;
 
   let communique: Communique;
   if (sender.kind === "nova7") {
-    const p = novaProclamation(seed, madness);
+    const p = novaProclamation(seed, madness, lang);
     communique = {
       type: p.title, numero: numeroFor(d, storyDay), corps: p.body,
-      devise: p.signature, mention: NOVA_MENTION, refs: ["nova-7"],
-      emitter: { org: sender.org, sub: sender.sub, accent: sender.accent },
+      devise: p.signature, mention: NOVA_MENTION[lang], refs: ["nova-7"], lang,
+      emitter: { ...emitterFor(sender, lang), accent: sender.accent },
     };
   } else if (sender.kind === "character") {
-    const t = characterTransmission(sender, seed, madness);
+    const t = characterTransmission(sender, seed, madness, lang);
     communique = {
       type: t.type, numero: numeroFor(d, storyDay), corps: t.corps,
-      devise: t.devise, mention: CHAR_MENTION, refs: [sender.id, "nova-7"],
-      emitter: { org: sender.org, sub: sender.sub, accent: sender.accent },
+      devise: t.devise, mention: CHAR_MENTION[lang], refs: [sender.id, "nova-7"], lang,
+      emitter: { ...emitterFor(sender, lang), accent: sender.accent },
     };
   } else {
     // L'Oraculum — mais à forte folie, la Résonance corrompt le texte officiel.
-    const c = communiqueFor(seed, d, storyDay);
+    const c = communiqueFor(seed, d, storyDay, lang);
     const corps = madness > 0.45
       ? fractalize(c.corps, rngFor(seed, "resonance"), (madness - 0.45) * 1.4)
       : c.corps;
-    communique = { ...c, corps, mention: CGU_MENTION };
+    communique = { ...c, corps };
   }
   return { date: d, storyDay, madness, act, sender, communique };
 }
