@@ -1,0 +1,7 @@
+[Unit]
+Description=Recta — micro-nouvelle (Distributeur d'Histoires Courtes) multilingue
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/home/olivier/DEV/Recta/scripts/broadcast.sh micro

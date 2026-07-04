@@ -1,0 +1,10 @@
+[Unit]
+Description=Micro-nouvelle — tous les ~4 jours (12:00)
+
+[Timer]
+OnCalendar=*-*-01,05,09,13,17,21,25,29 12:00:00
+RandomizedDelaySec=900
+Persistent=true
+
+[Install]
+WantedBy=timers.target

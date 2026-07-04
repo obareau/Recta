@@ -1,0 +1,7 @@
+[Unit]
+Description=Recta — publication quotidienne de l'Oraculum sur Facebook
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/home/olivier/DEV/Recta/scripts/broadcast.sh communique

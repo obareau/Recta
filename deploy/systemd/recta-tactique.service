@@ -1,0 +1,7 @@
+[Unit]
+Description=Recta — Tactique Recta (protocole de décision C.G.U.) sur la Page
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/home/olivier/DEV/Recta/scripts/broadcast.sh tactique

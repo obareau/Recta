@@ -1,0 +1,7 @@
+[Unit]
+Description=Recta — intrusion pirate sporadique (Nova 7 / Renégats) sur la Page
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/home/olivier/DEV/Recta/scripts/broadcast.sh pirate

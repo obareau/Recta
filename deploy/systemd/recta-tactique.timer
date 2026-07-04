@@ -1,0 +1,10 @@
+[Unit]
+Description=Tactique Recta — quotidienne (15:00)
+
+[Timer]
+OnCalendar=*-*-* 15:00:00
+RandomizedDelaySec=600
+Persistent=true
+
+[Install]
+WantedBy=timers.target
