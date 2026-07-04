@@ -17,7 +17,8 @@ case "$FLUX" in
   tactique)   CMD="npm run tactique -- --seed=tactique:$(date +%Y-%m-%dT%H) --net=bluesky"; TITLE="Tactique Recta diffusée"; TAG="dart" ;;
   pirate)     CMD="npm run pirate -- --net=bluesky";  TITLE="Onde pirate détectée";          TAG="pirate_flag" ;;
   micro)      CMD="npm run micropub -- --net=bluesky"; TITLE="Micro-nouvelle diffusée";       TAG="ticket" ;;
-  *) echo "flux inconnu : $FLUX (communique|tactique|pirate|micro)"; exit 2 ;;
+  renegat)    CMD="npm run renegat";                   TITLE="Avis de recherche R3N3G4T";     TAG="wanted" ;;
+  *) echo "flux inconnu : $FLUX (communique|tactique|pirate|micro|renegat)"; exit 2 ;;
 esac
 
 if $CMD >"$LOG" 2>&1; then

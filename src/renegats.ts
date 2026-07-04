@@ -17,7 +17,7 @@ export interface Renegat {
 }
 
 /** Générer avis de recherche avec numéro (100-999). */
-export function generateRenegatCaption(seed: string): Renegat {
+export function generateRenegatCaption(seed: string, forceNumero?: number): Renegat {
   const rng = rngFor(seed, "renegat:caption");
 
   // Lister images du dossier
@@ -29,7 +29,7 @@ export function generateRenegatCaption(seed: string): Renegat {
   if (images.length === 0) throw new Error(`Aucune image dans ${RENEGATS_DIR}`);
 
   const imagePath = pick(rng, images);
-  const numero = 100 + Math.floor(rng() * 900); // 100-999
+  const numero = forceNumero || (100 + Math.floor(rng() * 900)); // 100-999
 
   const captions = [
     `R3N3G4T // # ${numero}\n📡 AVIS DE RECHERCHE\nContact : Rectitude`,

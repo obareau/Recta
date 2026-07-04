@@ -1,12 +1,13 @@
 // Publication avis de recherche R3N3G4TS sur Bluesky
 //
-//   npm run renegat                    # poste un avis aléatoire
+//   npm run renegat                    # poste un avis (anti-doublons)
 //   npm run renegat -- --dry           # montre l'avis sans rien poster
-//   npm run renegat -- --seed=xyz      # seed déterministe
+//   npm run renegat -- --force         # force un nouvel avis même si cache plein
 
 import { loadEnv } from "./social/env";
 import { postImage } from "./social/bluesky";
 import { generateRenegatCaption, loadRenegatImage } from "./renegats";
+import { findUniqueNumero, hasBeenPosted, addToCache } from "./renegat-cache";
 
 function argOf(name: string): string | undefined {
   return process.argv.find((a) => a.startsWith(`--${name}=`))?.slice(name.length + 3);
@@ -14,10 +15,25 @@ function argOf(name: string): string | undefined {
 
 async function main(): Promise<void> {
   const dry = process.argv.includes("--dry");
+  const force = process.argv.includes("--force");
   const seed = argOf("seed") || `renegat:${Date.now()}`;
 
-  // 1. Générer avis de recherche
-  const { imagePath, numero, caption } = generateRenegatCaption(seed);
+  // 1. Vérifier les doublons si pas --force
+  let numero: number;
+  if (!force && !argOf("seed")) {
+    numero = findUniqueNumero();
+  } else {
+    // Si seed spécifié ou --force, générer normalement
+    const { imagePath: _, numero: num } = generateRenegatCaption(seed);
+    numero = num;
+    if (!force && hasBeenPosted(numero)) {
+      throw new Error(`Avis # ${numero} déjà posté. Utilisez --force pour bypasser.`);
+    }
+  }
+
+  // 2. Générer avis (avec le numéro choisi)
+  // Besoin de modifier generateRenegatCaption pour accepter un numéro spécifique
+  const { imagePath, caption } = generateRenegatCaption(seed, numero);
   console.log(`Avis de recherche — # ${numero}`);
   console.log(`Image: ${imagePath}`);
 
@@ -26,14 +42,22 @@ async function main(): Promise<void> {
     return;
   }
 
-  // 2. Charger image
+  // 3. Charger image
   const png = loadRenegatImage(imagePath);
 
-  // 3. Publier
+  // 4. Publier
   const env = loadEnv();
   try {
     const uri = await postImage(env, png, caption, `R3N3G4T wanted notice #${numero}`);
     console.log(`✓ Posté : ${uri}`);
+
+    // 5. Ajouter au cache
+    addToCache({
+      numero,
+      seed,
+      timestamp: new Date().toISOString(),
+      uri,
+    });
   } catch (e) {
     throw new Error(`Publication échouée : ${(e as Error).message}`);
   }
