@@ -18,7 +18,8 @@
     "presskit": "tsx build.ts && tsx src/presskit.ts",
     "clip": "tsx build.ts && electron . --no-sandbox --clip",
     "micro": "tsx build.ts && electron . --no-sandbox --micro",
-    "micropub": "tsx build.ts && tsx src/micro-publish.ts"
+    "micropub": "tsx build.ts && tsx src/micro-publish.ts",
+    "renegat": "tsx build.ts && tsx src/renegat-publish.ts"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
