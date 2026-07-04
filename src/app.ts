@@ -2,10 +2,14 @@
 // En mode batch (Electron), window.batchRender(i) rend et renvoie un dataURL.
 
 import { communiqueFor } from "./logic";
-import { drawPiratePoster, drawPoster, drawTactique, FORMATS, type PosterFormat } from "./poster";
+import { drawPiratePoster, drawPoster, drawTactique, drawMicroNouvelle, FORMATS, type PosterFormat } from "./poster";
 import { drawBanner, drawInvite, drawLogo } from "./brand";
 import { pirateFor } from "./pirate-content";
 import { resolveTactique } from "./tactiques-gen";
+import { narrativeBeat } from "./narrative";
+import { ALL_SENDERS } from "./senders";
+import { microNouvelleFor } from "./micronouvelle";
+import type { Lang } from "./i18n";
 
 const $ = <T extends HTMLElement>(id: string): T => document.getElementById(id) as T;
 
@@ -115,6 +119,36 @@ window.renderTactique = (seed, fmt = "carre") => {
   const { w, h } = FORMATS[fmt];
   canvas.width = w; canvas.height = h;
   drawTactique(ctx, resolveTactique(seed), fmt);
+  return canvas.toDataURL("image/png");
+};
+
+// Beat narratif du jour — le feuilleton (émetteur + folie de NOVA-7).
+// `dayOffset` avance dans le récit ; `madness`/`senderId` forcent un aperçu.
+declare global {
+  interface Window {
+    renderBeat: (opts?: { dayOffset?: number; madness?: number; senderId?: string; fmt?: PosterFormat }) => string;
+  }
+}
+window.renderBeat = (opts = {}) => {
+  const fmt = opts.fmt ?? "carre";
+  const { w, h } = FORMATS[fmt];
+  canvas.width = w; canvas.height = h;
+  const d = new Date();
+  if (opts.dayOffset) d.setDate(d.getDate() + opts.dayOffset);
+  const forceSender = opts.senderId ? ALL_SENDERS.find((s) => s.id === opts.senderId) : undefined;
+  const beat = narrativeBeat(d, { madness: opts.madness, forceSender });
+  drawPoster(ctx, beat.communique, fmt);
+  return canvas.toDataURL("image/png");
+};
+
+// Micro-nouvelle (ticket thermique) — multilingue.
+declare global {
+  interface Window { renderMicro: (seed: string, lang?: Lang, fmt?: PosterFormat) => string }
+}
+window.renderMicro = (seed, lang = "fr", fmt = "story") => {
+  const { w, h } = FORMATS[fmt];
+  canvas.width = w; canvas.height = h;
+  drawMicroNouvelle(ctx, microNouvelleFor(seed, lang), fmt);
   return canvas.toDataURL("image/png");
 };
 

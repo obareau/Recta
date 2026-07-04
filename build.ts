@@ -30,6 +30,16 @@ async function main(): Promise<void> {
   });
   fs.copyFileSync("src/index.html", "dist/index.html");
 
+  // Page de génération de clip vidéo (mode Electron --clip, jamais publiée web).
+  await esbuild.build({
+    ...common,
+    entryPoints: ["src/clip.ts"],
+    outfile: "dist/clip.js",
+    platform: "browser",
+    format: "iife",
+  });
+  fs.copyFileSync("src/clip.html", "dist/clip.html");
+
   fs.mkdirSync("dist-web", { recursive: true });
   fs.copyFileSync("src/index.html", "dist-web/index.html");
   fs.copyFileSync("dist/app.js", "dist-web/app.js");

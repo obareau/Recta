@@ -1,0 +1,11 @@
+<meta charset="utf-8" />
+<title>Recta — clip vidéo</title>
+<style>
+  html, body { margin: 0; background: #000; overflow: hidden; }
+  #stage { display: block; width: 405px; height: 720px; } /* aperçu réduit ; rendu interne 1080×1920 */
+  #status { position: fixed; left: 8px; bottom: 6px; color: #6bd06b;
+    font: 12px monospace; opacity: .7; }
+</style>
+<canvas id="stage" width="1080" height="1920"></canvas>
+<div id="status">clip…</div>
+<script src="clip.js"></script>

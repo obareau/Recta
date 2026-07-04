@@ -4,6 +4,7 @@
 // la langue est l'Omniglossa Recta, les slogans et sanctions sont canoniques.
 
 import { pick, rngFor, type Rng } from "./rng";
+import type { Lang } from "./i18n";
 
 export interface Communique {
   type: string;      // COUVRE-FEU, DIRECTIVE, AVIS DE NULLIFICATION…
@@ -13,6 +14,13 @@ export interface Communique {
   mention: string;   // mention légale en minuscule — c'était marqué
   /** Slugs Atlas des lieux canoniques cités dans le corps. */
   refs: string[];
+  /**
+   * Émetteur — qui signe le communiqué. Absent = l'Oraculum / C.G.U. (défaut
+   * institutionnel). Présent : personnage canon ou NOVA-7 (voir senders.ts).
+   */
+  emitter?: { org: string; sub: string; accent?: string };
+  /** Langue de la publication (défaut "fr") — pilote la mention GGR. */
+  lang?: Lang;
 }
 
 /** Lieux du lexique → slugs Atlas (pour relier la note vault au graphe). */
@@ -154,11 +162,13 @@ function expand(template: string, rng: Rng): string {
     const pool = LEX[slot];
     return pool ? expand(pick(rng, pool), rng) : slot;
   });
+  // NB : \b avant « à » ne matche pas (à n'est pas un caractère mot ASCII) →
+  // on ancre sur l'espace/début qui précède, sinon « à le » n'est jamais élidé.
   return filled
     .replace(/\bde les\b/g, "des")
     .replace(/\bde le\b/g, "du")
-    .replace(/\bà les\b/g, "aux")
-    .replace(/\bà le\b/g, "au");
+    .replace(/(^|\s)à les\b/g, "$1aux")
+    .replace(/(^|\s)à le\b/g, "$1au");
 }
 
 /** Numéro administratif : année tronquée + jour de l'année + sel. */

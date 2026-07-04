@@ -3,6 +3,8 @@
 import type { Communique } from "./logic";
 import type { Pirate } from "./pirate-content";
 import type { Tactique } from "./tactiques";
+import { GGR_MENTION, isCJK } from "./i18n";
+import { uiFor, type MicroNouvelle } from "./micronouvelle";
 
 export type PosterFormat = "carre" | "story";
 
@@ -82,6 +84,33 @@ function measurerFor(ctx: CanvasRenderingContext2D, style: (size: number) => str
   };
 }
 
+/** Césure au caractère, sans tiret — pour le japonais (pas d'espaces). */
+function wrapChars(measure: Measure, text: string, maxWidth: number): string[] {
+  const lines: string[] = [];
+  let line = "";
+  for (const ch of text) {
+    if (ch === "\n") { lines.push(line); line = ""; continue; }
+    if (measure(line + ch) > maxWidth && line) { lines.push(line); line = ch; }
+    else line += ch;
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
+/** Ajuste la taille d'un bloc CJK (césure caractère) jusqu'à tenir. */
+function fitBlockCJK(
+  measureAt: (size: number) => Measure, text: string,
+  maxWidth: number, maxHeight: number, baseSize: number, lineHRatio: number, minSize: number,
+): { size: number; lines: string[]; lineH: number } {
+  let size = baseSize;
+  for (;;) {
+    const lines = wrapChars(measureAt(size), text, maxWidth);
+    const lineH = size * lineHRatio;
+    if (lines.length * lineH <= maxHeight || size <= minSize) return { size, lines, lineH };
+    size = Math.max(minSize, size * 0.92);
+  }
+}
+
 /** L'œil de la Rectitude — l'emblème des bannières, en grand. */
 function drawEmblem(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number): void {
   ctx.save();
@@ -118,16 +147,19 @@ export function drawPoster(ctx: CanvasRenderingContext2D, c: Communique, format:
 
   const frameW = w - M * 2.2; // largeur utile à l'intérieur du double cadre
 
-  // En-tête institutionnel — réduit jusqu'à tenir dans le cadre.
+  // En-tête — l'émetteur du communiqué (défaut : l'Oraculum / C.G.U.).
+  const org = c.emitter?.org ?? "CONSEIL DES GOUVERNANCES UNIES";
+  const sub = c.emitter?.sub ?? "L'ORACULUM — DIFFUSION OBLIGATOIRE";
   ctx.textAlign = "center";
-  ctx.fillStyle = C2;
+  ctx.fillStyle = c.emitter?.accent ?? C2;
   const h1 = fitBlock(measurerFor(ctx, (s) => `bold ${Math.round(s)}px monospace`),
-    "CONSEIL DES GOUVERNANCES UNIES", frameW, w * 0.04, w * 0.031, 1.2, w * 0.018);
+    org, frameW, w * 0.04, w * 0.031, 1.2, w * 0.018);
   ctx.font = `bold ${Math.round(h1.size)}px monospace`;
   ctx.fillText(h1.lines[0], cx, y);
   y += w * 0.038;
+  ctx.fillStyle = C2;
   const h2 = fitBlock(measurerFor(ctx, (s) => `${Math.round(s)}px monospace`),
-    `L'ORACULUM — DIFFUSION OBLIGATOIRE — COMMUNIQUÉ N° ${c.numero}`, frameW, w * 0.03, w * 0.023, 1.2, w * 0.014);
+    `${sub} — COMMUNIQUÉ N° ${c.numero}`, frameW, w * 0.03, w * 0.023, 1.2, w * 0.014);
   ctx.font = `${Math.round(h2.size)}px monospace`;
   ctx.fillText(h2.lines[0], cx, y);
 
@@ -137,7 +169,7 @@ export function drawPoster(ctx: CanvasRenderingContext2D, c: Communique, format:
   y += w * 0.15;
 
   // Type en très grand — jamais plus de 2 lignes, jamais hors cadre.
-  ctx.fillStyle = C3;
+  ctx.fillStyle = c.emitter?.accent ?? C3;
   const title = fitBlock(measurerFor(ctx, (s) => `bold ${Math.round(s)}px monospace`),
     c.type, w - M * 2.6, w * 0.2, w * 0.072, 1.18, w * 0.04);
   ctx.font = `bold ${Math.round(title.size)}px monospace`;
@@ -189,9 +221,11 @@ export function drawPoster(ctx: CanvasRenderingContext2D, c: Communique, format:
   ctx.fillStyle = C3;
   ctx.font = `bold ${Math.round(w * 0.033)}px monospace`;
   ctx.fillText("robotariis.com", cx, h - M * 1.35);
+  // Mention de système — le Générateur de Grammaire Réglementaire est obsolète
+  // et non maintenu (présente sur CHAQUE publication ; lang-aware).
   ctx.fillStyle = C1;
   const foot = fitBlock(measurerFor(ctx, (s) => `${Math.round(s)}px monospace`),
-    "émis en Omniglossa Recta — archive non autorisée de l'univers ROBOTARIIS", frameW, w * 0.03, w * 0.019, 1.2, w * 0.012);
+    GGR_MENTION[c.lang ?? "fr"], frameW, w * 0.03, w * 0.017, 1.2, w * 0.011);
   ctx.font = `${Math.round(foot.size)}px monospace`;
   ctx.fillText(foot.lines[0], cx, h - M * 1.02);
 
@@ -423,8 +457,119 @@ export function drawTactique(ctx: CanvasRenderingContext2D, t: Tactique, format:
   ctx.fillText("robotariis.com", cx, h - M * 1.25);
   ctx.fillStyle = C1;
   ctx.font = `${Math.round(w * 0.017)}px monospace`;
-  ctx.fillText("usage opérationnel uniquement — le calcul est clos", cx, h - M * 0.85);
+  ctx.fillText("usage opérationnel uniquement — le calcul est clos", cx, h - M * 0.9);
+  // Mention GGR — présente sur chaque publication.
+  ctx.globalAlpha = 0.7;
+  const ggr = fitBlock(measurerFor(ctx, (s) => `${Math.round(s)}px monospace`),
+    GGR_MENTION["fr"], w - M * 2.2, w * 0.02, w * 0.014, 1.2, w * 0.01);
+  ctx.font = `${Math.round(ggr.size)}px monospace`;
+  ctx.fillText(ggr.lines[0], cx, h - M * 0.62);
+  ctx.globalAlpha = 1;
 
   ctx.fillStyle = "rgba(0,0,0,0.16)";
+  for (let sy = 0; sy < h; sy += 3) ctx.fillRect(0, sy, w, 1);
+}
+
+/**
+ * Micro-nouvelle — rendu façon TICKET THERMIQUE (hommage au Distributeur
+ * d'Histoires Courtes). Papier pâle, encre sombre, perforations, code-barres,
+ * césure CJK pour le japonais. Multilingue (mn.lang). Mention GGR incluse.
+ */
+export function drawMicroNouvelle(ctx: CanvasRenderingContext2D, mn: MicroNouvelle, format: PosterFormat): void {
+  const { w, h } = FORMATS[format];
+  const cjk = isCJK(mn.lang);
+  const ui = uiFor(mn.lang);
+  const PAPER = "#e8e4d8", INK = "#1c1a17", FAINT = "#6b665c";
+  const M = Math.round(w * 0.09);
+  const cx = w / 2;
+
+  // Papier thermique + léger vignettage (l'impression pâlit sur les bords).
+  ctx.fillStyle = PAPER;
+  ctx.fillRect(0, 0, w, h);
+  const grad = ctx.createLinearGradient(0, 0, 0, h);
+  grad.addColorStop(0, "rgba(0,0,0,0.05)");
+  grad.addColorStop(0.5, "rgba(0,0,0,0)");
+  grad.addColorStop(1, "rgba(0,0,0,0.06)");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, w, h);
+
+  const perforation = (yy: number): void => {
+    ctx.fillStyle = FAINT;
+    for (let x = M * 0.4; x < w - M * 0.4; x += w * 0.028) ctx.fillRect(x, yy, w * 0.016, 3);
+  };
+  perforation(M * 0.55);
+
+  // Faux code-barres.
+  let bx = cx - w * 0.16;
+  ctx.fillStyle = INK;
+  const brng = ((mn.ticket.length * 97) % 13) + 3;
+  for (let i = 0; i < 46; i++) {
+    const bw = ((i * brng) % 4) + 1;
+    if (i % 2 === 0) ctx.fillRect(bx, M * 0.95, bw, w * 0.05);
+    bx += bw + 2;
+  }
+
+  ctx.textAlign = "center";
+  let y = M * 1.7;
+  // En-tête distributeur.
+  ctx.fillStyle = INK;
+  ctx.font = `bold ${Math.round(w * 0.03)}px monospace`;
+  ctx.fillText(ui.header, cx, y);
+  y += w * 0.034;
+  ctx.fillStyle = FAINT;
+  ctx.font = `${Math.round(w * 0.021)}px monospace`;
+  ctx.fillText(ui.sub, cx, y);
+  y += w * 0.028;
+  ctx.fillText(`${mn.ticket}   ·   ${mn.reading}`, cx, y);
+
+  // Filet pointillé.
+  y += w * 0.05;
+  ctx.strokeStyle = FAINT;
+  ctx.lineWidth = 2;
+  ctx.setLineDash([8, 8]);
+  ctx.beginPath(); ctx.moveTo(M, y); ctx.lineTo(w - M, y); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Titre.
+  y += w * 0.08;
+  ctx.fillStyle = INK;
+  const titleFit = (cjk ? fitBlockCJK : fitBlock)(
+    measurerFor(ctx, (s) => `bold ${Math.round(s)}px monospace`),
+    mn.title, w - M * 2, w * 0.16, w * 0.058, 1.2, w * 0.03);
+  ctx.font = `bold ${Math.round(titleFit.size)}px monospace`;
+  for (const line of titleFit.lines) { ctx.fillText(line, cx, y); y += titleFit.lineH; }
+
+  // Corps de la nouvelle — justifié au centre, taille adaptée.
+  y += w * 0.05;
+  const bottom = h - M * 2.4;
+  ctx.fillStyle = INK;
+  const bodyFit = (cjk ? fitBlockCJK : fitBlock)(
+    measurerFor(ctx, (s) => `${Math.round(s)}px monospace`),
+    mn.body, w - M * 2, Math.max(w * 0.1, bottom - y), w * 0.04, cjk ? 1.6 : 1.5, w * 0.022);
+  ctx.font = `${Math.round(bodyFit.size)}px monospace`;
+  for (const line of bodyFit.lines) { ctx.fillText(line, cx, y); y += bodyFit.lineH; }
+
+  // Pied : filet, lien, mention GGR, tagline, perforation.
+  const fy = h - M * 1.9;
+  ctx.strokeStyle = FAINT;
+  ctx.setLineDash([8, 8]);
+  ctx.beginPath(); ctx.moveTo(M, fy); ctx.lineTo(w - M, fy); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = INK;
+  ctx.font = `bold ${Math.round(w * 0.028)}px monospace`;
+  ctx.fillText("robotariis.com", cx, fy + w * 0.05);
+  ctx.fillStyle = FAINT;
+  ctx.font = `italic ${Math.round(w * 0.019)}px monospace`;
+  ctx.fillText(ui.footer, cx, fy + w * 0.09);
+  // Mention GGR (obsolète, non maintenu) — sur chaque publication.
+  const ggr = (cjk ? fitBlockCJK : fitBlock)(measurerFor(ctx, (s) => `${Math.round(s)}px monospace`),
+    GGR_MENTION[mn.lang], w - M * 1.6, w * 0.03, w * 0.016, 1.25, w * 0.011);
+  ctx.font = `${Math.round(ggr.size)}px monospace`;
+  let gy = fy + w * 0.135;
+  for (const line of ggr.lines) { ctx.fillText(line, cx, gy); gy += ggr.lineH; }
+  perforation(h - M * 0.5);
+
+  // Grain thermique très léger.
+  ctx.fillStyle = "rgba(0,0,0,0.03)";
   for (let sy = 0; sy < h; sy += 3) ctx.fillRect(0, sy, w, 1);
 }

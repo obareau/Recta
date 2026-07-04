@@ -4,6 +4,7 @@
 //   electron . --n=5 --outdir=/chemin/vers/dossier [--format=story]
 
 import { app, BrowserWindow } from "electron";
+import { execFileSync } from "node:child_process";
 import * as path from "node:path";
 import * as fs from "node:fs";
 import * as os from "node:os";
@@ -136,7 +137,110 @@ function runTactique(): void {
   });
 }
 
+/**
+ * --clip[=<seed>] --clipout=<fichier.webm> : enregistre un clip vidéo vertical
+ * (~24 s) à partir des communiqués, puis quitte. La fenêtre est VISIBLE : la
+ * capture MediaRecorder + captureStream est peu fiable sur une fenêtre cachée
+ * (Chromium gèle le rendu hors écran). Convertit en .mp4 si ffmpeg est présent.
+ */
+function runClip(): void {
+  const seed = argOf("clip") || `clip:${new Date().toISOString().slice(0, 13)}`;
+  const out = path.resolve(argOf("clipout") || `export/clip-${seed.replace(/[^a-z0-9]+/gi, "-")}.webm`);
+  fs.mkdirSync(path.dirname(out), { recursive: true });
+  const win = new BrowserWindow({
+    width: 420, height: 760, show: true, backgroundColor: "#000",
+    title: "Recta — clip", webPreferences: { backgroundThrottling: false },
+  });
+  win.setMenuBarVisibility(false);
+  void win.loadFile(path.join(__dirname, "clip.html"), { search: `seed=${encodeURIComponent(seed)}` });
+  win.webContents.once("did-finish-load", () => {
+    const poll = setInterval(async () => {
+      const st = await win.webContents.executeJavaScript(
+        `window.__clip && window.__clip.done ? window.__clip : null`,
+      ) as { done: boolean; data?: string; error?: string } | null;
+      if (!st) return;
+      clearInterval(poll);
+      if (st.error || !st.data) {
+        console.error(`ÉCHEC clip : ${st.error ?? "aucune donnée"}`);
+        app.exit(1);
+        return;
+      }
+      fs.writeFileSync(out, Buffer.from(st.data, "base64"));
+      console.log(out);
+      // Conversion mp4 (H.264 + AAC), format vertical prêt à publier, si ffmpeg dispo.
+      const mp4 = out.replace(/\.webm$/, ".mp4");
+      try {
+        execFileSync("ffmpeg", [
+          "-y", "-i", out, "-c:v", "libx264", "-pix_fmt", "yuv420p",
+          "-c:a", "aac", "-b:a", "128k", "-movflags", "+faststart", mp4,
+        ], { stdio: "ignore" });
+        console.log(mp4);
+      } catch {
+        console.log("(ffmpeg indisponible : garder le .webm, ou convertir plus tard)");
+      }
+      app.quit();
+    }, 500);
+  });
+}
+
+/** --beat --beatout=<png> [--madness=0..1] [--sender=<id>] [--format=story] :
+ *  rend l'affiche du beat narratif (feuilleton), puis quitte. */
+function runBeat(): void {
+  const out = path.resolve(argOf("beat") || argOf("beatout") || "export/beat.png");
+  const format = argOf("format") === "story" ? "story" : "carre";
+  const madness = argOf("madness");
+  const sender = argOf("sender");
+  fs.mkdirSync(path.dirname(out), { recursive: true });
+  const win = new BrowserWindow({ show: false, width: 1200, height: 1200 });
+  void win.loadFile(path.join(__dirname, "index.html"));
+  win.webContents.once("did-finish-load", () => {
+    setTimeout(async () => {
+      const opts = JSON.stringify({
+        madness: madness !== undefined ? Number(madness) : undefined,
+        senderId: sender, fmt: format,
+      });
+      const dataUrl = await win.webContents.executeJavaScript(`window.renderBeat(${opts})`) as string;
+      fs.writeFileSync(out, Buffer.from(dataUrl.replace(/^data:image\/png;base64,/, ""), "base64"));
+      console.log(out);
+      app.quit();
+    }, 500);
+  });
+}
+
+/** --micro --microout=<png> [--lang=fr|en|es|it|ja] [--seed=…] : ticket thermique. */
+function runMicro(): void {
+  const out = path.resolve(argOf("micro") || argOf("microout") || "export/micro.png");
+  const lang = argOf("lang") || "fr";
+  const seed = argOf("seed") || `micro:${new Date().toISOString().slice(0, 10)}`;
+  const format = argOf("format") === "carre" ? "carre" : "story";
+  fs.mkdirSync(path.dirname(out), { recursive: true });
+  const win = new BrowserWindow({ show: false, width: 1200, height: 1200 });
+  void win.loadFile(path.join(__dirname, "index.html"));
+  win.webContents.once("did-finish-load", () => {
+    setTimeout(async () => {
+      const dataUrl = await win.webContents.executeJavaScript(
+        `window.renderMicro(${JSON.stringify(seed)}, ${JSON.stringify(lang)}, ${JSON.stringify(format)})`,
+      ) as string;
+      fs.writeFileSync(out, Buffer.from(dataUrl.replace(/^data:image\/png;base64,/, ""), "base64"));
+      console.log(out);
+      app.quit();
+    }, 500);
+  });
+}
+
 app.whenReady().then(() => {
+  if (process.argv.some((a) => a.startsWith("--micro"))) {
+    runMicro();
+    return;
+  }
+  if (process.argv.some((a) => a.startsWith("--beat"))) {
+    runBeat();
+    return;
+  }
+  if (process.argv.some((a) => a.startsWith("--clip"))) {
+    runClip();
+    return;
+  }
   if (process.argv.some((a) => a.startsWith("--tactique="))) {
     runTactique();
     return;

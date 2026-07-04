@@ -13,8 +13,12 @@
     "export": "tsx build.ts && electron . --no-sandbox --n=5 --outdir=export",
     "export:story": "tsx build.ts && electron . --no-sandbox --n=5 --outdir=export --format=story",
     "publish": "tsx build.ts && tsx src/publish.ts",
-    "pirate": "tsx src/pirate-fb.ts",
-    "tactique": "tsx build.ts && tsx src/tactique-fb.ts"
+    "pirate": "tsx build.ts && tsx src/pirate-fb.ts",
+    "tactique": "tsx build.ts && tsx src/tactique-fb.ts",
+    "presskit": "tsx build.ts && tsx src/presskit.ts",
+    "clip": "tsx build.ts && electron . --no-sandbox --clip",
+    "micro": "tsx build.ts && electron . --no-sandbox --micro",
+    "micropub": "tsx build.ts && tsx src/micro-publish.ts"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
