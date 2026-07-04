@@ -22,6 +22,36 @@ const BSKY = "https://bsky.app/profile/robotariis.bsky.social";
 const MASTO = "https://mastodon.social/@robotariis";
 const SITE = "https://robotariis.com";
 
+// Écosystème ROBOTARIIS (propriétés publiques reliées).
+const ECOSYSTEM: { label: string; url: string; desc: string }[] = [
+  { label: "robotariis.com", url: "https://robotariis.com", desc: "Le hub — vault des publications" },
+  { label: "subwave", url: "https://subwave.robotariis.com/", desc: "La station — ondes & flux" },
+  { label: "robotariis-hub", url: "https://obareau.github.io/robotariis-hub/", desc: "L'index de l'écosystème" },
+];
+
+// L'Atlas est une appli LOCALE PRIVÉE (canon). On l'interroge à la génération
+// pour ancrer le site dans le graphe canonique — sans exposer de lien public.
+const ATLAS_URL = process.env.RECTA_ATLAS_URL || "http://localhost:5557";
+
+interface AtlasFaction { id: string; label: string; allies: number; enemies: number; members: number }
+interface AtlasTorn { id: string; label: string; allies: number; enemies: number; tension: number }
+interface AtlasData { factions: AtlasFaction[]; torn: AtlasTorn[]; totals: { nodes: number; relations: number; factions: number } }
+
+/** Interroge l'Atlas local (timeout court). Retourne null si injoignable. */
+async function fetchAtlas(): Promise<AtlasData | null> {
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 3000);
+    const res = await fetch(`${ATLAS_URL}/api/stats`, { signal: ctrl.signal });
+    clearTimeout(t);
+    if (!res.ok) return null;
+    const d = (await res.json()) as AtlasData;
+    return d && d.factions ? d : null;
+  } catch {
+    return null;
+  }
+}
+
 function esc(s: string): string {
   return s
     .replace(/&/g, "&amp;")
@@ -36,6 +66,34 @@ function dateForDay(day: number): Date {
 }
 
 const LANG_BADGE: Record<Lang, string> = { fr: "FR", en: "EN", es: "ES", it: "IT", ja: "JA" };
+
+/** Section AUJOURD'HUI — le beat RÉEL du jour courant, en grand. */
+function renderToday(): string {
+  const now = new Date();
+  const beat = narrativeBeat(now);
+  const pct = Math.round(beat.madness * 100);
+  const dateStr = now.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+  return `<section id="today">
+    <h2>AUJOURD'HUI · JOUR ${beat.storyDay}</h2>
+    <p class="lede">${esc(dateStr)} · ${esc(beat.act)} · émetteur ${esc(beat.sender.name)}</p>
+    <article class="beat today">
+      <header>
+        <span class="day">JOUR ${beat.storyDay}</span>
+        <span class="act">${esc(beat.act)}</span>
+        <span class="lang">${LANG_BADGE[beat.communique.lang ?? "fr"]}</span>
+      </header>
+      <div class="madness" title="folie ${pct}%">
+        <div class="bar" style="width:${pct}%"></div>
+        <span class="pct">FOLIE ${pct}%</span>
+      </div>
+      <div class="emitter">${esc(beat.sender.name)}</div>
+      <h3>${esc(beat.communique.type)}</h3>
+      <p class="full">${esc(beat.communique.corps)}</p>
+      <div class="devise">« ${esc(beat.communique.devise)} »</div>
+      ${beat.communique.mention ? `<div class="mention">${esc(beat.communique.mention)}</div>` : ""}
+    </article>
+  </section>`;
+}
 
 /** Section L'ARC — échantillonne l'arc de folie sur 100 jours. */
 function renderArc(): string {
@@ -118,6 +176,44 @@ function renderFactions(): string {
     </div></section>`;
 }
 
+/** Section CANON — cartographie réelle depuis l'Atlas (données locales). */
+function renderCanon(atlas: AtlasData | null): string {
+  if (!atlas) return ""; // Atlas injoignable à la génération : on omet la section.
+  const factions = atlas.factions
+    .filter((f) => f.members > 0)
+    .sort((a, b) => b.members - a.members)
+    .slice(0, 8)
+    .map((f) => `<article class="node">
+      <h3>${esc(f.label)}</h3>
+      <div class="rel"><span class="al">${f.allies} alliés</span> · <span class="en">${f.enemies} ennemis</span> · ${f.members} membres</div>
+    </article>`)
+    .join("\n");
+
+  const tensions = atlas.torn.slice(0, 6)
+    .map((t) => `<li><span class="who">${esc(t.label)}</span> — tension ${t.tension} (${t.allies}↔${t.enemies})</li>`)
+    .join("\n");
+
+  return `<section id="canon"><h2>CANON · L'ATLAS</h2>
+    <p class="lede">Le feuilleton est ancré dans l'Atlas ROBOTARIIS —
+    ${atlas.totals.nodes} entités, ${atlas.totals.relations} relations, ${atlas.totals.factions} factions.
+    Ce que Recta raconte, l'Atlas le cartographie.</p>
+    <div class="nodes">${factions}</div>
+    <h3 class="sub">Lignes de tension</h3>
+    <ul class="tensions">${tensions}</ul>
+  </section>`;
+}
+
+/** Pied de page — écosystème ROBOTARIIS. */
+function renderEcosystem(): string {
+  const links = ECOSYSTEM
+    .map((e) => `<a href="${e.url}" class="eco"><b>${esc(e.label)}</b><span>${esc(e.desc)}</span></a>`)
+    .join("\n");
+  return `<section id="ecosysteme"><h2>ÉCOSYSTÈME ROBOTARIIS</h2>
+    <p class="lede">Recta est une voix parmi d'autres. L'ordre se propage sur tout le réseau.</p>
+    <div class="ecos">${links}</div>
+  </section>`;
+}
+
 const CSS = `
 :root{--bg:#0a0a0a;--fg:#e8e4d8;--dim:#8a8577;--acc:#c9a227;--red:#b23a3a;--grn:#4a7c4a;--line:#2a2a2a}
 *{box-sizing:border-box}
@@ -148,6 +244,11 @@ section{scroll-margin-top:20px}
 .beat h3{font-size:14px;margin:0 0 8px;letter-spacing:1px}
 .beat p{font-size:12px;color:var(--dim);margin:0 0 10px}
 .devise{font-style:italic;font-size:12px;color:var(--fg);border-top:1px dashed var(--line);padding-top:8px}
+.beat.today{border-color:var(--acc);border-width:2px;padding:24px;max-width:720px}
+.beat.today h3{font-size:20px}
+.beat.today .full{font-size:14px;line-height:1.6;color:var(--fg)}
+.beat.today .mention{margin-top:12px;font-size:11px;color:var(--dim);font-style:italic}
+.beat.today .devise{font-size:15px;margin-top:12px}
 .tac .code{color:var(--acc);font-weight:bold;font-size:12px;letter-spacing:1px}
 .tac p{font-size:12px;color:var(--dim);margin:8px 0 0}
 .ticket h3{font-size:15px;margin:0 0 8px;color:var(--acc)}
@@ -161,6 +262,20 @@ section{scroll-margin-top:20px}
 .faction.aligned .tag{color:var(--grn)}
 .faction p{font-size:12px;color:var(--dim)}
 .count{color:var(--acc)}
+.nodes{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.node{background:#111;border:1px solid var(--line);padding:12px;border-radius:2px}
+.node h3{font-size:14px;margin:0 0 6px;letter-spacing:1px}
+.node .rel{font-size:11px;color:var(--dim)}
+.node .al{color:var(--grn)}.node .en{color:var(--red)}
+h3.sub{font-size:15px;letter-spacing:2px;margin:28px 0 8px;color:var(--acc)}
+.tensions{list-style:none;padding:0;margin:0;font-size:12px;color:var(--dim)}
+.tensions li{padding:4px 0;border-bottom:1px solid var(--line)}
+.tensions .who{color:var(--fg)}
+.ecos{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+a.eco{display:flex;flex-direction:column;gap:4px;background:#111;border:1px solid var(--line);padding:16px;border-radius:2px;text-decoration:none;color:var(--fg);transition:border-color .15s}
+a.eco:hover{border-color:var(--acc)}
+a.eco b{color:var(--acc);letter-spacing:1px}
+a.eco span{font-size:11px;color:var(--dim)}
 footer{margin:64px 0 40px;padding-top:24px;border-top:1px solid var(--line);text-align:center;color:var(--dim);font-size:11px}
 footer .ggr{max-width:560px;margin:0 auto 12px;font-style:italic}
 @media(max-width:600px){.factions{grid-template-columns:1fr}h1{font-size:32px}}
@@ -170,9 +285,10 @@ const SIGIL_SVG = `<svg class="sigil" viewBox="0 0 100 100" aria-hidden="true">
   <polygon points="50,5 90,28 90,72 50,95 10,72 10,28" fill="#c9a227"/>
 </svg>`;
 
-export function generateSite(): string {
+export async function generateSite(): Promise<string> {
   fs.mkdirSync(OUT_DIR, { recursive: true });
 
+  const atlas = await fetchAtlas();
   const now = new Date().toISOString().slice(0, 16).replace("T", " ");
   const html = `<!doctype html>
 <html lang="fr">
@@ -189,19 +305,23 @@ export function generateSite(): string {
   <h1>RECTA</h1>
   <p class="tagline">FEUILLETON NARRATIF PROCÉDURAL · COMMUNIQUÉS DE LA RECTITUDE</p>
   <nav class="links">
+    <a href="#today">Aujourd'hui</a>
     <a href="#arc">L'Arc</a>
     <a href="#tactiques">Tactiques</a>
     <a href="#micro">Micro-nouvelles</a>
     <a href="#factions">Factions</a>
-    <a href="${BSKY}">Bluesky</a>
-    <a href="${MASTO}">Mastodon</a>
+    ${atlas ? `<a href="#canon">Canon</a>` : ""}
+    <a href="#ecosysteme">Écosystème</a>
   </nav>
 </header>
 <main class="wrap">
+  ${renderToday()}
   ${renderArc()}
   ${renderTactiques()}
   ${renderMicro()}
   ${renderFactions()}
+  ${renderCanon(atlas)}
+  ${renderEcosystem()}
 </main>
 <footer class="wrap">
   <p class="ggr">${esc(GGR_MENTION.fr)}</p>
@@ -222,5 +342,8 @@ export function generateSite(): string {
 }
 
 if (process.argv[1] && process.argv[1].endsWith("site-gen.ts")) {
-  generateSite();
+  generateSite().catch((e) => {
+    console.error(`ÉCHEC : ${(e as Error).message}`);
+    process.exit(1);
+  });
 }

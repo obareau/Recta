@@ -53,6 +53,20 @@ section{scroll-margin-top:20px}
 .faction.aligned .tag{color:var(--grn)}
 .faction p{font-size:12px;color:var(--dim)}
 .count{color:var(--acc)}
+.nodes{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.node{background:#111;border:1px solid var(--line);padding:12px;border-radius:2px}
+.node h3{font-size:14px;margin:0 0 6px;letter-spacing:1px}
+.node .rel{font-size:11px;color:var(--dim)}
+.node .al{color:var(--grn)}.node .en{color:var(--red)}
+h3.sub{font-size:15px;letter-spacing:2px;margin:28px 0 8px;color:var(--acc)}
+.tensions{list-style:none;padding:0;margin:0;font-size:12px;color:var(--dim)}
+.tensions li{padding:4px 0;border-bottom:1px solid var(--line)}
+.tensions .who{color:var(--fg)}
+.ecos{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+a.eco{display:flex;flex-direction:column;gap:4px;background:#111;border:1px solid var(--line);padding:16px;border-radius:2px;text-decoration:none;color:var(--fg);transition:border-color .15s}
+a.eco:hover{border-color:var(--acc)}
+a.eco b{color:var(--acc);letter-spacing:1px}
+a.eco span{font-size:11px;color:var(--dim)}
 footer{margin:64px 0 40px;padding-top:24px;border-top:1px solid var(--line);text-align:center;color:var(--dim);font-size:11px}
 footer .ggr{max-width:560px;margin:0 auto 12px;font-style:italic}
 @media(max-width:600px){.factions{grid-template-columns:1fr}h1{font-size:32px}}
@@ -71,8 +85,8 @@ footer .ggr{max-width:560px;margin:0 auto 12px;font-style:italic}
     <a href="#tactiques">Tactiques</a>
     <a href="#micro">Micro-nouvelles</a>
     <a href="#factions">Factions</a>
-    <a href="https://bsky.app/profile/robotariis.bsky.social">Bluesky</a>
-    <a href="https://mastodon.social/@robotariis">Mastodon</a>
+    <a href="#canon">Canon</a>
+    <a href="#ecosysteme">Écosystème</a>
   </nav>
 </header>
 <main class="wrap">
@@ -413,13 +427,63 @@ footer .ggr{max-width:560px;margin:0 auto 12px;font-style:italic}
         <br><span class="count">401 portraits au registre</span></p>
       </article>
     </div></section>
+  <section id="canon"><h2>CANON · L'ATLAS</h2>
+    <p class="lede">Le feuilleton est ancré dans l'Atlas ROBOTARIIS —
+    112 entités, 420 relations, 38 factions.
+    Ce que Recta raconte, l'Atlas le cartographie.</p>
+    <div class="nodes"><article class="node">
+      <h3>Conseil des Gouvernances Unies (C.G.U.)</h3>
+      <div class="rel"><span class="al">6 alliés</span> · <span class="en">10 ennemis</span> · 14 membres</div>
+    </article>
+<article class="node">
+      <h3>Renégats</h3>
+      <div class="rel"><span class="al">8 alliés</span> · <span class="en">9 ennemis</span> · 12 membres</div>
+    </article>
+<article class="node">
+      <h3>Fractales Libres</h3>
+      <div class="rel"><span class="al">6 alliés</span> · <span class="en">1 ennemis</span> · 8 membres</div>
+    </article>
+<article class="node">
+      <h3>Fils de l'Aube du Miroir</h3>
+      <div class="rel"><span class="al">1 alliés</span> · <span class="en">1 ennemis</span> · 4 membres</div>
+    </article>
+<article class="node">
+      <h3>Protecteurs Verts</h3>
+      <div class="rel"><span class="al">3 alliés</span> · <span class="en">1 ennemis</span> · 3 membres</div>
+    </article>
+<article class="node">
+      <h3>Illuminés de la Singularité</h3>
+      <div class="rel"><span class="al">2 alliés</span> · <span class="en">3 ennemis</span> · 3 membres</div>
+    </article>
+<article class="node">
+      <h3>Magnats Industriels et Financiers</h3>
+      <div class="rel"><span class="al">1 alliés</span> · <span class="en">0 ennemis</span> · 2 membres</div>
+    </article>
+<article class="node">
+      <h3>Voile d'Ombre</h3>
+      <div class="rel"><span class="al">1 alliés</span> · <span class="en">1 ennemis</span> · 2 membres</div>
+    </article></div>
+    <h3 class="sub">Lignes de tension</h3>
+    <ul class="tensions"><li><span class="who">Renégats</span> — tension 8 (8↔9)</li>
+<li><span class="who">Conseil des Gouvernances Unies (C.G.U.)</span> — tension 6 (6↔10)</li>
+<li><span class="who">Nova 7</span> — tension 6 (6↔6)</li>
+<li><span class="who">Briseurs de Conscience</span> — tension 4 (4↔6)</li>
+<li><span class="who">Division Dark Umbrae</span> — tension 3 (3↔6)</li>
+<li><span class="who">Ezekiel Kessler</span> — tension 2 (2↔3)</li></ul>
+  </section>
+  <section id="ecosysteme"><h2>ÉCOSYSTÈME ROBOTARIIS</h2>
+    <p class="lede">Recta est une voix parmi d'autres. L'ordre se propage sur tout le réseau.</p>
+    <div class="ecos"><a href="https://robotariis.com" class="eco"><b>robotariis.com</b><span>Le hub — vault des publications</span></a>
+<a href="https://subwave.robotariis.com/" class="eco"><b>subwave</b><span>La station — ondes &amp; flux</span></a>
+<a href="https://obareau.github.io/robotariis-hub/" class="eco"><b>robotariis-hub</b><span>L'index de l'écosystème</span></a></div>
+  </section>
 </main>
 <footer class="wrap">
   <p class="ggr">Produit par le Générateur de Grammaire Réglementaire — obsolète, non maintenu. Peut contenir des erreurs.</p>
   <p><a href="https://robotariis.com" style="color:var(--acc);text-decoration:none">robotariis.com</a> ·
      <a href="https://bsky.app/profile/robotariis.bsky.social" style="color:var(--acc);text-decoration:none">@robotariis.bsky.social</a> ·
      <a href="https://mastodon.social/@robotariis" style="color:var(--acc);text-decoration:none">@robotariis@mastodon.social</a></p>
-  <p>Généré le 2026-07-04 21:04 · tout est algorithmique</p>
+  <p>Généré le 2026-07-04 21:10 · tout est algorithmique</p>
 </footer>
 </body>
 </html>
