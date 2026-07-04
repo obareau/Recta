@@ -7,6 +7,8 @@
 import * as fs from "fs";
 import * as path from "path";
 import { rngFor, pick } from "./rng";
+import { tagsFor } from "./i18n-captions";
+import type { Lang } from "./i18n";
 
 const RENEGATS_DIR = path.join(process.env.HOME || "/root", "renegats-photos");
 
@@ -17,8 +19,9 @@ export interface Renegat {
 }
 
 /** Générer avis de recherche avec numéro (100-999). */
-export function generateRenegatCaption(seed: string, forceNumero?: number): Renegat {
-  const rng = rngFor(seed, "renegat:caption");
+export function generateRenegatCaption(seed: string, forceNumero?: number, lang?: Lang): Renegat {
+  const rng = rngFor(seed, `renegat:caption:${lang || "fr"}`);
+  lang = lang || ("fr" as Lang);
 
   // Lister images du dossier
   const images = fs
@@ -39,7 +42,9 @@ export function generateRenegatCaption(seed: string, forceNumero?: number): Rene
     `指名手配: R3N3G4T\n# ${numero}\n違法周波数`,
   ];
 
-  const caption = pick(rng, captions);
+  const baseCaption = pick(rng, captions);
+  const tags = tagsFor(lang);
+  const caption = `${baseCaption}\n${tags}`;
 
   return { imagePath, numero, caption };
 }
