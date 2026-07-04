@@ -21,6 +21,7 @@
     "micropub": "tsx build.ts && tsx src/micro-publish.ts",
     "renegat": "tsx build.ts && tsx src/renegat-publish.ts",
     "hybrid": "tsx build.ts && tsx src/hybrid-publish.ts",
+    "site": "tsx src/site-gen.ts",
     "console": "tsx build.ts && tsx src/console-publish.ts",
     "zinepub": "tsx build.ts && tsx src/zine-publish.ts",
     "update-bio": "tsx build.ts && tsx src/bio-update.ts"
