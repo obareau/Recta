@@ -10,7 +10,6 @@ import { narrativeBeat, langForDay } from "./narrative";
 import { loadEnv } from "./social/env";
 import { generateVideoMP4 } from "./console-gen";
 import * as bluesky from "./social/bluesky";
-import * as mastodon from "./social/mastodon";
 import type { Lang } from "./i18n";
 import { GGR_MENTION } from "./i18n";
 import { rngFor } from "./rng";
@@ -54,28 +53,20 @@ async function main(): Promise<void> {
   console.log(`Vidéo générée : ${videoPath}`);
 
   if (dry) {
-    console.log(`[DRY MODE] Vidéo prête à poster sur Bluesky + Mastodon`);
+    console.log(`[DRY MODE] Vidéo prête à poster sur Bluesky`);
     return;
   }
 
-  // Publier sur Bluesky + Mastodon
+  // Publier sur Bluesky (Mastodon refuse vidéos télématiques)
   const caption = `${VIDEO_CAPTIONS[lang]}\n\n${GGR_MENTION[lang]}`;
   const mp4 = fs.readFileSync(videoPath);
 
-  for (const network of ["bluesky", "mastodon"] as const) {
-    try {
-      let uri: string;
-      if (network === "bluesky") {
-        // Bluesky accepte les vidéos via blob upload
-        uri = await bluesky.postVideo(env, mp4, caption);
-      } else {
-        // Mastodon accepte les vidéos comme média
-        uri = await mastodon.postVideo(env, mp4, caption);
-      }
-      console.log(`✓ ${network} : ${uri}`);
-    } catch (e) {
-      console.error(`✗ ${network} : ${(e as Error).message}`);
-    }
+  try {
+    const uri = await bluesky.postVideo(env, mp4, caption);
+    console.log(`✓ bluesky : ${uri}`);
+  } catch (e) {
+    console.error(`✗ bluesky : ${(e as Error).message}`);
+    throw e;
   }
 }
 

@@ -135,18 +135,18 @@ export async function generateVideoMP4(opts: VideoGenOptions): Promise<string> {
     fs.writeFileSync(svgPath, svg);
   }
 
-  // Encoder en MP4 avec ffmpeg (SVG → MP4 H264 + audio muet pour Mastodon)
+  // Encoder en MP4 (Mastodon-compatible: petit, basse résolution, sans audio)
   const mp4Path = path.join(outDir, `console-${Date.now()}.mp4`);
   const ffmpegCmd = [
-    `ffmpeg -framerate 25`,
+    `ffmpeg -framerate 20`,
     `-pattern_type glob -i "${path.join(svgDir, "*.svg")}"`,
-    `-f lavfi -i anullsrc=r=44100:cl=mono -c:a aac -b:a 64k -shortest`,
-    `-vf "scale=640:480"`,
-    `-c:v libx264 -preset ultrafast -crf 25`,
+    `-vf "scale=320:240"`,
+    `-c:v libx264 -preset ultrafast -crf 32 -b:v 256k`,
+    `-an`, // pas d'audio (Mastodon peut être strict)
     `-y "${mp4Path}"`,
   ].join(" ");
 
-  console.log("Encodage vidéo (H264 + audio)...");
+  console.log("Encodage vidéo (Mastodon-friendly)...");
   execSync(ffmpegCmd, { stdio: "inherit" });
   fs.rmSync(framesDir, { recursive: true });
 
