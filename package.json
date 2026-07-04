@@ -20,7 +20,8 @@
     "micro": "tsx build.ts && electron . --no-sandbox --micro",
     "micropub": "tsx build.ts && tsx src/micro-publish.ts",
     "renegat": "tsx build.ts && tsx src/renegat-publish.ts",
-    "update-bio": "tsx build.ts && tsx src/bio-update.ts"
+    "update-bio": "tsx build.ts && tsx src/bio-update.ts",
+    "cross-post-x": "tsx build.ts && tsx src/cross-post-x.ts"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
