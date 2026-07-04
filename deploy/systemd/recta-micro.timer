@@ -1,9 +1,9 @@
 [Unit]
-Description=Micro-nouvelle — tous les ~4 jours (12:00)
+Description=Micro-nouvelle — quotidienne (18:00), langue tournante
 
 [Timer]
-OnCalendar=*-*-01,05,09,13,17,21,25,29 12:00:00
-RandomizedDelaySec=900
+OnCalendar=*-*-* 18:00:00
+RandomizedDelaySec=600
 Persistent=true
 
 [Install]

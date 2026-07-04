@@ -1,6 +1,6 @@
 // Publication d'une MICRO-NOUVELLE (ticket thermique du Distributeur d'Histoires
-// Courtes). Sortie tous les ~4 jours ; la langue tourne FR→EN→ES→IT→JA au fil
-// des tirages, pour nourrir le public multilingue.
+// Courtes). Sortie quotidienne ; la langue tourne FR→EN→ES→IT→JA avec le jour
+// du récit, pour nourrir le public multilingue avec le feuilleton.
 //
 //   npm run micropub               # poste la micro-nouvelle du jour
 //   npm run micropub -- --lang=ja  # force la langue
@@ -12,7 +12,8 @@ import { execFileSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { microNouvelleFor } from "./micronouvelle";
-import { LANGS, GGR_MENTION, type Lang } from "./i18n";
+import { GGR_MENTION, type Lang } from "./i18n";
+import { langForDay } from "./narrative";
 import { loadEnv } from "./social/env";
 import { broadcast, networksFromArgs, type Captions } from "./social/broadcast";
 
@@ -24,13 +25,6 @@ const INTRO: Record<Lang, string> = {
   ja: "ショートショート配給機より、ひとつの物語 — ROBOTARIIS の宇宙。",
 };
 
-/** Langue du tirage : rotation déterministe (~1 tirage / 4 jours). */
-function langForToday(d: Date): Lang {
-  const start = new Date(d.getFullYear(), 0, 0);
-  const dayOfYear = Math.floor((d.getTime() - start.getTime()) / 86400000);
-  return LANGS[Math.floor(dayOfYear / 4) % LANGS.length];
-}
-
 function argOf(name: string): string | undefined {
   return process.argv.find((a) => a.startsWith(`--${name}=`))?.slice(name.length + 3);
 }
@@ -40,7 +34,7 @@ async function main(): Promise<void> {
   const dry = process.argv.includes("--dry");
   const networks = networksFromArgs(process.argv);
   const today = new Date();
-  const lang = (argOf("lang") as Lang) || langForToday(today);
+  const lang = (argOf("lang") as Lang) || langForDay(today);
   const seed = argOf("seed") || `micro:${today.toISOString().slice(0, 10)}`;
   const mn = microNouvelleFor(seed, lang);
 
