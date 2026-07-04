@@ -13,10 +13,10 @@ NTFY_URL="${RECTA_NTFY_URL:-http://100.64.201.127:3003/robotariis}"
 LOG=$(mktemp)
 
 case "$FLUX" in
-  communique) CMD="npm run publish -- --net=bluesky"; TITLE="Feuilleton — beat du jour";     TAG="robot" ;;
-  tactique)   CMD="npm run tactique -- --seed=tactique:$(date +%Y-%m-%dT%H) --net=bluesky"; TITLE="Tactique Recta diffusée"; TAG="dart" ;;
-  pirate)     CMD="npm run pirate -- --net=bluesky";  TITLE="Onde pirate détectée";          TAG="pirate_flag" ;;
-  micro)      CMD="npm run micropub -- --net=bluesky"; TITLE="Micro-nouvelle diffusée";       TAG="ticket" ;;
+  communique) CMD="npm run publish -- --net=bluesky,mastodon"; TITLE="Feuilleton — beat du jour";     TAG="robot" ;;
+  tactique)   CMD="npm run tactique -- --seed=tactique:$(date +%Y-%m-%dT%H) --net=bluesky,mastodon"; TITLE="Tactique Recta diffusée"; TAG="dart" ;;
+  pirate)     CMD="npm run pirate -- --net=bluesky,mastodon";  TITLE="Onde pirate détectée";          TAG="pirate_flag" ;;
+  micro)      CMD="npm run micropub -- --net=bluesky,mastodon"; TITLE="Micro-nouvelle diffusée";       TAG="ticket" ;;
   renegat)    CMD="npm run renegat";                   TITLE="Avis de recherche R3N3G4T";     TAG="wanted" ;;
 esac
 

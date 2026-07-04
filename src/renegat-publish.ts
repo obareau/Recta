@@ -1,11 +1,12 @@
-// Publication avis de recherche R3N3G4TS sur Bluesky
+// Publication avis de recherche R3N3G4TS (Bluesky + Mastodon)
 //
 //   npm run renegat                    # poste un avis (anti-doublons)
 //   npm run renegat -- --dry           # montre l'avis sans rien poster
 //   npm run renegat -- --force         # force un nouvel avis même si cache plein
 
 import { loadEnv } from "./social/env";
-import { postImage } from "./social/bluesky";
+import * as bluesky from "./social/bluesky";
+import * as mastodon from "./social/mastodon";
 import { generateRenegatCaption, loadRenegatImage } from "./renegats";
 import { findUniqueNumero, hasBeenPosted, addToCache } from "./renegat-cache";
 import { langForDay } from "./narrative";
@@ -40,29 +41,44 @@ async function main(): Promise<void> {
   console.log(`Image: ${imagePath}`);
 
   if (dry) {
-    console.log(`\n─── BLUESKY ───\n${caption}\n[image] ${imagePath}`);
+    console.log(`\n─── BLUESKY / MASTODON ───\n${caption}\n[image] ${imagePath}`);
     return;
   }
 
   // 3. Charger image
   const png = loadRenegatImage(imagePath);
 
-  // 4. Publier
+  // 4. Publier sur Bluesky + Mastodon
   const env = loadEnv();
-  try {
-    const uri = await postImage(env, png, caption, `R3N3G4T wanted notice #${numero}`);
-    console.log(`✓ Posté : ${uri}`);
+  const alt = `R3N3G4T wanted notice #${numero}`;
+  let lastUri: string | undefined;
+  let posted = false;
 
-    // 5. Ajouter au cache
-    addToCache({
-      numero,
-      seed,
-      timestamp: new Date().toISOString(),
-      uri,
-    });
-  } catch (e) {
-    throw new Error(`Publication échouée : ${(e as Error).message}`);
+  for (const network of ["bluesky", "mastodon"] as const) {
+    try {
+      const uri =
+        network === "bluesky"
+          ? await bluesky.postImage(env, png, caption, alt)
+          : await mastodon.postImage(env, png, caption, alt);
+      console.log(`✓ ${network} : ${uri}`);
+      lastUri = uri;
+      posted = true;
+    } catch (e) {
+      console.error(`✗ ${network} : ${(e as Error).message}`);
+    }
   }
+
+  if (!posted) {
+    throw new Error("Aucun réseau n'a accepté la publication.");
+  }
+
+  // 5. Ajouter au cache
+  addToCache({
+    numero,
+    seed,
+    timestamp: new Date().toISOString(),
+    uri: lastUri || "?",
+  });
 }
 
 main().catch((e) => {
