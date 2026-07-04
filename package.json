@@ -19,7 +19,8 @@
     "clip": "tsx build.ts && electron . --no-sandbox --clip",
     "micro": "tsx build.ts && electron . --no-sandbox --micro",
     "micropub": "tsx build.ts && tsx src/micro-publish.ts",
-    "renegat": "tsx build.ts && tsx src/renegat-publish.ts"
+    "renegat": "tsx build.ts && tsx src/renegat-publish.ts",
+    "update-bio": "tsx build.ts && tsx src/bio-update.ts"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",

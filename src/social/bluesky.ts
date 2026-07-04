@@ -63,3 +63,29 @@ export async function postImage(env: Env, png: Buffer, text: string, alt: string
   });
   return out.uri;
 }
+
+/** Mettre à jour la bio du profil. */
+export async function updateProfile(env: Env, bio: string): Promise<void> {
+  if (!env.RECTA_BSKY_HANDLE || !env.RECTA_BSKY_PASSWORD)
+    throw new Error("RECTA_BSKY_HANDLE/PASSWORD manquants");
+
+  const session = await xrpc<any>("POST", "com.atproto.server.createSession", {
+    json: { identifier: env.RECTA_BSKY_HANDLE, password: env.RECTA_BSKY_PASSWORD },
+  });
+
+  // Récupérer le profil actuel
+  const current = await xrpc<any>("GET", `com.atproto.repo.getRecord?repo=${session.did}&collection=app.bsky.actor.profile&rkey=self`, {
+    token: session.accessJwt,
+  });
+
+  // Mettre à jour la bio
+  const record = {
+    ...current.value,
+    description: bio,
+  };
+
+  await xrpc<any>("POST", "com.atproto.repo.putRecord", {
+    token: session.accessJwt,
+    json: { repo: session.did, collection: "app.bsky.actor.profile", rkey: "self", record },
+  });
+}
