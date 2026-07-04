@@ -18,8 +18,6 @@ case "$FLUX" in
   pirate)     CMD="npm run pirate -- --net=bluesky";  TITLE="Onde pirate détectée";          TAG="pirate_flag" ;;
   micro)      CMD="npm run micropub -- --net=bluesky"; TITLE="Micro-nouvelle diffusée";       TAG="ticket" ;;
   renegat)    CMD="npm run renegat";                   TITLE="Avis de recherche R3N3G4T";     TAG="wanted" ;;
-  cross-post-beat-x) CMD="npm run cross-post-x -- --beat"; TITLE="Beat posté sur X";     TAG="twitter" ;;
-  *) echo "flux inconnu : $FLUX (communique|tactique|pirate|micro|renegat|cross-post-beat-x)"; exit 2 ;;
 esac
 
 if $CMD >"$LOG" 2>&1; then
