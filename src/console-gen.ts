@@ -1,7 +1,8 @@
-// Générateur de vidéo télématique années 80 — communiqués Recta.
-// Terminal simulé monoespace vert/noir + typewriter + scanlines CRT.
+// La Console — générateur vidéo télématique années 80 (monoespace vert/noir).
+// Terminal simulé + typewriter animation + scanlines CRT + piratage Renégat.
 //
-// Usage interne : appelé par video-publish.ts
+// Réutilisable pour : communiqués, NOVA-7, transmissions, intrusions, etc.
+// Usage : appelé par console-publish.ts
 
 import * as fs from "node:fs";
 import * as path from "node:path";

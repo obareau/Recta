@@ -1,13 +1,14 @@
-// Publication vidéo télématique Recta — Bluesky + Mastodon
+// La Console — Publication vidéo télématique Recta (années 80 style)
+// Bluesky + Mastodon
 //
-//   npm run videopub                # poste la vidéo du jour
-//   npm run videopub -- --dry       # génère sans poster
+//   npm run console                 # poste la console du jour
+//   npm run console -- --dry        # génère sans poster
 
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { narrativeBeat, langForDay } from "./narrative";
 import { loadEnv } from "./social/env";
-import { generateVideoMP4 } from "./video-gen";
+import { generateVideoMP4 } from "./console-gen";
 import * as bluesky from "./social/bluesky";
 import * as mastodon from "./social/mastodon";
 import type { Lang } from "./i18n";

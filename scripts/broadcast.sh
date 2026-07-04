@@ -4,7 +4,7 @@
 #   broadcast.sh tactique     → Tactique Recta       (Bluesky + Mastodon)
 #   broadcast.sh pirate       → intrusion sporadique (auto-limitée ~35%)
 #   broadcast.sh micro        → micro-nouvelle quotidienne
-#   broadcast.sh videopub     → vidéo télématique
+#   broadcast.sh console     → vidéo télématique
 #   broadcast.sh renegat      → avis R3N3G4TS
 # En cas d'échec total, notifie via ntfy (topic robotariis).
 set -uo pipefail
@@ -20,7 +20,7 @@ case "$FLUX" in
   tactique)   CMD="npm run tactique -- --seed=tactique:$(date +%Y-%m-%dT%H) --net=bluesky,mastodon"; TITLE="Tactique Recta diffusée"; TAG="dart" ;;
   pirate)     CMD="npm run pirate -- --net=bluesky,mastodon";  TITLE="Onde pirate détectée";          TAG="pirate_flag" ;;
   micro)      CMD="npm run micropub -- --net=bluesky,mastodon"; TITLE="Micro-nouvelle diffusée";       TAG="ticket" ;;
-  videopub)   CMD="npm run videopub";                  TITLE="Vidéo télématique diffusée";      TAG="film_frames" ;;
+  console)   CMD="npm run console";                  TITLE="Vidéo télématique diffusée";      TAG="film_frames" ;;
   renegat)    CMD="npm run renegat";                   TITLE="Avis de recherche R3N3G4T";     TAG="wanted" ;;
 esac
 
