@@ -1,9 +1,12 @@
-// Publication Zine Recta hebdomadaire — Bluesky + Mastodon
+// Publication Zine Recta hebdomadaire — Bluesky
+// Convertit PDF → PNG (première page) + poste avec caption
 //
 //   npm run zinepub                 # poste le Zine de la semaine
 //   npm run zinepub -- --dry        # génère sans poster
 
+import * as fs from "node:fs";
 import * as path from "node:path";
+import { execSync } from "node:child_process";
 import { loadEnv } from "./social/env";
 import { generateZinePDF } from "./zine-gen";
 import * as bluesky from "./social/bluesky";
@@ -37,16 +40,17 @@ async function main(): Promise<void> {
     return;
   }
 
-  // Poster sur Bluesky (PDF texte uniquement, pas d'upload fichier)
-  const caption = `📰 ZINE RECTA — Semaine ${week}\n\nPropagande hebdomadaire du C.G.U.\nFeuilleton narratif procédural.\n\n🔗 robotariis.bsky.social`;
+  // Convertir PDF → PNG (première page) pour Bluesky
+  const pngPath = pdfPath.replace(/\.pdf$/, ".png");
+  console.log(`Conversion PDF → PNG...`);
+  execSync(`convert -density 150 "${pdfPath}[0]" "${pngPath}"`, { stdio: "pipe" });
+
+  // Poster sur Bluesky (couverture Zine + caption)
+  const caption = `📰 ZINE RECTA — Semaine ${week}\n\nPropagande hebdomadaire du C.G.U.\nFeuilleton narratif procédural.\n8 pages — Format DIY imprimable.\n\n🔗 robotariis.bsky.social`;
 
   try {
-    const uri = await bluesky.postImage(
-      env,
-      Buffer.from("dummy"), // Placeholder — Bluesky API texte seulement ici
-      caption,
-      "Zine Recta propagande"
-    );
+    const png = fs.readFileSync(pngPath);
+    const uri = await bluesky.postImage(env, png, caption, "Zine Recta couverture");
     console.log(`✓ bluesky : ${uri}`);
   } catch (e) {
     console.error(`✗ bluesky : ${(e as Error).message}`);
