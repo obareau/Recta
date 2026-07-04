@@ -21,14 +21,17 @@
     "micropub": "tsx build.ts && tsx src/micro-publish.ts",
     "renegat": "tsx build.ts && tsx src/renegat-publish.ts",
     "console": "tsx build.ts && tsx src/console-publish.ts",
+    "zinepub": "tsx build.ts && tsx src/zine-publish.ts",
     "update-bio": "tsx build.ts && tsx src/bio-update.ts"
   },
   "dependencies": {
+    "pdfkit": "^0.14.0",
     "pngjs": "^7.0.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
     "@types/node": "^22.5.0",
+    "@types/pdfkit": "^0.17.6",
     "@types/pngjs": "^6.0.5",
     "electron": "^33.0.0",
     "esbuild": "^0.24.0",
