@@ -7,6 +7,8 @@
 // Facebook garde le FR (audience francophone historique de la Page).
 
 import type { Env } from "./env";
+import type { Lang } from "../i18n";
+import { tagsFor } from "../i18n-captions";
 import { postPhoto } from "./facebook";
 import * as bluesky from "./bluesky";
 import * as mastodon from "./mastodon";
@@ -46,12 +48,17 @@ export async function broadcast(
   png: Buffer,
   caps: Captions,
   networks: Network[],
-  opts: { dry?: boolean; date?: Date } = {},
+  opts: { dry?: boolean; date?: Date; lang?: Lang } = {},
 ): Promise<BroadcastResult[]> {
   const d = opts.date ?? new Date();
+  const lang = opts.lang ?? "fr";
   const results: BroadcastResult[] = [];
   for (const network of networks) {
-    const text = captionFor(network, caps, d);
+    let text = captionFor(network, caps, d);
+    // Ajouter hashtags selon la langue du day (pour Bluesky seul)
+    if (network === "bluesky" && !text.includes("#")) {
+      text = `${text}\n${tagsFor(lang)}`;
+    }
     if (opts.dry) {
       console.log(`\n─── ${network.toUpperCase()} ───\n${text}\n[alt] ${caps.alt}`);
       results.push({ network, ok: true, id: "(dry)" });

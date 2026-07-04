@@ -10,11 +10,19 @@ import type { Tactique } from "./tactiques";
 import type { Pirate } from "./pirate-content";
 import type { Captions } from "./social/broadcast";
 import type { Beat } from "./narrative";
-import { GGR_MENTION } from "./i18n";
+import { GGR_MENTION, type Lang } from "./i18n";
 
 const LINK = "▸ robotariis.com";
 const TAGS_FR = "#robotariis #retrofuturisme #scifi #dystopie";
 const TAGS_EN = "#generativeart #scifi #dystopia #worldbuilding #retrofuturism";
+const TAGS_ES = "#ficcionCientifica #distopia #generativeart #robotariis #mundosficticio";
+const TAGS_IT = "#fantascienza #distopia #artegenerativo #robotariis #retrofuturismo";
+const TAGS_JA = "#SF #ディストピア #生成アート #ロボタリス #レトロフューチャー";
+
+export function tagsFor(lang: Lang): string {
+  const map: Record<Lang, string> = { fr: TAGS_FR, en: TAGS_EN, es: TAGS_ES, it: TAGS_IT, ja: TAGS_JA };
+  return map[lang] || TAGS_FR;
+}
 
 /** Communiqué du jour. */
 export function communiqueCaptions(c: Communique): Captions {
@@ -35,18 +43,20 @@ export function communiqueCaptions(c: Communique): Captions {
  */
 export function beatCaptions(beat: Beat): Captions {
   const c = beat.communique;
-  const ggr = GGR_MENTION[c.lang ?? "fr"];
+  const lang = c.lang ?? "fr";
+  const ggr = GGR_MENTION[lang];
+  const tags = tagsFor(lang);
   let header: string;
   if (beat.sender.kind === "nova7") header = `◈ TRANSMISSION NON RÉPERTORIÉE — ${c.type}`;
   else if (beat.sender.kind === "character") header = `◂ ${c.type} — ${beat.sender.name} ▸`;
   else header = `⬢ COMMUNIQUÉ N° ${c.numero} — ${c.type}`;
 
   const fr =
-    `${header}\n\n${c.corps}\n\n${c.devise}\n\n${ggr}\n${LINK}\n${TAGS_FR}`;
+    `${header}\n\n${c.corps}\n\n${c.devise}\n\n${ggr}\n${LINK}\n${tags}`;
   const en =
     `${header}\n\n${c.corps}\n\n${c.devise}\n\n` +
     `— ROBOTARIIS: a serialized SF dystopia unfolding day by day. ` +
-    `Act ${beat.act}. The regime's grammar generator is obsolete and may err.\n${LINK}\n${TAGS_EN}`;
+    `Act ${beat.act}. The regime's grammar generator is obsolete and may err.\n${LINK}\n${tags}`;
   const alt = `Retrofuturist poster — ${beat.sender.name}, ${c.type}, act ${beat.act}.`;
   return { fr, en, alt };
 }

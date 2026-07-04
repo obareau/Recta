@@ -40,7 +40,7 @@ async function main(): Promise<void> {
   console.log(`Beat du jour — jour ${beat.storyDay}, acte ${beat.act}, langue ${lang}, émetteur ${beat.sender.name} (folie ${beat.madness.toFixed(2)}).`);
 
   // 3. Diffusion.
-  const results = await broadcast(env, fs.readFileSync(png), caps, networks, { dry, date: today });
+  const results = await broadcast(env, fs.readFileSync(png), caps, networks, { dry, date: today, lang });
   if (results.filter((r) => !r.ok).length === results.length) {
     throw new Error("Aucun réseau n'a accepté la publication.");
   }
