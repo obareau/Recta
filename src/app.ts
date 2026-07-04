@@ -113,12 +113,12 @@ window.renderInvite = () => {
 
 // Affiche brève « Tactique Recta » — appelé par --tactique.
 declare global {
-  interface Window { renderTactique: (seed: string, fmt?: PosterFormat) => string }
+  interface Window { renderTactique: (seed: string, lang?: Lang, fmt?: PosterFormat) => string }
 }
-window.renderTactique = (seed, fmt = "carre") => {
+window.renderTactique = (seed, lang = "fr", fmt = "carre") => {
   const { w, h } = FORMATS[fmt];
   canvas.width = w; canvas.height = h;
-  drawTactique(ctx, resolveTactique(seed), fmt);
+  drawTactique(ctx, resolveTactique(seed, lang), fmt);
   return canvas.toDataURL("image/png");
 };
 

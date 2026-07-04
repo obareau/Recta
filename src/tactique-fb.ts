@@ -22,7 +22,9 @@ async function main(): Promise<void> {
   const dry = process.argv.includes("--dry");
   const networks = networksFromArgs(process.argv);
   const seed = argSeed();
-  const t = resolveTactique(seed);
+  // Les tactiques restent en FR (directives quotidiennes du C.G.U.).
+  // Les beats sont le cœur du feuilleton (ils tournent en 5 langues).
+  const t = resolveTactique(seed, "fr");
 
   const png = path.resolve("export", `tactique-${seed.replace(/[^a-z0-9]+/gi, "-")}.png`);
   execFileSync("npx", ["electron", ".", "--no-sandbox", `--tactique=${seed}`, `--tactiqueout=${png}`], { stdio: "inherit" });
