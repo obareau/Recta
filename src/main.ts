@@ -9,6 +9,8 @@ import * as path from "node:path";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import { communiqueFor, vaultNote } from "./logic";
+import { langForDay } from "./narrative";
+import type { Lang } from "./i18n";
 
 const argOf = (name: string): string | undefined =>
   process.argv.find((a) => a.startsWith(`--${name}=`))?.slice(name.length + 3);
@@ -28,17 +30,19 @@ function runBatch(count: number): void {
     setTimeout(async () => {
       const today = new Date();
       const stamp = today.toISOString().slice(0, 10);
+      // Langue du jour (même rotation que les flux de publication), surchargée par --lang=…
+      const lang = (argOf("lang") as Lang) || langForDay(today);
       const written: string[] = [];
       for (let i = 0; i < count; i++) {
         const dataUrl: string = await win.webContents.executeJavaScript(
-          `window.batchRender(${i}, ${JSON.stringify(format)})`,
+          `window.batchRender(${i}, ${JSON.stringify(format)}, ${JSON.stringify(lang)})`,
         );
-        const file = path.join(outDir, `communique-recta-${stamp}-${String(i + 1).padStart(2, "0")}.png`);
+        const file = path.join(outDir, `communique-recta-${stamp}-${String(i + 1).padStart(2, "0")}-${lang}.png`);
         fs.writeFileSync(file, Buffer.from(dataUrl.replace(/^data:image\/png;base64,/, ""), "base64"));
         written.push(file);
         if (vaultDir) {
           // Même seed que la page : la note vault reproduit le communiqué à l'identique.
-          const c = communiqueFor(`recta:${today.toDateString()}`, today, i);
+          const c = communiqueFor(`recta:${today.toDateString()}`, today, i, lang);
           const note = vaultNote(c, today);
           const notePath = path.join(vaultDir, note.filename);
           fs.writeFileSync(notePath, note.content, "utf-8");
