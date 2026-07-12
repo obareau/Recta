@@ -42,7 +42,7 @@ function runBatch(count: number): void {
   const vaultDir = vaultArg === "off" ? null : path.resolve(vaultArg);
   fs.mkdirSync(outDir, { recursive: true });
   if (vaultDir) fs.mkdirSync(vaultDir, { recursive: true });
-  const win = new BrowserWindow({ show: false, width: 1200, height: 1200 });
+  const win = new BrowserWindow({ show: true, width: 1200, height: 1200 });
   void win.loadFile(path.join(__dirname, "index.html"));
   win.webContents.once("did-finish-load", () => {
     setTimeout(async () => {
@@ -85,7 +85,7 @@ function runCampaign(days: number): void {
   const startArg = argOf("start");
   const start = startArg ? new Date(`${startArg}T12:00:00Z`) : new Date();
   fs.mkdirSync(outDir, { recursive: true });
-  const win = new BrowserWindow({ show: false, width: 1200, height: 1200 });
+  const win = new BrowserWindow({ show: true, width: 1200, height: 1200 });
   void win.loadFile(path.join(__dirname, "index.html"));
   win.webContents.once("did-finish-load", () => {
     setTimeout(async () => {
@@ -144,7 +144,7 @@ function createWindow(): void {
 function runBrand(): void {
   const outDir = path.resolve(argOf("brand") || "brand");
   fs.mkdirSync(outDir, { recursive: true });
-  const win = new BrowserWindow({ show: false, width: 1700, height: 700 });
+  const win = new BrowserWindow({ show: true, width: 1700, height: 700 });
   void win.loadFile(path.join(__dirname, "index.html"));
   win.webContents.once("did-finish-load", () => {
     setTimeout(async () => {
@@ -164,7 +164,7 @@ function runPirate(): void {
   const out = path.resolve(argOf("pirateout") || "export/pirate.png");
   const format = argOf("format") === "story" ? "story" : "carre";
   fs.mkdirSync(path.dirname(out), { recursive: true });
-  const win = new BrowserWindow({ show: false, width: 1200, height: 1200 });
+  const win = new BrowserWindow({ show: true, width: 1200, height: 1200 });
   void win.loadFile(path.join(__dirname, "index.html"));
   win.webContents.once("did-finish-load", () => {
     setTimeout(async () => {
@@ -182,7 +182,7 @@ function runPirate(): void {
 function runInvite(): void {
   const out = path.resolve(argOf("invite") || "export/invitation.png");
   fs.mkdirSync(path.dirname(out), { recursive: true });
-  const win = new BrowserWindow({ show: false, width: 1200, height: 1200 });
+  const win = new BrowserWindow({ show: true, width: 1200, height: 1200 });
   void win.loadFile(path.join(__dirname, "index.html"));
   win.webContents.once("did-finish-load", () => {
     setTimeout(async () => {
@@ -201,7 +201,7 @@ function runTactique(): void {
   const lang = argOf("lang") || "fr";
   const format = argOf("format") === "story" ? "story" : "carre";
   fs.mkdirSync(path.dirname(out), { recursive: true });
-  const win = new BrowserWindow({ show: false, width: 1200, height: 1200 });
+  const win = new BrowserWindow({ show: true, width: 1200, height: 1200 });
   void win.loadFile(path.join(__dirname, "index.html"));
   win.webContents.once("did-finish-load", () => {
     setTimeout(async () => {
@@ -270,7 +270,7 @@ function runBeat(): void {
   const sender = argOf("sender");
   const lang = argOf("lang");
   fs.mkdirSync(path.dirname(out), { recursive: true });
-  const win = new BrowserWindow({ show: false, width: 1200, height: 1200 });
+  const win = new BrowserWindow({ show: true, width: 1200, height: 1200 });
   void win.loadFile(path.join(__dirname, "index.html"));
   win.webContents.once("did-finish-load", () => {
     setTimeout(async () => {
@@ -293,7 +293,7 @@ function runMicro(): void {
   const seed = argOf("seed") || `micro:${new Date().toISOString().slice(0, 10)}`;
   const format = argOf("format") === "carre" ? "carre" : "story";
   fs.mkdirSync(path.dirname(out), { recursive: true });
-  const win = new BrowserWindow({ show: false, width: 1200, height: 1200 });
+  const win = new BrowserWindow({ show: true, width: 1200, height: 1200 });
   void win.loadFile(path.join(__dirname, "index.html"));
   win.webContents.once("did-finish-load", () => {
     setTimeout(async () => {
