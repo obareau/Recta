@@ -3,12 +3,12 @@ import { microNouvelleFor, uiFor } from "../src/micronouvelle";
 import { rngFor } from "../src/rng";
 
 describe("socle i18n", () => {
-  test("5 langues, mention GGR non vide pour chacune", () => {
-    expect([...LANGS]).toEqual(["fr", "en", "es", "it", "ja"]);
+  test("6 langues, mention GGR non vide pour chacune", () => {
+    expect([...LANGS]).toEqual(["fr", "en", "es", "it", "de", "ja"]);
     for (const l of LANGS) {
       expect(GGR_MENTION[l].length).toBeGreaterThan(0);
       // La mention porte bien l'idée « obsolète / non maintenu / erreur ».
-      expect(GGR_MENTION[l]).toMatch(/obsol|旧式|保守|error|erreu|errori/i);
+      expect(GGR_MENTION[l]).toMatch(/obsol|旧式|保守|error|erreu|errori|veraltet|Fehler/i);
     }
   });
   test("élision française : de+voyelle, de le → du", () => {

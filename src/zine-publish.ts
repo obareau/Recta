@@ -11,7 +11,7 @@ import { loadEnv } from "./social/env";
 import { generateZinePDF } from "./zine-gen";
 import * as bluesky from "./social/bluesky";
 import { langForDay } from "./narrative";
-import type { Lang } from "./i18n";
+import { LANGS, type Lang } from "./i18n";
 
 function argOf(name: string): string | undefined {
   return process.argv.find((a) => a.startsWith(`--${name}=`))?.slice(name.length + 3);
@@ -28,12 +28,19 @@ async function main(): Promise<void> {
 
   console.log(`Zine propagande — semaine ${week} (${lang})`);
 
-  // Générer le Zine PDF
-  const pdfPath = await generateZinePDF({
-    week,
-    lang,
-    outDir: path.resolve("export"),
-  });
+  // Générer le Zine PDF dans TOUTES les langues, une par une (mémoire contenue),
+  // chacune dans export/<lang>/. Seule la langue du jour part sur Bluesky.
+  // --lang=… restreint génération ET publication à cette seule langue.
+  const genLangs: readonly Lang[] = argOf("lang") ? [lang] : LANGS;
+  let pdfPath = "";
+  for (const l of genLangs) {
+    const p = await generateZinePDF({
+      week,
+      lang: l,
+      outDir: path.resolve("export", l),
+    });
+    if (l === lang) pdfPath = p;
+  }
 
   if (dry) {
     console.log(`[DRY MODE] Zine prêt à poster sur Bluesky`);

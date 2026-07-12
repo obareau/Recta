@@ -22,6 +22,7 @@ const INTRO: Record<Lang, string> = {
   en: "A micro-story from the Short Story Dispenser — the ROBOTARIIS universe.",
   es: "Un microrrelato del Dispensador de Relatos Breves — universo ROBOTARIIS.",
   it: "Un microracconto dal Distributore di Racconti Brevi — universo ROBOTARIIS.",
+  de: "Eine Mikro-Erzählung aus dem Kurzgeschichten-Automaten — das ROBOTARIIS-Universum.",
   ja: "ショートショート配給機より、ひとつの物語 — ROBOTARIIS の宇宙。",
 };
 

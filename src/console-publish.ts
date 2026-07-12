@@ -19,6 +19,7 @@ const VIDEO_CAPTIONS: Record<Lang, string> = {
   en: "Telematic signal detected — Rectitude live",
   es: "Señal telemática detectada — Rectitud en directo",
   it: "Segnale telematico rilevato — Rettitudine dal vivo",
+  de: "Telematisches Signal erkannt — Rectitude live",
   ja: "テレマティック信号検出 — 直伝された真実",
 };
 

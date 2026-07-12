@@ -194,6 +194,98 @@ const EN: TactiquePack = {
   },
 };
 
+const DE: TactiquePack = {
+  lex: {
+    affect: [
+      "das Mitleid", "der Zweifel", "der Zorn", "das Vertrauen", "die Nostalgie",
+      "die Dringlichkeit", "der Stolz", "das Mitgefühl", "die Empathie", "die Hoffnung",
+      "der Enthusiasmus", "die Müdigkeit", "die Angst vor dem Scheitern", "das Bedürfnis nach Anerkennung",
+      "die Loyalität", "das Zögern",
+    ],
+    metaphore: [
+      "ein biologischer Rückfluss", "ein Speicherfehler", "ein Druckleck",
+      "eine nutzlose Energiespitze", "eine Software-Schwachstelle", "eine falsch indizierte Angabe",
+      "eine instabile Variable", "ein Ausrichtungsfehler", "eine statistische Anomalie",
+      "ein Spannungsabfall", "ein toter Algorithmus", "eine vorhersehbare mechanische Reibung",
+    ],
+    action: [
+      "Entferne es aus der Gleichung.", "Formatiere den betroffenen Sektor.", "Dichte das Leck ab.",
+      "Wandle es in chirurgische Präzision um.", "Installiere diesen Patch nicht.",
+      "Finde sein Fach.", "Mache es so starr wie möglich.", "Kappe seine Versorgung.",
+      "Warte zehn Sekunden, bis es vergeht, dann handle.", "Leere den Cache.",
+      "Isoliere dich von diesem Reiz.", "Bereinige die Ursache vor der Wirkung.",
+    ],
+    comportement: [
+      "lächeln", "schweigen", "sich entschuldigen", "um Klärung bitten",
+      "sich für ein Projekt zusammenschließen", "den Ton ändern", "dir in den Fluren ausweichen",
+      "vorgeben zu verstehen", "um Autonomie bitten", "dir in die Augen sehen",
+      "dir Kaffee anbieten", "zu früh kommen", "zu schnell zustimmen",
+    ],
+    interpretation: [
+      "sie haben eine Lücke in deinem Protokoll gefunden",
+      "es ist der Beginn einer dissidenten Zelle",
+      "sie berechnen bereits die Kosten ihres nächsten Fehlers",
+      "sie testen deine Verteidigung",
+      "sie haben einen neuen Verbündeten in der Hierarchie gefunden",
+      "es ist eine Prüfung deiner Autorität",
+      "sie haben dir die Hälfte der Daten verheimlicht",
+      "die Sabotage ist bereits im Gange",
+    ],
+    contremesure: [
+      "Durchsuche es.", "Teile die Aufgaben auf.", "Verstärke die Überwachung.",
+      "Aktiviere Gegenmaßnahmen.", "Identifiziere es.", "Sperre den Zugang.",
+      "Bleib hinter dem Schalter.", "Verkürze die Kette.", "Verhärte deinen Ton.",
+    ],
+    cible: [
+      "jedes Individuum der Gleichung", "die Krise", "deinen Körper", "das umgebende Chaos",
+      "jeden Konflikt", "den Widerstand", "die Anomalie", "jeden Vermittler",
+      "das Schweigen des Gegners", "ihre Kreativität",
+    ],
+    reduction: [
+      "einen einfachen Schalter: offen oder geschlossen", "eine unsortierte Zahlenfolge",
+      "eine Eindämmungseinheit", "ein simples Ressourcenzuteilungsproblem",
+      "eine Kalenderbeschleunigung", "eine vorhersehbare Reibung",
+      "einen potenziellen Korruptionsvektor", "eine Datensammlung",
+    ],
+    vertu: [
+      "Die Rectitude", "Die Ordnung", "Die Recheneffizienz", "Die Integrität des Rahmens",
+      "Die Konformität", "Die Konstanz des Vektors",
+    ],
+    froid: [
+      "entferne es aus der Berechnung", "widerrufe es sofort", "eliminiere es vorrangig",
+      "die Berechnung ist abgeschlossen", "die Diskussion ist beendet", "bereue es nicht",
+      "korrigiere das Signal",
+    ],
+    question: [
+      "die exakten Kosten deines Zögerns", "das schwächste Glied deines Netzes",
+      "die Variable, die dich wachhält", "das Protokoll, das du aus Gewohnheit anwendest",
+      "den begrenzenden Faktor deiner Aufmerksamkeit", "die aus reiner Eitelkeit eingeführte Variable",
+    ],
+  },
+  templates: [
+    "{Affect} ist {metaphore}. {action}",
+    "{Affect} ist {metaphore}. {action}",
+    "Wenn sie {comportement}, {interpretation}. {contremesure}",
+    "Wenn sie {comportement}, {interpretation}. {contremesure}",
+    "Betrachte {cible} als {reduction}.",
+    "Versuche nicht, {compris} zu werden. Versuche, {exige} zu werden.",
+    "Benenne {question}. {Froid}",
+    "Wenn {condition}: {Froid}",
+    "{Vertu} verhandelt nicht mit der Unordnung. Sie unterwirft sie oder löscht sie.",
+  ],
+  extra: {
+    compris: ["verstanden", "gemocht", "beruhigt", "bedankt"],
+    exige: ["ausgeführt", "angewandt", "befolgt", "gefürchtet"],
+    condition: [
+      "die Lösung Mut erfordert", "der Plan von einer Person abhängt",
+      "die Lösung schön ist", "der Zweifel fortbesteht", "ein Agent unentbehrlich wird",
+      "die Wahrheit unbequem ist", "der Bericht zu perfekt ist",
+      "du die Rohdaten nicht prüfen kannst", "der Dissens logisch erscheint",
+      "jemand anderes deine Arbeit getan hat",
+    ],
+  },
+};
+
 const ES: TactiquePack = {
   lex: {
     affect: [
@@ -469,4 +561,4 @@ const JA: TactiquePack = {
   },
 };
 
-export const TACTIQUE_PACKS: Record<Lang, TactiquePack> = { fr: FR, en: EN, es: ES, it: IT, ja: JA };
+export const TACTIQUE_PACKS: Record<Lang, TactiquePack> = { fr: FR, en: EN, es: ES, it: IT, de: DE, ja: JA };

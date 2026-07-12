@@ -95,6 +95,24 @@ const PACKS: Record<Lang, Pack> = {
     titles: ["La parola sotto la lingua", "Banda morta", "Niente sporgeva", "Il relè", "Non dichiarato"],
     ui: { header: "DISTRIBUTORE DI RACCONTI BREVI", sub: "UNIVERSO ROBOTARIIS", ticket: "SCONTRINO N.", reading: "≈ 1 min di lettura", footer: "un racconto. leggilo, poi dimenticalo." },
   },
+  de: {
+    templates: [
+      "{Perso} {geste}, {lieu}. {Norme} {Detail} An jenem Tag {rupture}. {Reaction} {chute}",
+      "{Lieu}. {Perso} {geste}. {Detail} {Norme} Dann {rupture}. {Reaction} {chute}",
+    ],
+    lex: {
+      detail: ["Die Relais summten wie immer.", "Das Röhrenlicht war kalt, vorschriftsmäßig.", "Draußen stieg eine Sirene auf und verstummte.", "Der Bildschirm blinkte im Takt des Chronographen.", "Die Luft roch nach Staub und heißem Metall.", "Das Register lag schwer in den Händen."],
+      reaction: ["Einen Augenblick lang schien die Rectitude weit weg.", "Nichts bewegte sich außer dem Zweifel.", "Der Alarmknopf blieb unberührt.", "Niemand in der Nähe — nur das Summen.", "Etwas weigerte sich, gemeldet zu werden.", "Die Hand hielt über dem Register inne."],
+      perso: ["L1L1TH", "Zoe", "die Archivarin der unteren Ebene", "eine Nachtwächterin", "Haiku-12", "der Chronographen-Beamte", "ein Dreiradfahrer ohne Kennnummer", "Lux-03"],
+      geste: ["zählte die Flüsse", "schrieb ein Register ab", "wartete auf die Ausgangssperre", "löschte Namen", "reparierte ein totes Relais", "ordnete Schweigen ein"],
+      lieu: ["in den Alten Docks", "in Sigma-7", "unter den Wachtürmen von Port Alpha", "in einer geheimen Galerie", "in der Smaragd-Kolonie", "nahe dem toten Band"],
+      norme: ["Alles war konform.", "Nichts ragte heraus.", "Die Rectitude wachte, wie immer.", "Das Register war sauber.", "Beim Appell fehlte niemand."],
+      rupture: ["leuchtete ein unbekanntes Wort auf dem Bildschirm auf", "sprach das Radio den wahren Namen aus", "stieg eine nicht gemeldete Erinnerung auf", "replizierte sich ein Symbol von selbst", "begann eine Parole des C.G.U. laut zu lügen", "antwortete ein Schweigen"],
+      chute: ["Sie meldete es niemandem.", "Er kappte das Relais und lächelte.", "Am nächsten Tag blinkten zwei weitere Bildschirme.", "Man sah sie nie wieder konform.", "Sie behielt das Wort unter der Zunge.", "Seitdem hört er das tote Band."],
+    },
+    titles: ["Das Wort unter der Zunge", "Totes Band", "Nichts ragte heraus", "Das Relais", "Nicht gemeldet"],
+    ui: { header: "KURZGESCHICHTEN-AUTOMAT", sub: "ROBOTARIIS-UNIVERSUM", ticket: "TICKET Nr.", reading: "≈ 1 Min. Lesezeit", footer: "eine Geschichte. lies sie, dann vergiss sie." },
+  },
   ja: {
     templates: [
       "{lieu}、{Perso}は{geste}。{Norme}{Detail}その日、{rupture}。{Reaction}{chute}",
