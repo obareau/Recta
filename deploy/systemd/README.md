@@ -21,7 +21,13 @@ quasi-doublons entre personnages sur une fenêtre de 30 jours.
 
 Pour un calendrier éditorial pré-généré (ex. planification manuelle Meta Business Suite),
 voir `npm run campaign` — exporte N jours de beats distincts + micro-nouvelles tous les
-3-4 jours, avec légende `.txt` jumelle par image (`src/main.ts` → `runCampaign`).
+3-4 jours + un zine (micro-magazine 8 pages, PDF + 4 PNG) toutes les 7 jours, avec
+légende `.txt` jumelle par fichier (`src/main.ts` → `runCampaign`). Le zine seul
+(`generateZinePDF`, `src/zine-gen.ts`) n'a besoin que de PDFKit — pas d'Electron.
+
+⚠️ Zine : `zine-publish.ts` (utilisé par `recta-zinepub.timer`) ne poste qu'sur
+Bluesky (carousel 4 pages) — Facebook/Mastodon n'ont pas d'équivalent multi-image
+branché pour l'instant.
 
 ## Installation
 

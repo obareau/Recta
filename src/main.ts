@@ -9,11 +9,12 @@ import * as path from "node:path";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import { communiqueFor, vaultNote } from "./logic";
-import { narrativeBeat } from "./narrative";
+import { narrativeBeat, langForDay } from "./narrative";
 import { microNouvelleFor } from "./micronouvelle";
 import { beatCaptions } from "./i18n-captions";
 import { INTRO } from "./micro-publish";
 import { GGR_MENTION, type Lang } from "./i18n";
+import { generateZinePDF } from "./zine-gen";
 
 // Tous les modes offscreen (--n/--beat/--micro/--campaign/…) ne servent qu'à
 // dessiner sur un <canvas> caché — aucun besoin de GPU. Lancé via systemd (qui
@@ -31,6 +32,11 @@ const argOf = (name: string): string | undefined =>
 function isMicroDay(dayOffset: number): boolean {
   const r = dayOffset % 7;
   return r === 0 || r === 3;
+}
+
+/** Un zine (micro-magazine, 8 pages pliables) toutes les 7 jours. */
+function isZineDay(dayOffset: number): boolean {
+  return dayOffset % 7 === 0;
 }
 
 function runBatch(count: number): void {
@@ -120,10 +126,30 @@ function runCampaign(days: number): void {
           fs.writeFileSync(path.join(outDir, `${dayTag}-micro-${lang}.txt`), microCaption, "utf-8");
           written.push(microFile);
         }
+
+        // Zine (micro-magazine 8 pages pliables) toutes les 7 jours — pur PDFKit,
+        // pas besoin de la fenêtre Electron pour celui-ci.
+        if (isZineDay(i)) {
+          const week = Math.floor(i / 7) + 1;
+          const zineLang = langForDay(d);
+          const pdfPath = await generateZinePDF({ week, lang: zineLang, outDir, date: d });
+          const renamedPdf = path.join(outDir, `${dayTag}-zine-w${week}-${zineLang}.pdf`);
+          fs.renameSync(pdfPath, renamedPdf);
+          const pngPaths: string[] = [];
+          for (let p = 0; p < 4; p++) {
+            const pngPath = renamedPdf.replace(/\.pdf$/, `-p${p + 1}.png`);
+            execFileSync("convert", ["-density", "150", `${renamedPdf}[${p}]`, pngPath]);
+            pngPaths.push(pngPath);
+          }
+          const zineCaption = `📰 ZINE RECTA — Semaine ${week}\n\nPropagande hebdomadaire du C.G.U.\nFeuilleton narratif procédural.\n8 pages — Format DIY imprimable.\n\n🔗 robotariis.com`;
+          fs.writeFileSync(path.join(outDir, `${dayTag}-zine-w${week}-${zineLang}.txt`), zineCaption, "utf-8");
+          written.push(renamedPdf, ...pngPaths);
+        }
       }
       for (const f of written) console.log(f);
       const microCount = written.filter((f) => f.includes("-micro-")).length;
-      console.log(`Calendrier de ${days} jours exporté dans ${outDir} — ${days} beat(s) + ${microCount} micro-nouvelle(s).`);
+      const zineCount = written.filter((f) => f.endsWith(".pdf")).length;
+      console.log(`Calendrier de ${days} jours exporté dans ${outDir} — ${days} beat(s) + ${microCount} micro-nouvelle(s) + ${zineCount} zine(s).`);
       app.quit();
     }, 800);
   });

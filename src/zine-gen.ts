@@ -56,6 +56,9 @@ interface ZineGenOptions {
   week: number;
   lang?: Lang;
   outDir?: string;
+  /** Jour représenté par le zine (défaut : maintenant) — nécessaire pour un
+   *  calendrier éditorial (npm run campaign) qui génère plusieurs jours à l'avance. */
+  date?: Date;
 }
 
 type Doc = PDFKit.PDFDocument;
@@ -109,7 +112,7 @@ export async function generateZinePDF(opts: ZineGenOptions): Promise<string> {
   const outDir = opts.outDir || path.resolve("export");
   if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
 
-  const today = new Date();
+  const today = opts.date ?? new Date();
   const lang = opts.lang || langForDay(today);
   const weekNum = opts.week || Math.ceil((today.getDate() - today.getDay() + 1) / 7);
 
