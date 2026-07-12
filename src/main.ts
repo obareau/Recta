@@ -9,9 +9,20 @@ import * as path from "node:path";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import { communiqueFor, vaultNote } from "./logic";
+import { narrativeBeat } from "./narrative";
+import { microNouvelleFor } from "./micronouvelle";
+import { beatCaptions } from "./i18n-captions";
+import { INTRO } from "./micro-publish";
+import { GGR_MENTION, type Lang } from "./i18n";
 
 const argOf = (name: string): string | undefined =>
   process.argv.find((a) => a.startsWith(`--${name}=`))?.slice(name.length + 3);
+
+/** Un jour sur 3 puis un jour sur 4, en alternance — « tous les 3-4 jours ». */
+function isMicroDay(dayOffset: number): boolean {
+  const r = dayOffset % 7;
+  return r === 0 || r === 3;
+}
 
 function runBatch(count: number): void {
   const outDir = path.resolve(argOf("outdir") ?? "export");
@@ -47,6 +58,63 @@ function runBatch(count: number): void {
       }
       for (const f of written) console.log(f);
       console.log(`${count} communiqué(s) exporté(s) — PNG dans ${outDir}${vaultDir ? `, notes lore dans ${vaultDir}` : ""}`);
+      app.quit();
+    }, 800);
+  });
+}
+
+/**
+ * --campaign=<jours> [--outdir=…] [--start=YYYY-MM-DD] : exporte un calendrier
+ * éditorial de N jours pour planification manuelle (Meta Business Suite,
+ * Bluesky, Mastodon…) — un beat quotidien distinct (feuilleton réel, pas une
+ * variation de "today") + une micro-nouvelle tous les 3-4 jours en alternance.
+ * Chaque PNG a un .txt jumeau contenant la légende FR prête à copier-coller.
+ */
+function runCampaign(days: number): void {
+  const outDir = path.resolve(argOf("outdir") ?? "export/campaign");
+  const format = argOf("format") === "story" ? "story" : "carre";
+  const startArg = argOf("start");
+  const start = startArg ? new Date(`${startArg}T12:00:00Z`) : new Date();
+  fs.mkdirSync(outDir, { recursive: true });
+  const win = new BrowserWindow({ show: false, width: 1200, height: 1200 });
+  void win.loadFile(path.join(__dirname, "index.html"));
+  win.webContents.once("did-finish-load", () => {
+    setTimeout(async () => {
+      const written: string[] = [];
+      for (let i = 0; i < days; i++) {
+        const d = new Date(start);
+        d.setDate(d.getDate() + i);
+        const dayTag = `${String(i + 1).padStart(2, "0")}-${d.toISOString().slice(0, 10)}`;
+
+        // Beat quotidien — le vrai feuilleton du jour i (pas une variation de "today").
+        const beat = narrativeBeat(d);
+        const beatPng = await win.webContents.executeJavaScript(
+          `window.renderBeat({ dayOffset: ${i}, fmt: ${JSON.stringify(format)} })`,
+        ) as string;
+        const beatFile = path.join(outDir, `${dayTag}-beat.png`);
+        fs.writeFileSync(beatFile, Buffer.from(beatPng.replace(/^data:image\/png;base64,/, ""), "base64"));
+        const beatCaption = beatCaptions(beat).fr;
+        fs.writeFileSync(path.join(outDir, `${dayTag}-beat.txt`), beatCaption, "utf-8");
+        written.push(beatFile);
+
+        // Micro-nouvelle tous les 3-4 jours (alternance 3/4, jamais le même jour deux fois).
+        if (isMicroDay(i)) {
+          const lang = (beat.communique.lang ?? "fr") as Lang;
+          const seed = `micro:${d.toISOString().slice(0, 10)}`;
+          const mn = microNouvelleFor(seed, lang);
+          const microPng = await win.webContents.executeJavaScript(
+            `window.renderMicro(${JSON.stringify(seed)}, ${JSON.stringify(lang)}, ${JSON.stringify(format)})`,
+          ) as string;
+          const microFile = path.join(outDir, `${dayTag}-micro-${lang}.png`);
+          fs.writeFileSync(microFile, Buffer.from(microPng.replace(/^data:image\/png;base64,/, ""), "base64"));
+          const microCaption = `${mn.title}\n\n${INTRO[lang]} ${mn.reading}\n\n${mn.body}\n\n${GGR_MENTION[lang]}\n▸ robotariis.com`;
+          fs.writeFileSync(path.join(outDir, `${dayTag}-micro-${lang}.txt`), microCaption, "utf-8");
+          written.push(microFile);
+        }
+      }
+      for (const f of written) console.log(f);
+      const microCount = written.filter((f) => f.includes("-micro-")).length;
+      console.log(`Calendrier de ${days} jours exporté dans ${outDir} — ${days} beat(s) + ${microCount} micro-nouvelle(s).`);
       app.quit();
     }, 800);
   });
@@ -257,6 +325,11 @@ app.whenReady().then(() => {
   }
   if (process.argv.some((a) => a.startsWith("--brand"))) {
     runBrand();
+    return;
+  }
+  const campaignDays = parseInt(argOf("campaign") ?? "", 10);
+  if (Number.isFinite(campaignDays) && campaignDays > 0) {
+    runCampaign(campaignDays);
     return;
   }
   const n = parseInt(argOf("n") ?? "", 10);

@@ -1,9 +1,9 @@
 [Unit]
-Description=Feuilleton ROBOTARIIS — beat toutes les 3h (0/3/6/9/12/15/18/21:00)
+Description=Feuilleton ROBOTARIIS — beat du jour (1×/j, 09:00)
 
 [Timer]
-OnCalendar=*-*-* 00,03,06,09,12,15,18,21:00:00
-RandomizedDelaySec=300
+OnCalendar=*-*-* 09:00:00
+RandomizedDelaySec=600
 Persistent=true
 
 [Install]

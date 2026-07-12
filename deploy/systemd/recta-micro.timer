@@ -1,8 +1,8 @@
 [Unit]
-Description=Micro-nouvelle — quotidienne (18:00), langue tournante
+Description=Micro-nouvelle — tous les 3-4 jours (Lun,Jeu 18:00), langue tournante
 
 [Timer]
-OnCalendar=*-*-* 18:00:00
+OnCalendar=Mon,Thu *-*-* 18:00:00
 RandomizedDelaySec=600
 Persistent=true
 

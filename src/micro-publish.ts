@@ -17,7 +17,7 @@ import { langForDay } from "./narrative";
 import { loadEnv } from "./social/env";
 import { broadcast, networksFromArgs, type Captions } from "./social/broadcast";
 
-const INTRO: Record<Lang, string> = {
+export const INTRO: Record<Lang, string> = {
   fr: "Une micro-nouvelle du Distributeur d'Histoires Courtes — univers ROBOTARIIS.",
   en: "A micro-story from the Short Story Dispenser — the ROBOTARIIS universe.",
   es: "Un microrrelato del Dispensador de Relatos Breves — universo ROBOTARIIS.",

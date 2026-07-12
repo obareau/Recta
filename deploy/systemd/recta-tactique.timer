@@ -1,8 +1,8 @@
 [Unit]
-Description=Tactique Recta — quotidienne (15:00)
+Description=Tactique Recta — quotidienne (13:00)
 
 [Timer]
-OnCalendar=*-*-* 15:00:00
+OnCalendar=*-*-* 13:00:00
 RandomizedDelaySec=600
 Persistent=true
 
