@@ -15,6 +15,15 @@ import { beatCaptions } from "./i18n-captions";
 import { INTRO } from "./micro-publish";
 import { GGR_MENTION, type Lang } from "./i18n";
 
+// Tous les modes offscreen (--n/--beat/--micro/--campaign/…) ne servent qu'à
+// dessiner sur un <canvas> caché — aucun besoin de GPU. Lancé via systemd (qui
+// accorde un accès device render/accel spécifique à la session), l'init GPU
+// passe ; lancé depuis un terminal interactif, la négociation avec le
+// compositeur Wayland peut ne jamais aboutir et bloquer indéfiniment
+// app.whenReady() (observé : hang total, aucun fichier écrit, SIGINT requis).
+// Désactiver l'accélération matérielle rend ces modes fiables partout.
+app.disableHardwareAcceleration();
+
 const argOf = (name: string): string | undefined =>
   process.argv.find((a) => a.startsWith(`--${name}=`))?.slice(name.length + 3);
 
