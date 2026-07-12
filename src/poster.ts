@@ -23,12 +23,14 @@ export type Measure = (text: string) => number;
 /** Coupe un mot trop large en tronçons qui tiennent (retour ligne forcé). */
 function hardBreak(measure: Measure, word: string, maxWidth: number): string[] {
   if (measure(word) <= maxWidth) return [word];
+  // Pas de tiret de césure en CJK — la coupure au caractère y est la norme.
+  const hyph = /[　-鿿＀-￯]/.test(word) ? "" : "-";
   const parts: string[] = [];
   let chunk = "";
   for (const ch of word) {
     // Le tiret de césure compte dans la largeur — sinon il fait déborder.
-    if (measure(chunk + ch + "-") > maxWidth && chunk) {
-      parts.push(chunk + "-");
+    if (measure(chunk + ch + hyph) > maxWidth && chunk) {
+      parts.push(chunk + hyph);
       chunk = ch;
     } else {
       chunk += ch;
