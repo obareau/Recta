@@ -23,15 +23,16 @@ export function generateRenegatCaption(seed: string, forceNumero?: number, lang?
   const rng = rngFor(seed, `renegat:caption:${lang || "fr"}`);
   lang = lang || ("fr" as Lang);
 
-  // Lister images du dossier
-  const images = fs
-    .readdirSync(RENEGATS_DIR, { withFileTypes: true })
-    .filter((f) => /\.(jpg|jpeg|png|webp)$/i.test(f.name))
-    .map((f) => path.join(RENEGATS_DIR, f.name));
+  // Lister images du dossier — absent/vide n'empêche pas la légende (le zine
+  // n'utilise que numéro + texte) ; seuls les posts avec photo l'exigent.
+  const images = fs.existsSync(RENEGATS_DIR)
+    ? fs
+        .readdirSync(RENEGATS_DIR, { withFileTypes: true })
+        .filter((f) => /\.(jpg|jpeg|png|webp)$/i.test(f.name))
+        .map((f) => path.join(RENEGATS_DIR, f.name))
+    : [];
 
-  if (images.length === 0) throw new Error(`Aucune image dans ${RENEGATS_DIR}`);
-
-  const imagePath = pick(rng, images);
+  const imagePath = images.length ? pick(rng, images) : "";
   const numero = forceNumero || (100 + Math.floor(rng() * 900)); // 100-999
 
   const captions = [
@@ -51,6 +52,7 @@ export function generateRenegatCaption(seed: string, forceNumero?: number, lang?
 
 /** Charger image PNG (pour upload Bluesky). */
 export function loadRenegatImage(imagePath: string): Buffer {
+  if (!imagePath) throw new Error(`Aucune photo disponible — remplir ${RENEGATS_DIR}`);
   // Si c'est JPG, on devrait convertir en PNG, mais pour l'instant,
   // laisser l'utilisateur fournir des PNGs ou faire la conversion ailleurs.
   return fs.readFileSync(imagePath);
