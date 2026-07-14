@@ -85,3 +85,17 @@ export function pirateCaptions(p: Pirate): Captions {
   const alt = `Glitched pirate hijack of a Rectitude poster, faction ${p.tag}.`;
   return { fr, en, alt };
 }
+
+// INTRO vivait dans micro-publish.ts, que main.ts importait pour cette seule
+// constante. Or micro-publish.ts appelle main() au niveau module : charger
+// main.ts dans Electron déclenchait donc une publication de micro-nouvelle,
+// qui lançait un second Electron — une récursion. C'est ce qui rendait chaque
+// rendu interminable sur Roblab (~9 min) jusqu'à l'OOM killer. INTRO est une
+// donnée de légende : sa place est ici, avec les autres.
+export const INTRO: Record<Lang, string> = {
+  fr: "Une micro-nouvelle du Distributeur d'Histoires Courtes — univers ROBOTARIIS.",
+  en: "A micro-story from the Short Story Dispenser — the ROBOTARIIS universe.",
+  es: "Un microrrelato del Dispensador de Relatos Breves — universo ROBOTARIIS.",
+  it: "Un microracconto dal Distributore di Racconti Brevi — universo ROBOTARIIS.",
+  ja: "ショートショート配給機より、ひとつの物語 — ROBOTARIIS の宇宙。",
+};

@@ -14,16 +14,9 @@ import * as path from "node:path";
 import { microNouvelleFor } from "./micronouvelle";
 import { GGR_MENTION, LANGS, type Lang } from "./i18n";
 import { pick, rngFor } from "./rng";
+import { INTRO } from "./i18n-captions";
 import { loadEnv } from "./social/env";
 import { broadcast, networksFromArgs, type Captions } from "./social/broadcast";
-
-export const INTRO: Record<Lang, string> = {
-  fr: "Une micro-nouvelle du Distributeur d'Histoires Courtes — univers ROBOTARIIS.",
-  en: "A micro-story from the Short Story Dispenser — the ROBOTARIIS universe.",
-  es: "Un microrrelato del Dispensador de Relatos Breves — universo ROBOTARIIS.",
-  it: "Un microracconto dal Distributore di Racconti Brevi — universo ROBOTARIIS.",
-  ja: "ショートショート配給機より、ひとつの物語 — ROBOTARIIS の宇宙。",
-};
 
 function argOf(name: string): string | undefined {
   return process.argv.find((a) => a.startsWith(`--${name}=`))?.slice(name.length + 3);

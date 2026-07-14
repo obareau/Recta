@@ -11,8 +11,7 @@ import * as os from "node:os";
 import { communiqueFor, vaultNote } from "./logic";
 import { narrativeBeat, langForDay } from "./narrative";
 import { microNouvelleFor } from "./micronouvelle";
-import { beatCaptions } from "./i18n-captions";
-import { INTRO } from "./micro-publish";
+import { beatCaptions, INTRO } from "./i18n-captions";
 import { GGR_MENTION, type Lang } from "./i18n";
 import { generateZinePDF } from "./zine-gen";
 
