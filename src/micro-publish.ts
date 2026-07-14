@@ -12,8 +12,8 @@ import { execFileSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { microNouvelleFor } from "./micronouvelle";
-import { GGR_MENTION, type Lang } from "./i18n";
-import { langForDay } from "./narrative";
+import { GGR_MENTION, LANGS, type Lang } from "./i18n";
+import { pick, rngFor } from "./rng";
 import { loadEnv } from "./social/env";
 import { broadcast, networksFromArgs, type Captions } from "./social/broadcast";
 
@@ -34,14 +34,25 @@ async function main(): Promise<void> {
   const dry = process.argv.includes("--dry");
   const networks = networksFromArgs(process.argv);
   const today = new Date();
-  const lang = (argOf("lang") as Lang) || langForDay(today);
   const seed = argOf("seed") || `micro:${today.toISOString().slice(0, 10)}`;
+  // Une langue au hasard, seedée sur le jour — même principe que tactique-fb :
+  // imprévisible mais déterministe, donc le pré-rendu tombe sur la même. Le
+  // cycle FR→EN→ES→IT→JA de langForDay rendait la langue devinable à la date.
+  const lang = (argOf("lang") as Lang) || pick(rngFor(seed, "micro-lang"), LANGS);
   const mn = microNouvelleFor(seed, lang);
 
-  // 1. Rendre le ticket thermique.
+  // 1. Le ticket thermique. Rendu à l'avance quand il existe : le rendu Electron
+  // est le seul poste coûteux, et lancé à l'heure de publication il s'est fait
+  // tuer par l'OOM killer (recta-micro, 13 juil.). Le seed étant déterministe,
+  // le ticket du jour J est rendu la veille au calme sur robdev (4 s là-bas
+  // contre 9 min ici, cf. `npm run pregen`). Fallback : on rend à la volée.
   const png = path.resolve("export", `micro-${today.toISOString().slice(0, 10)}-${lang}.png`);
-  execFileSync("npx", ["electron", ".", "--no-sandbox", "--micro", `--microout=${png}`, `--lang=${lang}`, `--seed=${seed}`], { stdio: "inherit" });
-  if (!fs.existsSync(png)) throw new Error(`Ticket introuvable : ${png}`);
+  if (fs.existsSync(png)) {
+    console.log(`Ticket pré-généré réutilisé : ${path.basename(png)}`);
+  } else {
+    execFileSync("npx", ["electron", ".", "--no-sandbox", "--micro", `--microout=${png}`, `--lang=${lang}`, `--seed=${seed}`], { stdio: "inherit" });
+    if (!fs.existsSync(png)) throw new Error(`Ticket introuvable : ${png}`);
+  }
 
   // 2. Légende dans la langue du tirage (même texte sur tous les réseaux).
   const caption =

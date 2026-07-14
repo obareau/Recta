@@ -26,7 +26,8 @@
     "metrics": "tsx src/metrics-track.ts",
     "console": "tsx build.ts && tsx src/console-publish.ts",
     "zinepub": "tsx build.ts && tsx src/zine-publish.ts",
-    "update-bio": "tsx build.ts && tsx src/bio-update.ts"
+    "update-bio": "tsx build.ts && tsx src/bio-update.ts",
+    "pregen": "tsx build.ts && tsx src/pregen.ts"
   },
   "dependencies": {
     "pdfkit": "^0.14.0",
