@@ -5,3 +5,7 @@ export/
 press-kit/
 *.log
 .claude/settings.local.json
+
+# Credentials — jamais dans le dépôt (public)
+.env
+*.env

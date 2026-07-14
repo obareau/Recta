@@ -1,5 +1,10 @@
 # Recta — Comptes de publication automatisée
 
+> [!danger] Aucun secret dans ce fichier
+> Ce dépôt est **public**. Les credentials vivent dans `~/.config/recta/env` (chmod 600),
+> jamais ici. Ce fichier documente les comptes, les bios et les calendriers — pas les valeurs.
+>
+> *Purgé le 2026-07-14 : des jetons Bluesky et Mastodon y étaient en clair et ont été révoqués.*
 Documentation des comptes sociaux et credentials pour la publication multilingue du feuilleton narratif.
 
 ---
@@ -11,7 +16,7 @@ Documentation des comptes sociaux et credentials pour la publication multilingue
 ### Credentials
 ```
 Handle: robotariis.bsky.social
-App Password: wbg4-3beu-uket-4zw4
+App Password: <voir ~/.config/recta/env>
 ```
 
 ### Bio
@@ -35,9 +40,9 @@ App Password: wbg4-3beu-uket-4zw4
 ### Credentials
 ```
 Instance: mastodon.social
-OAuth Application ID: EM68H-6VaMKco9XBrH4PWXYwDTTYrrWeU7VKA2taLy0
-OAuth Secret: QAPP-oyuyw-7GL40zNGFjS593dz_hhgg_4MDeK01kfs
-Access Token: o4Q5SACdVaYbjQIaDdGCS7Z3sHRT97lXQV78OeZvezA
+OAuth Application ID: <voir ~/.config/recta/env>
+OAuth Secret: <voir ~/.config/recta/env>
+Access Token: <voir ~/.config/recta/env>
 Scopes: all (sauf admin)
 ```
 
@@ -73,12 +78,12 @@ Day 0: Ordre | Day 100: Apothéose
 
 ```bash
 # Bluesky (atproto) — handle + app password
-RECTA_BSKY_HANDLE=robotariis.bsky.social
-RECTA_BSKY_PASSWORD=wbg4-3beu-uket-4zw4
+RECTA_BSKY_HANDLE=<voir ~/.config/recta/env>
+RECTA_BSKY_PASSWORD=<voir ~/.config/recta/env>
 
 # Mastodon
-RECTA_MASTO_INSTANCE=mastodon.social
-RECTA_MASTO_TOKEN=o4Q5SACdVaYbjQIaDdGCS7Z3sHRT97lXQV78OeZvezA
+RECTA_MASTO_INSTANCE=<voir ~/.config/recta/env>
+RECTA_MASTO_TOKEN=<voir ~/.config/recta/env>
 
 # Facebook (obsolète — audience historique nulle)
 # RECTA_FB_* (non utilisé)
