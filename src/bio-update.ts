@@ -6,6 +6,11 @@
 import { loadEnv } from "./social/env";
 import { updateProfile } from "./social/bluesky";
 
+// Le nom de l'univers, pas du feuilleton : le compte ne sert aujourd'hui que
+// Recta, mais il porte le monde entier — et un jour il servira autre chose.
+// La bio, elle, dit précisément ce qu'on y publie.
+const NAME = "⬢ ROBŌTARIIS";
+
 const BIO = `⬢ RECTA — Feuilleton narratif procédural
 Communiqués de la Rectitude • Folie escalade • 5 langues
 Jour 0 : L'Ordre | Jour 100 : Apothéose
@@ -14,6 +19,7 @@ Jour 0 : L'Ordre | Jour 100 : Apothéose
 async function main(): Promise<void> {
   const dry = process.argv.includes("--dry");
 
+  console.log(`Nom à appliquer : ${NAME}`);
   console.log("Bio à appliquer:");
   console.log(BIO);
 
@@ -24,8 +30,8 @@ async function main(): Promise<void> {
 
   const env = loadEnv();
   try {
-    await updateProfile(env, BIO);
-    console.log("\n✓ Bio mise à jour sur Bluesky");
+    await updateProfile(env, BIO, NAME);
+    console.log("\n✓ Nom et bio mis à jour sur Bluesky");
   } catch (e) {
     throw new Error(`Erreur : ${(e as Error).message}`);
   }

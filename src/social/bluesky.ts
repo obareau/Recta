@@ -104,7 +104,9 @@ export async function postVideo(env: Env, mp4: Buffer, text: string): Promise<st
 }
 
 /** Mettre à jour la bio du profil. */
-export async function updateProfile(env: Env, bio: string): Promise<void> {
+/** displayName est optionnel : sans lui, on ne touche qu'à la bio — le
+ *  comportement d'avant. Bluesky le limite à 64 caractères. */
+export async function updateProfile(env: Env, bio: string, displayName?: string): Promise<void> {
   if (!env.RECTA_BSKY_HANDLE || !env.RECTA_BSKY_PASSWORD)
     throw new Error("RECTA_BSKY_HANDLE/PASSWORD manquants");
 
@@ -117,10 +119,12 @@ export async function updateProfile(env: Env, bio: string): Promise<void> {
     token: session.accessJwt,
   });
 
-  // Mettre à jour la bio
+  // On repart du profil existant : putRecord écrase l'enregistrement entier, et
+  // omettre un champ (avatar, bannière) l'effacerait.
   const record = {
     ...current.value,
     description: bio,
+    ...(displayName ? { displayName } : {}),
   };
 
   await xrpc<any>("POST", "com.atproto.repo.putRecord", {
