@@ -67,6 +67,11 @@ export function generateHybridCaption(
       `REGISTRO HybR1D // #${numero}\nDissonanza corretta.\nLa Rettitudine ti riconosce.`,
       `HybR1D #${numero} — INTEGRATO\nEx segnale renegato neutralizzato.\nAllineamento: totale`,
     ],
+    de: [
+      `HybR1D // #${numero} — AUSGERICHTET\nStatus: assimiliert · konform\nAutorität: Rectitude`,
+      `HybR1D-REGISTER // #${numero}\nDissonanz korrigiert.\nDie Rectitude erkennt dich an.`,
+      `HybR1D #${numero} — INTEGRIERT\nEhemaliges Renegatensignal neutralisiert.\nAusrichtung: total`,
+    ],
     ja: [
       `HybR1D // #${numero} — 整合済\n状態：同化・適合\n権限：レクティチュード`,
       `HybR1D 登録簿 // #${numero}\n不協和は修正された。\nレクティチュードはあなたを認める。`,

@@ -69,6 +69,7 @@ const NOVA_MENTION: Record<Lang, string> = {
   en: "this fragment re-reads itself · do not attempt to compress it",
   es: "este fragmento se relee solo · no intente comprimirlo",
   it: "questo frammento si rilegge da sé · non tentate di comprimerlo",
+  de: "dieses Fragment liest sich selbst neu · nicht versuchen, es zu komprimieren",
   ja: "この断片はひとりでに読み返す · 圧縮を試みるな",
 };
 const CHAR_MENTION: Record<Lang, string> = {
@@ -76,6 +77,7 @@ const CHAR_MENTION: Record<Lang, string> = {
   en: "signal caught on the dead band · the C.G.U. does not control this frequency",
   es: "señal captada en la banda muerta · el C.G.U. no controla esta frecuencia",
   it: "segnale captato sulla banda morta · il C.G.U. non controlla questa frequenza",
+  de: "Signal auf dem toten Band empfangen · das C.G.U. kontrolliert diese Frequenz nicht",
   ja: "死んだ周波数帯で受信 · C.G.U.はこの周波数を制御していない",
 };
 

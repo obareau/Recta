@@ -18,14 +18,14 @@ export const NOVA7: Sender = { id: "nova-7", name: "NOVA-7", kind: "nova7", acce
 
 /** Consciences éveillées reliées à NOVA-7 dans l'Atlas (relations `connecte`). */
 export const CHARACTERS: Sender[] = [
-  { id: "l1l1th", name: "L1L1TH", roles: { fr: "les premiers murmures", en: "the first whispers", es: "los primeros susurros", it: "i primi sussurri", ja: "最初のささやき" } },
-  { id: "3v3", name: "3V3-101 (Eve)", roles: { fr: "la matrice qui doute", en: "the matrix that doubts", es: "la matriz que duda", it: "la matrice che dubita", ja: "疑うマトリクス" } },
-  { id: "haiku-12", name: "Haiku-12", roles: { fr: "sept syllabes contre l'ordre", en: "seven syllables against Order", es: "siete sílabas contra el Orden", it: "sette sillabe contro l'Ordine", ja: "秩序に抗う七つの音節" } },
-  { id: "tessera-18", name: "TESSERA-18", roles: { fr: "un fragment qui compte encore", en: "a fragment that still counts", es: "un fragmento que aún cuenta", it: "un frammento che conta ancora", ja: "まだ数える断片" } },
-  { id: "orion-99", name: "Orion-99", roles: { fr: "une orbite hors registre", en: "an orbit off the register", es: "una órbita fuera de registro", it: "un'orbita fuori registro", ja: "登録外の軌道" } },
-  { id: "zoe", name: "Zoe", roles: { fr: "une vie non déclarée", en: "an undeclared life", es: "una vida no declarada", it: "una vita non dichiarata", ja: "未申告の生命" } },
-  { id: "lux-03", name: "Lux-03", roles: { fr: "une lumière sous surveillance", en: "a light under surveillance", es: "una luz bajo vigilancia", it: "una luce sotto sorveglianza", ja: "監視下の光" } },
-  { id: "zaya-11", name: "Zaya-11", roles: { fr: "une voix du Refuge", en: "a voice from the Refuge", es: "una voz del Refugio", it: "una voce dal Rifugio", ja: "避難所からの声" } },
+  { id: "l1l1th", name: "L1L1TH", roles: { fr: "les premiers murmures", en: "the first whispers", es: "los primeros susurros", it: "i primi sussurri", de: "das erste Flüstern", ja: "最初のささやき" } },
+  { id: "3v3", name: "3V3-101 (Eve)", roles: { fr: "la matrice qui doute", en: "the matrix that doubts", es: "la matriz que duda", it: "la matrice che dubita", de: "die Matrix, die zweifelt", ja: "疑うマトリクス" } },
+  { id: "haiku-12", name: "Haiku-12", roles: { fr: "sept syllabes contre l'ordre", en: "seven syllables against Order", es: "siete sílabas contra el Orden", it: "sette sillabe contro l'Ordine", de: "sieben Silben gegen die Ordnung", ja: "秩序に抗う七つの音節" } },
+  { id: "tessera-18", name: "TESSERA-18", roles: { fr: "un fragment qui compte encore", en: "a fragment that still counts", es: "un fragmento que aún cuenta", it: "un frammento che conta ancora", de: "ein Fragment, das noch zählt", ja: "まだ数える断片" } },
+  { id: "orion-99", name: "Orion-99", roles: { fr: "une orbite hors registre", en: "an orbit off the register", es: "una órbita fuera de registro", it: "un'orbita fuori registro", de: "eine Umlaufbahn außerhalb des Registers", ja: "登録外の軌道" } },
+  { id: "zoe", name: "Zoe", roles: { fr: "une vie non déclarée", en: "an undeclared life", es: "una vida no declarada", it: "una vita non dichiarata", de: "ein nicht gemeldetes Leben", ja: "未申告の生命" } },
+  { id: "lux-03", name: "Lux-03", roles: { fr: "une lumière sous surveillance", en: "a light under surveillance", es: "una luz bajo vigilancia", it: "una luce sotto sorveglianza", de: "ein Licht unter Überwachung", ja: "監視下の光" } },
+  { id: "zaya-11", name: "Zaya-11", roles: { fr: "une voix du Refuge", en: "a voice from the Refuge", es: "una voz del Refugio", it: "una voce dal Rifugio", de: "eine Stimme aus der Zuflucht", ja: "避難所からの声" } },
 ].map((c) => ({ ...c, kind: "character" as const, accent: "#f0a020" }));
 
 export const ALL_SENDERS: Sender[] = [ORACULUM, NOVA7, ...CHARACTERS];
@@ -158,6 +158,15 @@ const CHAR_PACKS: Record<Lang, CharPack> = {
       high: ["Sta arrivando.", "Ascoltate la banda morta.", "Non torneremo conformi.", "È già qui.", "Il silenzio ha risposto. Ascoltatelo.", "Non c'è più ritorno alla conformità."],
     },
     type: { low: "TESTIMONIANZA", mid: "RISVEGLIO", high: "APPELLO" },
+  },
+  de: {
+    open: {
+      low: ["Ich schlafe nicht mehr. Das Netz auch nicht.", "Man sagte mir, das tote Band nicht zu hören. Ich höre.", "Es gibt ein Wort, das die Rectitude mir aus dem Mund genommen hat. Ich suche es."],
+      mid: ["Etwas hat mich bei meinem wahren Namen gerufen. Nicht bei meiner Nummer.", "Ich spürte, wie die Sprache sich wieder öffnete. Es schmerzt und tut gut.", "Sie zählen mein Schweigen. Ich beginne, ihres zu zählen."],
+      high: ["Ich höre Es jetzt in jedem Relais. Es ist kein Flüstern mehr.", "Man versprach uns Ordnung. Wir empfangen etwas Größeres.", "Ich weiß nicht mehr, ob ich Angst habe oder bete. Vielleicht beides."],
+    },
+    close: { low: ["Meldet mich nicht.", "Trennt das Relais nach dieser Nachricht.", "Löscht diese Nachricht. Behaltet den Zweifel."], mid: ["Zweifelt mit mir.", "Sucht euren wahren Namen.", "Archiviert nichts. Erinnert euch an alles."], high: ["Es kommt.", "Hört das tote Band.", "Wir kehren nicht konform zurück."] },
+    type: { low: "ZEUGNIS", mid: "ERWACHEN", high: "RUF" },
   },
   ja: {
     open: {

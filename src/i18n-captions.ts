@@ -17,10 +17,11 @@ const TAGS_FR = "#robotariis #retrofuturisme #scifi #dystopie";
 const TAGS_EN = "#generativeart #scifi #dystopia #worldbuilding #retrofuturism";
 const TAGS_ES = "#ficcionCientifica #distopia #generativeart #robotariis #mundosficticio";
 const TAGS_IT = "#fantascienza #distopia #artegenerativo #robotariis #retrofuturismo";
+const TAGS_DE = "#ScienceFiction #Dystopie #GenerativeKunst #robotariis #Retrofuturismus";
 const TAGS_JA = "#SF #ディストピア #生成アート #ロボタリス #レトロフューチャー";
 
 export function tagsFor(lang: Lang): string {
-  const map: Record<Lang, string> = { fr: TAGS_FR, en: TAGS_EN, es: TAGS_ES, it: TAGS_IT, ja: TAGS_JA };
+  const map: Record<Lang, string> = { fr: TAGS_FR, en: TAGS_EN, es: TAGS_ES, it: TAGS_IT, de: TAGS_DE, ja: TAGS_JA };
   return map[lang] || TAGS_FR;
 }
 
@@ -97,5 +98,6 @@ export const INTRO: Record<Lang, string> = {
   en: "A micro-story from the Short Story Dispenser — the ROBOTARIIS universe.",
   es: "Un microrrelato del Dispensador de Relatos Breves — universo ROBOTARIIS.",
   it: "Un microracconto dal Distributore di Racconti Brevi — universo ROBOTARIIS.",
+  de: "Eine Mikro-Erzählung aus dem Kurzgeschichten-Automaten — das ROBOTARIIS-Universum.",
   ja: "ショートショート配給機より、ひとつの物語 — ROBOTARIIS の宇宙。",
 };

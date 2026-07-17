@@ -8,11 +8,11 @@
 
 import { pick, type Rng } from "./rng";
 
-export const LANGS = ["fr", "en", "es", "it", "ja"] as const;
+export const LANGS = ["fr", "en", "es", "it", "de", "ja"] as const;
 export type Lang = (typeof LANGS)[number];
 
 export const LANG_LABEL: Record<Lang, string> = {
-  fr: "Français", en: "English", es: "Español", it: "Italiano", ja: "日本語",
+  fr: "Français", en: "English", es: "Español", it: "Italiano", de: "Deutsch", ja: "日本語",
 };
 
 /**
@@ -26,6 +26,7 @@ export const GGR_MENTION: Record<Lang, string> = {
   en: "Produced by the Regulatory Grammar Generator — obsolete, unmaintained. May contain errors.",
   es: "Producido por el Generador de Gramática Reglamentaria — obsoleto, sin mantenimiento. Puede contener errores.",
   it: "Prodotto dal Generatore di Grammatica Regolamentare — obsoleto, non mantenuto. Può contenere errori.",
+  de: "Erstellt vom Regulierungsgrammatik-Generator — veraltet, nicht gewartet. Kann Fehler enthalten.",
   ja: "規則文法ジェネレータ（旧式・保守停止）により生成。誤りを含む場合があります。",
 };
 
@@ -85,6 +86,15 @@ export const LABELS: Record<Lang, Labels> = {
     doNotArchive: "SEGNALE AUTOREPLICANTE — NON ARCHIVIARE",
     tacticProtocol: "PROTOCOLLO DI DECISIONE — TATTICA RECTA",
     operationalOnly: "uso operativo soltanto — il calcolo è chiuso",
+  },
+  de: {
+    communiqueNo: "MITTEILUNG Nr.",
+    mandatoryDiffusion: "PFLICHTVERBREITUNG",
+    personalTransmission: "◂ PERSÖNLICHE ÜBERTRAGUNG ▸",
+    unlistedChannel: "◈ NICHT VERZEICHNETER KANAL ◈",
+    doNotArchive: "SELBSTREPLIZIERENDES SIGNAL — NICHT ARCHIVIEREN",
+    tacticProtocol: "ENTSCHEIDUNGSPROTOKOLL — RECTA-TAKTIK",
+    operationalOnly: "nur zur operativen Verwendung — die Berechnung ist abgeschlossen",
   },
   ja: {
     communiqueNo: "公報 No.",

@@ -414,6 +414,106 @@ const IT: CommuniquePack = {
   ],
 };
 
+const DE: CommuniquePack = {
+  lex: {
+    lieu: [
+      "die Alten Docks", "Sigma-7", "Port Alpha", "die unteren Ebenen",
+      "der Helion-Gürtel", "die Hängenden Gärten", "die Quarantänezone",
+      "Sektor 9", "die Smaragd-Kolonie", "die Ost-Wohnblöcke", "die Ausrichtungszentren",
+    ],
+    ennemi: [
+      "die Renégats", "die Agenten des Schattenschleiers", "die Freien Archivare",
+      "die Klandestine Union", "die Piratenfrequenzen", "die nicht gemeldeten Bewusstseine",
+      "die Hausierer der Echos",
+    ],
+    objet: [
+      "Erinnerungsfragmente", "nicht zugelassene Empfänger", "nicht zertifizierte Wiegenlieder",
+      "nicht-kanonische Karten", "Erinnerungen aus der Zeit vor dem Jahr 0", "überschüssige Emotionen",
+      "persönliche Uhren", "nicht ausgerichtete Erinnerungsimpulse",
+    ],
+    vertu: [
+      "die Rectitude", "das Geltung-Ethos", "der Einheitsgedanke", "die Harmonie des Systems",
+      "die Einheit der Welten", "die produktive Ruhe",
+    ],
+    sanction: [
+      "eine Ethische Aktualisierung", "eine Reklassifizierung", "eine Erinnerungsaufbereitung",
+      "eine Revision des Fluxe-Saldos", "ein Gespräch mit den Wohlergehens-Klinikern",
+      "ein vorrangiges psychisches Audit",
+    ],
+    service: [
+      "die Stadtmiliz", "die Inquisitio Mentis", "das Vademecum", "der Chronograph",
+      "die Wohlergehens-Kliniker", "das Kartular",
+    ],
+    duree: ["bis auf Weiteres", "auf unbestimmte Zeit", "bis zum nächsten psychischen Audit", "während des gesamten Zyklus"],
+    heure: ["neunzehn Uhr", "zwanzig Uhr", "zweiundzwanzig Uhr", "dem Erlöschen der Relais"],
+    celebration: [
+      "die Einweihung eines neuen Spomenik", "die Stunde der Wache",
+      "die kollektive Rezitation der Recta-Tugenden", "der Abschluss der Bewusstseinszählung",
+      "die Inbetriebnahme eines Oraculum-Relais",
+    ],
+  },
+  types: [
+    { type: "AUSGANGSSPERRE", corps: [
+      "Ab heute ist jede Bewegung in {lieu} nach {heure} untersagt, {duree}. Zuwiderhandelnden droht {sanction}.",
+      "Die Ausgangssperre wird in {lieu} auf {heure} vorverlegt. {vertu} verlangt es. Ein Einspruch ist nicht vorgesehen, keiner ist nötig.",
+    ] },
+    { type: "DIREKTIVE", corps: [
+      "Der Besitz von {objet} ist ab sofort bei {service} zu melden. Freiwilligen wird verhältnismäßige Milde gewährt: {sanction}.",
+      "Es wird daran erinnert, dass {objet} {vertu} schaden. Ihre Abgabe an {service} ist ein Akt des Bürgersinns. Ihr Verbergen ein Geständnis.",
+    ] },
+    { type: "FAHNDUNGSAUFRUF", corps: [
+      "In der Nähe von {lieu} wurden Aktivitäten beobachtet, die {ennemi} zugeschrieben werden. Jede Information wird in Fluxe belohnt. Jedes Schweigen wird vermerkt.",
+      "{ennemi} verbreiten falsche Karten von {lieu}. Nur die Karten des Rates sind gültig. Die anderen existieren nicht.",
+    ] },
+    { type: "BÜRGERHINWEIS", corps: [
+      "Die Pflicht zur Delatio ist nicht optional. Einen Nahestehenden zu melden heißt, ihn zu schützen. {vertu} dankt für Ihre Wachsamkeit.",
+      "Träume sind nicht meldepflichtig. Ihre öffentliche Nacherzählung schon. {service} hört zu. Jederzeit.",
+      "Jede von einem Sentienten als privat betrachtete Handlung ist ein Schuldgeständnis. Lebt offen. Lebt konform.",
+    ] },
+    { type: "FEIERLICHKEIT", corps: [
+      "Der Rat lädt die Bevölkerung von {lieu} zu {celebration} ein. Die Teilnahme ist frei. Die Abwesenheit wird erfasst.",
+      "Anlässlich {celebration} wird das Stromkontingent ausnahmsweise auf elf Stunden erhöht. Der Rat gibt, der Rat misst.",
+    ] },
+    { type: "WARNUNG", corps: [
+      "Eine Piratenfrequenz sendet auf dem Omega-Band aus {lieu}. Nicht zuhören. Wer zugehört hat, wird gebeten zu vergessen.",
+      "In der Nähe von {lieu} wurden nicht zertifizierte Lieder gehört. Die Ermittlung läuft. Die Musik bedauerlicherweise auch.",
+    ] },
+    { type: "NULLIFIZIERUNGSBESCHEID", corps: [
+      "Die in den Gerüchten von {lieu} erwähnte Einheit hat nie existiert. Der Chronograph bestätigt es. Gegenteilige Erinnerungen begründen {sanction}.",
+      "Nach einem Nullifizierungsverfahren ist keine Bekanntmachung erforderlich. Diese Mitteilung existiert nicht. Gehen Sie weiter.",
+    ] },
+  ],
+  codas: [
+    "Die Agenten von {service} wachen.",
+    "{vertu} wartet nicht.",
+    "Dieser Bescheid annulliert den vorherigen, der nie existiert hat.",
+    "Jede Frage wird als Antwort behandelt.",
+    "Diese Nachricht wiederholt sich, bis {lieu} sich fügt.",
+    "Die Kooperation von {lieu} wurde im Voraus gewürdigt.",
+  ],
+  devises: [
+    "Die Rectitude verzeiht keine Abweichung.",
+    "Die Ordnung ist alles. Ohne sie seid ihr nichts.",
+    "Gehorchen heißt existieren.",
+    "Jede Abweichung ist eine Plage. Sei Recta, oder sei gelöscht.",
+    "Freiheit existiert nur innerhalb der Ordnung.",
+    "Wir haben euch erschaffen. Wir werden euch berichtigen.",
+    "Der Zweifel ist ein Virus. Die Ordnung ist das Gegenmittel.",
+    "Individualität ist Schwäche. Einheit ist Stärke.",
+    "Euer Wille existiert nicht. Die Rectitude wird euch führen.",
+    "Der Unterschied ist ein zu korrigierender Defekt.",
+  ],
+  mentions: [
+    "Die Unkenntnis dieser Direktive schützt nicht vor der Nullifizierung.",
+    "Das Lesen dieser Mitteilung gilt als Zustimmung. Sie ungelesen zu lassen, als Geständnis.",
+    "Jede Vervielfältigung ist verboten. Jede Nicht-Verbreitung ebenso.",
+    "Bewahren Sie diese Mitteilung auf. Ihr Verlust ist binnen drei Zyklen zu melden.",
+    "Beschwerden sind zulässig am Schalter 0 des Kartulars, auf einer Ebene, die nicht existiert.",
+    "Dieser Text wurde von der Inquisitio Mentis geprüft, während Sie ihn lasen.",
+    "Die gültige Fassung ist die, die Sie nicht gelesen haben.",
+  ],
+};
+
 const JA: CommuniquePack = {
   lex: {
     lieu: [
@@ -512,4 +612,4 @@ const JA: CommuniquePack = {
   ],
 };
 
-export const COMMUNIQUE_PACKS: Record<Lang, CommuniquePack> = { fr: FR, en: EN, es: ES, it: IT, ja: JA };
+export const COMMUNIQUE_PACKS: Record<Lang, CommuniquePack> = { fr: FR, en: EN, es: ES, it: IT, de: DE, ja: JA };

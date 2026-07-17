@@ -65,7 +65,7 @@ function dateForDay(day: number): Date {
   return new Date(e + day * 86400000);
 }
 
-const LANG_BADGE: Record<Lang, string> = { fr: "FR", en: "EN", es: "ES", it: "IT", ja: "JA" };
+const LANG_BADGE: Record<Lang, string> = { fr: "FR", en: "EN", es: "ES", it: "IT", de: "DE", ja: "JA" };
 
 /** Section AUJOURD'HUI — le beat RÉEL du jour courant, en grand. */
 function renderToday(): string {

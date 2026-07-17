@@ -60,14 +60,16 @@ describe("émetteurs (personnages canon)", () => {
   test("les noms ne sont jamais vides et restent canon", () => {
     for (const s of [ORACULUM, NOVA7, ...CHARACTERS]) {
       expect(s.name.length).toBeGreaterThan(0);
-      expect(s.org.length).toBeGreaterThan(0);
+    }
+    for (const c of CHARACTERS) {
+      expect(c.roles?.fr?.length ?? 0).toBeGreaterThan(0);
     }
     expect(CHARACTERS.map((c) => c.name)).toContain("L1L1TH");
     expect(NOVA7.name).toBe("NOVA-7");
   });
   test("transmission de personnage : corps + devise non vides, sans fuite", () => {
     for (let i = 0; i < 20; i++) {
-      const t = characterTransmission(CHARACTERS[i % CHARACTERS.length], `s${i}`, i / 20);
+      const t = characterTransmission(CHARACTERS[i % CHARACTERS.length], `s${i}`, i / 20, "fr");
       expect(t.corps).not.toMatch(/[{}]/);
       expect(t.corps.length).toBeGreaterThan(0);
       expect(t.devise.length).toBeGreaterThan(0);

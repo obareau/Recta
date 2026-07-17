@@ -18,12 +18,12 @@ const ctx = canvas.getContext("2d")!;
 let salt = Math.floor(Math.random() * 100000); // page sociale : chaque visiteur voit le sien
 let format: PosterFormat = "carre";
 
-function render(currentSalt: number, fmt: PosterFormat): void {
+function render(currentSalt: number, fmt: PosterFormat, lang: Lang = "fr"): void {
   const { w, h } = FORMATS[fmt];
   canvas.width = w;
   canvas.height = h;
   const today = new Date();
-  const c = communiqueFor(`recta:${today.toDateString()}`, today, currentSalt);
+  const c = communiqueFor(`recta:${today.toDateString()}`, today, currentSalt, lang);
   drawPoster(ctx, c, fmt);
 }
 
@@ -66,11 +66,11 @@ $("btnBatch").addEventListener("click", async () => {
 // ── Mode batch (piloté par le main Electron) ─────────────────────────
 declare global {
   interface Window {
-    batchRender: (i: number, fmt?: PosterFormat) => string;
+    batchRender: (i: number, fmt?: PosterFormat, lang?: Lang) => string;
   }
 }
-window.batchRender = (i, fmt = "carre") => {
-  render(i, fmt);
+window.batchRender = (i, fmt = "carre", lang = "fr") => {
+  render(i, fmt, lang);
   return canvas.toDataURL("image/png");
 };
 
