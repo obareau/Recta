@@ -86,7 +86,8 @@ async function main() {
 
   // Mastodon (auto-lien)
   if (env.RECTA_MASTO_TOKEN && env.RECTA_MASTO_INSTANCE) {
-    const inst = env.RECTA_MASTO_INSTANCE.replace(/\/$/, "");
+    let inst = env.RECTA_MASTO_INSTANCE.replace(/\/$/, "");
+    if (!/^https?:\/\//.test(inst)) inst = "https://" + inst;
     const mres: any = await (await fetch(`${inst}/api/v1/statuses`, { method: "POST",
       headers: { Authorization: `Bearer ${env.RECTA_MASTO_TOKEN}`, "Content-Type": "application/json" },
       body: JSON.stringify({ status: text, language: "fr" }) })).json();
