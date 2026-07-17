@@ -21,6 +21,7 @@
     "micro": "tsx build.ts && electron . --no-sandbox --micro",
     "micropub": "tsx build.ts && tsx src/micro-publish.ts",
     "renegat": "tsx build.ts && tsx src/renegat-publish.ts",
+    "glossaire": "tsx src/glossaire-publish.ts",
     "hybrid": "tsx build.ts && tsx src/hybrid-publish.ts",
     "site": "tsx src/site-gen.ts",
     "metrics": "tsx src/metrics-track.ts",
