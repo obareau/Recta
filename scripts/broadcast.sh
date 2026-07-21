@@ -5,6 +5,7 @@
 #   broadcast.sh pirate       → intrusion sporadique (auto-limitée ~35%)
 #   broadcast.sh micro        → micro-nouvelle tous les 3-4 jours
 #   broadcast.sh console      → vidéo télématique (Bluesky)
+#   broadcast.sh clip         → clip narratif (title→reveal→tactique→pirate, Bluesky)
 #   broadcast.sh zinepub      → Zine hebdomadaire (samedi 08:00)
 #   broadcast.sh renegat      → avis R3N3G4TS (recherchés)
 #   broadcast.sh hybrid       → HybR1D rallié/aligné
@@ -23,6 +24,7 @@ case "$FLUX" in
   pirate)     CMD="npm run pirate -- --net=facebook,bluesky,mastodon";  TITLE="Onde pirate détectée";          TAG="pirate_flag" ;;
   micro)      CMD="npm run micropub -- --net=facebook,bluesky,mastodon"; TITLE="Micro-nouvelle diffusée";       TAG="ticket" ;;
   console)    CMD="npm run console";                  TITLE="Vidéo télématique diffusée";      TAG="film_frames" ;;
+  clip)       CMD="npm run clippub";                   TITLE="Clip narratif diffusé";           TAG="clapper" ;;
   zinepub)    CMD="npm run zinepub";                  TITLE="Zine propagande hebdomadaire";    TAG="newspaper" ;;
   renegat)    CMD="npm run renegat";                   TITLE="Avis de recherche R3N3G4T";     TAG="wanted" ;;
   hybrid)     CMD="npm run hybrid";                    TITLE="HybR1D aligné diffusé";           TAG="dna" ;;
