@@ -1,6 +1,7 @@
 // Publication d'une Interception Recta — un échange de banter Subwave (deux
 // voix, radio Robotariis) présenté comme un signal capté par l'Oraculum.
-// Bluesky + Mastodon (pas Facebook — format expérimental, cf. autres flux).
+// Facebook + Bluesky + Mastodon (image statique, aucune contrainte de format
+// contrairement au clip vidéo — cf. clip-publish.ts/console-publish.ts).
 //
 //   npm run interception            # poste l'interception du jour
 //   npm run interception -- --dry
@@ -23,7 +24,7 @@ import { broadcast, networksFromArgs } from "./social/broadcast";
 async function main(): Promise<void> {
   const env = loadEnv();
   const dry = process.argv.includes("--dry");
-  const networks = networksFromArgs(process.argv).filter((n) => n !== "facebook");
+  const networks = networksFromArgs(process.argv);
 
   const data = findInterception();
   if (!data) {
