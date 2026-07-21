@@ -21,15 +21,34 @@ export interface Renegat {
   caption: string;
 }
 
-/** Parcourt récursivement RENEGATS_DIR (organisé en sous-dossiers par
+interface ImageCandidate {
+  path: string;
+  rating: number;
+}
+
+/** Note 0-5 lue dans le sidecar JSON qu'Iris écrit à côté de chaque photo
+ * (même fichier que la galerie affiche/édite — pas d'API entre les deux
+ * outils, juste le système de fichiers partagé). Absent/illisible = 0. */
+function readRating(imagePath: string): number {
+  try {
+    const sidecarPath = imagePath.replace(/\.[^.]+$/, ".json");
+    if (!fs.existsSync(sidecarPath)) return 0;
+    const data = JSON.parse(fs.readFileSync(sidecarPath, "utf-8"));
+    return typeof data.rating === "number" ? data.rating : 0;
+  } catch {
+    return 0;
+  }
+}
+
+/** Parcourt récursivement `dir` (organisé en sous-dossiers par
  * catégorie/couleur/format depuis qu'Iris trie les photos) et retourne
- * tous les chemins d'images trouvés, à n'importe quelle profondeur. */
-function listImagesRecursive(dir: string): string[] {
-  const out: string[] = [];
+ * chaque image trouvée avec sa note, à n'importe quelle profondeur. */
+function listImagesWithRating(dir: string): ImageCandidate[] {
+  const out: ImageCandidate[] = [];
   for (const f of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, f.name);
-    if (f.isDirectory()) out.push(...listImagesRecursive(full));
-    else if (/\.(jpg|jpeg|png|webp)$/i.test(f.name)) out.push(full);
+    if (f.isDirectory()) out.push(...listImagesWithRating(full));
+    else if (/\.(jpg|jpeg|png|webp)$/i.test(f.name)) out.push({ path: full, rating: readRating(full) });
   }
   return out;
 }
@@ -48,9 +67,15 @@ export function generateRenegatCaption(
 
   // Lister images du dossier — absent/vide n'empêche pas la légende (le zine
   // n'utilise que numéro + texte) ; seuls les posts avec photo l'exigent.
-  const images = fs.existsSync(RENEGATS_SOURCE_DIR) ? listImagesRecursive(RENEGATS_SOURCE_DIR) : [];
+  // Priorité aux mieux notées : on tire au sort uniquement parmi celles qui
+  // portent la meilleure note trouvée (0 si aucune photo n'a jamais été
+  // notée dans Iris — le tirage reste alors uniforme sur tout le dossier,
+  // comportement inchangé pour qui n'utilise pas la notation).
+  const candidates = fs.existsSync(RENEGATS_SOURCE_DIR) ? listImagesWithRating(RENEGATS_SOURCE_DIR) : [];
+  const bestRating = candidates.length ? Math.max(...candidates.map((c) => c.rating)) : 0;
+  const topTier = candidates.filter((c) => c.rating === bestRating).map((c) => c.path);
 
-  const imagePath = forceImagePath || (images.length ? pick(rng, images) : "");
+  const imagePath = forceImagePath || (topTier.length ? pick(rng, topTier) : "");
   const numero = forceNumero || (100 + Math.floor(rng() * 900)); // 100-999
 
   const captions = [
