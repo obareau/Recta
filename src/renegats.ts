@@ -11,6 +11,9 @@ import { tagsFor } from "./i18n-captions";
 import type { Lang } from "./i18n";
 
 const RENEGATS_DIR = path.join(process.env.HOME || "/root", "renegats-photos");
+// Iris trie dans _classees/ (traité) et _a_trier/ (staging, jamais publiable) —
+// on ne pioche que dans _classees.
+const RENEGATS_SOURCE_DIR = path.join(RENEGATS_DIR, "_classees");
 
 export interface Renegat {
   imagePath: string;
@@ -38,7 +41,7 @@ export function generateRenegatCaption(seed: string, forceNumero?: number, lang?
 
   // Lister images du dossier — absent/vide n'empêche pas la légende (le zine
   // n'utilise que numéro + texte) ; seuls les posts avec photo l'exigent.
-  const images = fs.existsSync(RENEGATS_DIR) ? listImagesRecursive(RENEGATS_DIR) : [];
+  const images = fs.existsSync(RENEGATS_SOURCE_DIR) ? listImagesRecursive(RENEGATS_SOURCE_DIR) : [];
 
   const imagePath = images.length ? pick(rng, images) : "";
   const numero = forceNumero || (100 + Math.floor(rng() * 900)); // 100-999
