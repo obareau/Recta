@@ -18,6 +18,19 @@ export interface Renegat {
   caption: string;
 }
 
+/** Parcourt récursivement RENEGATS_DIR (organisé en sous-dossiers par
+ * catégorie/couleur/format depuis qu'Iris trie les photos) et retourne
+ * tous les chemins d'images trouvés, à n'importe quelle profondeur. */
+function listImagesRecursive(dir: string): string[] {
+  const out: string[] = [];
+  for (const f of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, f.name);
+    if (f.isDirectory()) out.push(...listImagesRecursive(full));
+    else if (/\.(jpg|jpeg|png|webp)$/i.test(f.name)) out.push(full);
+  }
+  return out;
+}
+
 /** Générer avis de recherche avec numéro (100-999). */
 export function generateRenegatCaption(seed: string, forceNumero?: number, lang?: Lang): Renegat {
   const rng = rngFor(seed, `renegat:caption:${lang || "fr"}`);
@@ -25,12 +38,7 @@ export function generateRenegatCaption(seed: string, forceNumero?: number, lang?
 
   // Lister images du dossier — absent/vide n'empêche pas la légende (le zine
   // n'utilise que numéro + texte) ; seuls les posts avec photo l'exigent.
-  const images = fs.existsSync(RENEGATS_DIR)
-    ? fs
-        .readdirSync(RENEGATS_DIR, { withFileTypes: true })
-        .filter((f) => /\.(jpg|jpeg|png|webp)$/i.test(f.name))
-        .map((f) => path.join(RENEGATS_DIR, f.name))
-    : [];
+  const images = fs.existsSync(RENEGATS_DIR) ? listImagesRecursive(RENEGATS_DIR) : [];
 
   const imagePath = images.length ? pick(rng, images) : "";
   const numero = forceNumero || (100 + Math.floor(rng() * 900)); // 100-999
