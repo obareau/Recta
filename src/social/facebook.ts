@@ -48,3 +48,17 @@ export async function postPhoto(env: Env, png: Buffer, caption: string): Promise
   if (data.error) throw new Error(`Publication refusée : ${data.error.message}`);
   return data.post_id ?? data.id ?? "?";
 }
+
+/** Poste une vidéo MP4 + légende sur la Page. Retourne l'id de la vidéo. */
+export async function postVideo(env: Env, mp4: Buffer, description: string): Promise<string> {
+  if (!env.RECTA_FB_PAGE_ID) throw new Error("RECTA_FB_PAGE_ID manquant");
+  const token = await resolvePageToken(env);
+  const form = new FormData();
+  form.set("source", new Blob([new Uint8Array(mp4)], { type: "video/mp4" }), "recta.mp4");
+  form.set("description", description);
+  form.set("access_token", token);
+  const res = await fetch(`${GRAPH}/${env.RECTA_FB_PAGE_ID}/videos`, { method: "POST", body: form });
+  const data = (await res.json()) as { id?: string; error?: { message: string } };
+  if (data.error) throw new Error(`Publication refusée : ${data.error.message}`);
+  return data.id ?? "?";
+}

@@ -9,7 +9,7 @@
 import type { Env } from "./env";
 import type { Lang } from "../i18n";
 import { tagsFor } from "../i18n-captions";
-import { postPhoto } from "./facebook";
+import { postPhoto, postVideo as fbPostVideo } from "./facebook";
 import * as bluesky from "./bluesky";
 import * as mastodon from "./mastodon";
 
@@ -69,6 +69,47 @@ export async function broadcast(
       if (network === "facebook") id = await postPhoto(env, png, text);
       else if (network === "bluesky") id = await bluesky.postImage(env, png, text, caps.alt);
       else id = await mastodon.postImage(env, png, text, caps.alt);
+      results.push({ network, ok: true, id });
+      console.log(`✓ ${network} : ${id}`);
+    } catch (e) {
+      const error = (e as Error).message;
+      results.push({ network, ok: false, error });
+      console.error(`✗ ${network} : ${error}`);
+    }
+  }
+  return results;
+}
+
+/**
+ * Diffuse une vidéo MP4 (au lieu d'un PNG) vers les réseaux demandés. Même
+ * logique que `broadcast()` (isolation par réseau, bilan, --dry) mais route
+ * vers postVideo de chaque client plutôt que postPhoto/postImage.
+ */
+export async function broadcastVideo(
+  env: Env,
+  mp4: Buffer,
+  caps: Captions,
+  networks: Network[],
+  opts: { dry?: boolean; date?: Date; lang?: Lang } = {},
+): Promise<BroadcastResult[]> {
+  const d = opts.date ?? new Date();
+  const lang = opts.lang ?? "fr";
+  const results: BroadcastResult[] = [];
+  for (const network of networks) {
+    let text = captionFor(network, caps, d);
+    if (network === "bluesky" && !text.includes("#")) {
+      text = `${text}\n${tagsFor(lang)}`;
+    }
+    if (opts.dry) {
+      console.log(`\n─── ${network.toUpperCase()} (vidéo) ───\n${text}`);
+      results.push({ network, ok: true, id: "(dry)" });
+      continue;
+    }
+    try {
+      let id: string;
+      if (network === "facebook") id = await fbPostVideo(env, mp4, text);
+      else if (network === "bluesky") id = await bluesky.postVideo(env, mp4, text);
+      else id = await mastodon.postVideo(env, mp4, text);
       results.push({ network, ok: true, id });
       console.log(`✓ ${network} : ${id}`);
     } catch (e) {
