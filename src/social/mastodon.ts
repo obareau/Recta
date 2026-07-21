@@ -44,6 +44,21 @@ export async function postVideo(env: Env, mp4: Buffer, text: string): Promise<st
   const media = (await mediaRes.json()) as any;
   const mediaId = media.id;
 
+  // Mastodon traite la vidéo en asynchrone après l'upload (transcodage) —
+  // /api/v2/media répond 200 immédiatement, mais le média n'est attachable à
+  // un statut qu'une fois prêt (206 Partial Content tant que ça traite,
+  // 200 + `url` renseigné une fois fini). Sans cette attente, /statuses
+  // renvoie "Impossible de joindre les fichiers en cours de traitement."
+  const deadline = Date.now() + 60_000;
+  while (Date.now() < deadline) {
+    const check = await fetch(`${baseUrl}/api/v1/media/${mediaId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (check.status === 200) break; // prêt
+    if (check.status !== 206) break; // erreur : on laisse /statuses échouer avec un message clair
+    await new Promise((r) => setTimeout(r, 3000));
+  }
+
   // Post du statut
   const sres = await fetch(`${baseUrl}/api/v1/statuses`, {
     method: "POST",
