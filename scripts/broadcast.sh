@@ -6,6 +6,7 @@
 #   broadcast.sh micro        → micro-nouvelle tous les 3-4 jours
 #   broadcast.sh console      → vidéo télématique (Bluesky)
 #   broadcast.sh clip         → clip narratif (title→reveal→tactique→pirate, Bluesky)
+#   broadcast.sh interception → banter Subwave capté (Bluesky + Mastodon)
 #   broadcast.sh zinepub      → Zine hebdomadaire (samedi 08:00)
 #   broadcast.sh renegat      → avis R3N3G4TS (recherchés)
 #   broadcast.sh hybrid       → HybR1D rallié/aligné
@@ -25,6 +26,7 @@ case "$FLUX" in
   micro)      CMD="npm run micropub -- --net=facebook,bluesky,mastodon"; TITLE="Micro-nouvelle diffusée";       TAG="ticket" ;;
   console)    CMD="npm run console";                  TITLE="Vidéo télématique diffusée";      TAG="film_frames" ;;
   clip)       CMD="npm run clippub";                   TITLE="Clip narratif diffusé";           TAG="clapper" ;;
+  interception) CMD="npm run interception";            TITLE="Interception diffusée";           TAG="satellite" ;;
   zinepub)    CMD="npm run zinepub";                  TITLE="Zine propagande hebdomadaire";    TAG="newspaper" ;;
   renegat)    CMD="npm run renegat";                   TITLE="Avis de recherche R3N3G4T";     TAG="wanted" ;;
   hybrid)     CMD="npm run hybrid";                    TITLE="HybR1D aligné diffusé";           TAG="dna" ;;
@@ -42,6 +44,9 @@ if $CMD >"$LOG" 2>&1; then
   KO=$(grep -c '^✗' "$LOG" 2>/dev/null || echo 0)
   if [ "$FLUX" = "pirate" ] && grep -q "Pas d'intrusion" "$LOG"; then
     rm -f "$LOG"; exit 0   # silence : les pirates sont discrets
+  fi
+  if [ "$FLUX" = "interception" ] && grep -q "rien à publier" "$LOG"; then
+    rm -f "$LOG"; exit 0   # silence : pas de banter à deux voix récent, jour sans matière
   fi
   curl -s -H "Title: $TITLE" -H "Tags: $TAG" \
     -d "Diffusé — $OK réseau(x) OK, $KO en échec." "$NTFY_URL" >/dev/null 2>&1

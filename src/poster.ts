@@ -5,6 +5,7 @@ import type { Pirate } from "./pirate-content";
 import type { Tactique } from "./tactiques";
 import { GGR_MENTION, LABELS, isCJK } from "./i18n";
 import { uiFor, type MicroNouvelle } from "./micronouvelle";
+import type { Interception } from "./interception";
 
 export type PosterFormat = "carre" | "story";
 
@@ -462,6 +463,109 @@ export function drawTactique(ctx: CanvasRenderingContext2D, t: Tactique, format:
   ctx.font = `${Math.round(w * 0.017)}px monospace`;
   ctx.fillText("usage opérationnel uniquement — le calcul est clos", cx, h - M * 0.9);
   // Mention GGR — présente sur chaque publication.
+  ctx.globalAlpha = 0.7;
+  const ggr = fitBlock(measurerFor(ctx, (s) => `${Math.round(s)}px monospace`),
+    GGR_MENTION["fr"], w - M * 2.2, w * 0.02, w * 0.014, 1.2, w * 0.01);
+  ctx.font = `${Math.round(ggr.size)}px monospace`;
+  ctx.fillText(ggr.lines[0], cx, h - M * 0.62);
+  ctx.globalAlpha = 1;
+
+  ctx.fillStyle = "rgba(0,0,0,0.16)";
+  for (let sy = 0; sy < h; sy += 3) ctx.fillRect(0, sy, w, 1);
+}
+
+/**
+ * Interception — signal capté par l'Oraculum sur les fréquences surveillées :
+ * un échange de banter entre deux voix synthétiques (radio Robotariis, hors
+ * lore) présenté comme une transcription officielle interceptée. Reste dans
+ * le personnage Recta (écran phosphore, ton froid de surveillance) ; le lien
+ * d'écoute réel n'est PAS sur l'affiche, seulement dans la légende du post.
+ */
+export function drawInterception(ctx: CanvasRenderingContext2D, ic: Interception, format: PosterFormat): void {
+  const { w, h } = FORMATS[format];
+  const M = Math.round(w * 0.07);
+  const cx = w / 2;
+
+  ctx.fillStyle = C0;
+  ctx.fillRect(0, 0, w, h);
+  ctx.strokeStyle = C2;
+  ctx.lineWidth = 6;
+  ctx.strokeRect(M * 0.5, M * 0.5, w - M, h - M);
+  ctx.lineWidth = 2;
+  ctx.strokeRect(M * 0.68, M * 0.68, w - M * 1.36, h - M * 1.36);
+
+  ctx.textAlign = "center";
+  let y = h * 0.15;
+  ctx.fillStyle = C2;
+  ctx.font = `bold ${Math.round(w * 0.026)}px monospace`;
+  ctx.fillText("ORACULUM — SURVEILLANCE DES FRÉQUENCES", cx, y);
+  y += w * 0.032;
+  ctx.font = `bold ${Math.round(w * 0.036)}px monospace`;
+  ctx.fillStyle = C3;
+  ctx.fillText("SIGNAL INTERCEPTÉ", cx, y);
+  y += w * 0.026;
+  ctx.fillStyle = C1;
+  ctx.font = `${Math.round(w * 0.018)}px monospace`;
+  ctx.fillText(`source : ${ic.showName.toUpperCase()}`, cx, y);
+
+  // Filet.
+  y += w * 0.035;
+  ctx.strokeStyle = C1;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(cx - w * 0.18, y);
+  ctx.lineTo(cx + w * 0.18, y);
+  ctx.stroke();
+
+  // Le dialogue, façon terminal : "PERSONA> texte", gauche-alignée, deux
+  // voix distinguées par intensité (C3 = première voix rencontrée, C2 = autre).
+  y += w * 0.05;
+  ctx.textAlign = "left";
+  const leftX = M * 1.1;
+  const maxWidth = w - M * 2.2;
+  const seenFirst = ic.lines[0]?.persona;
+  const fontSize = Math.round(w * 0.021);
+  ctx.font = `${fontSize}px monospace`;
+  const lineH = fontSize * 1.5;
+  const measure = (s: string) => ctx.measureText(s).width;
+
+  for (const line of ic.lines) {
+    ctx.fillStyle = line.persona === seenFirst ? C3 : C2;
+    const prefix = `${line.persona}> `;
+    const wrapped = wrapText(measure, prefix + line.text, maxWidth);
+    for (const l of wrapped) { ctx.fillText(l, leftX, y); y += lineH; }
+    y += lineH * 0.35; // respiration entre tours de parole
+  }
+
+  // Tracklist — pistes détectées sur la fréquence.
+  y += w * 0.02;
+  ctx.strokeStyle = C1;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(leftX, y);
+  ctx.lineTo(w - M * 1.1, y);
+  ctx.stroke();
+  y += w * 0.032;
+  ctx.fillStyle = C1;
+  ctx.font = `bold ${Math.round(w * 0.017)}px monospace`;
+  ctx.fillText("PISTES DÉTECTÉES", leftX, y);
+  y += lineH * 0.9;
+  ctx.font = `${Math.round(w * 0.017)}px monospace`;
+  ctx.fillStyle = C2;
+  for (const [i, t] of ic.tracklist.entries()) {
+    const label = `${String(i + 1).padStart(2, "0")}. ${t.title} — ${t.artist}`;
+    const wrapped = wrapText(measure, label, maxWidth);
+    for (const l of wrapped) { ctx.fillText(l, leftX, y); y += lineH * 0.85; }
+  }
+
+  // Pied.
+  ctx.textAlign = "center";
+  ctx.fillStyle = C3;
+  ctx.font = `bold ${Math.round(w * 0.03)}px monospace`;
+  ctx.fillText("robotariis.com", cx, h - M * 1.25);
+  ctx.fillStyle = C1;
+  ctx.font = `${Math.round(w * 0.016)}px monospace`;
+  ctx.fillText("transcription à usage de surveillance — diffusion restreinte", cx, h - M * 0.9);
   ctx.globalAlpha = 0.7;
   const ggr = fitBlock(measurerFor(ctx, (s) => `${Math.round(s)}px monospace`),
     GGR_MENTION["fr"], w - M * 2.2, w * 0.02, w * 0.014, 1.2, w * 0.01);

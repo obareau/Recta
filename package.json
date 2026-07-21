@@ -27,6 +27,7 @@
     "metrics": "tsx src/metrics-track.ts",
     "console": "tsx build.ts && tsx src/console-publish.ts",
     "clippub": "tsx build.ts && tsx src/clip-publish.ts",
+    "interception": "tsx build.ts && tsx src/interception-publish.ts",
     "zinepub": "tsx build.ts && tsx src/zine-publish.ts",
     "update-bio": "tsx build.ts && tsx src/bio-update.ts",
     "pregen": "tsx build.ts && tsx src/pregen.ts"

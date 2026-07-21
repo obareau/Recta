@@ -14,6 +14,7 @@ import { microNouvelleFor } from "./micronouvelle";
 import { beatCaptions, INTRO } from "./i18n-captions";
 import { GGR_MENTION, LANGS, type Lang } from "./i18n";
 import { generateZinePDF } from "./zine-gen";
+import { findInterception } from "./interception";
 
 // Tous les modes offscreen (--n/--beat/--micro/--campaign/…) ne servent qu'à
 // dessiner sur un <canvas> caché — aucun besoin de GPU. Lancé via systemd (qui
@@ -228,6 +229,41 @@ function runInvite(): void {
   });
 }
 
+/**
+ * --interception --interceptionout=<fichier.png> [--interceptiondata=<json>]
+ * [--format=story] : rend l'affiche à partir d'un objet Interception déjà
+ * résolu (fichier JSON passé par interception-publish.ts, pour que l'image
+ * et la légende du post partagent exactement les mêmes données — l'état
+ * Subwave source évolue en direct, deux résolutions séparées pourraient
+ * diverger). Sans --interceptiondata, résout à la volée (utile pour un essai
+ * manuel via `electron . --interception`). Échoue proprement (exit 2, pas de
+ * fichier) si aucun banter à deux voix n'a été trouvé.
+ */
+function runInterception(): void {
+  const out = path.resolve(argOf("interceptionout") || "export/interception.png");
+  const format = argOf("format") === "story" ? "story" : "carre";
+  const dataPath = argOf("interceptiondata");
+  const data = dataPath ? JSON.parse(fs.readFileSync(dataPath, "utf-8")) : findInterception();
+  if (!data) {
+    console.error("Aucune interception disponible (pas de banter à deux voix récent).");
+    app.exit(2);
+    return;
+  }
+  fs.mkdirSync(path.dirname(out), { recursive: true });
+  const win = new BrowserWindow({ show: true, width: 1200, height: 1200 });
+  void win.loadFile(path.join(__dirname, "index.html"));
+  win.webContents.once("did-finish-load", () => {
+    setTimeout(async () => {
+      const dataUrl = await win.webContents.executeJavaScript(
+        `window.renderInterception(${JSON.stringify(data)}, ${JSON.stringify(format)})`,
+      ) as string;
+      fs.writeFileSync(out, Buffer.from(dataUrl.replace(/^data:image\/png;base64,/, ""), "base64"));
+      console.log(out);
+      app.quit();
+    }, 500);
+  });
+}
+
 /** --tactique=<seed> --tactiqueout=<fichier.png> [--lang=fr|en|es|it|ja] [--format=story] : rend l'affiche brève, puis quitte. */
 function runTactique(): void {
   const seed = argOf("tactique") || `tactique:${Date.now()}`;
@@ -356,6 +392,10 @@ app.whenReady().then(() => {
   }
   if (process.argv.some((a) => a.startsWith("--tactique="))) {
     runTactique();
+    return;
+  }
+  if (process.argv.some((a) => a === "--interception")) {
+    runInterception();
     return;
   }
   if (process.argv.some((a) => a.startsWith("--invite"))) {

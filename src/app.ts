@@ -2,7 +2,8 @@
 // En mode batch (Electron), window.batchRender(i) rend et renvoie un dataURL.
 
 import { communiqueFor } from "./logic";
-import { drawPiratePoster, drawPoster, drawTactique, drawMicroNouvelle, FORMATS, type PosterFormat } from "./poster";
+import { drawPiratePoster, drawPoster, drawTactique, drawMicroNouvelle, drawInterception, FORMATS, type PosterFormat } from "./poster";
+import type { Interception } from "./interception";
 import { drawBanner, drawInvite, drawLogo } from "./brand";
 import { pirateFor } from "./pirate-content";
 import { resolveTactique } from "./tactiques-gen";
@@ -119,6 +120,18 @@ window.renderTactique = (seed, lang = "fr", fmt = "carre") => {
   const { w, h } = FORMATS[fmt];
   canvas.width = w; canvas.height = h;
   drawTactique(ctx, resolveTactique(seed, lang), fmt);
+  return canvas.toDataURL("image/png");
+};
+
+// Interception Recta — affiche à partir d'un objet Interception déjà résolu
+// côté Node (lecture des sessions Subwave, indisponible dans le renderer).
+declare global {
+  interface Window { renderInterception: (data: Interception, fmt?: PosterFormat) => string }
+}
+window.renderInterception = (data, fmt = "carre") => {
+  const { w, h } = FORMATS[fmt];
+  canvas.width = w; canvas.height = h;
+  drawInterception(ctx, data, fmt);
   return canvas.toDataURL("image/png");
 };
 

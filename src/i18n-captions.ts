@@ -75,6 +75,22 @@ export function tactiqueCaptions(t: Tactique): Captions {
   return { fr, en, alt };
 }
 
+/** Interception Recta (banter Subwave capté sur les fréquences surveillées). */
+export function interceptionCaptions(showName: string): Captions {
+  const fr =
+    `◈ SIGNAL INTERCEPTÉ — ORACULUM\n\n` +
+    `Deux voix captées sur les fréquences surveillées, émission « ${showName} ».\n\n` +
+    `Transcription à usage de surveillance — diffusion restreinte.\n` +
+    `Fréquence publique (non chiffrée) : radio.robotariis.com\n${LINK}\n${TAGS_FR}`;
+  const en =
+    `◈ SIGNAL INTERCEPTED — ORACULUM\n\n` +
+    `Two voices caught on the monitored frequencies, broadcast "${showName}".\n\n` +
+    `Surveillance-grade transcript — restricted distribution.\n` +
+    `Public (unencrypted) frequency: radio.robotariis.com\n${LINK}\n${TAGS_EN}`;
+  const alt = `Retrofuturist surveillance transcript, intercepted broadcast dialogue — ${showName}.`;
+  return { fr, en, alt };
+}
+
 /** Transmission pirate (détournement Nova 7 / Renégats). */
 export function pirateCaptions(p: Pirate): Captions {
   const fr =
