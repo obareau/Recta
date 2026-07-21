@@ -5,10 +5,9 @@
 //   npm run renegat -- --force         # force un nouvel avis même si cache plein
 
 import { loadEnv } from "./social/env";
-import * as bluesky from "./social/bluesky";
-import * as mastodon from "./social/mastodon";
 import { generateRenegatCaption, loadRenegatImage } from "./renegats";
 import { findUniqueNumero, hasBeenPosted, addToCache } from "./renegat-cache";
+import { postRenegat } from "./renegat-broadcast";
 import { langForDay } from "./narrative";
 import type { Lang } from "./i18n";
 
@@ -48,25 +47,12 @@ async function main(): Promise<void> {
   // 3. Charger image
   const png = loadRenegatImage(imagePath);
 
-  // 4. Publier sur Bluesky + Mastodon
+  // 4. Publier sur Facebook + Bluesky + Mastodon
   const env = loadEnv();
   const alt = `R3N3G4T wanted notice #${numero}`;
-  let lastUri: string | undefined;
-  let posted = false;
-
-  for (const network of ["bluesky", "mastodon"] as const) {
-    try {
-      const uri =
-        network === "bluesky"
-          ? await bluesky.postImage(env, png, caption, alt)
-          : await mastodon.postImage(env, png, caption, alt);
-      console.log(`✓ ${network} : ${uri}`);
-      lastUri = uri;
-      posted = true;
-    } catch (e) {
-      console.error(`✗ ${network} : ${(e as Error).message}`);
-    }
-  }
+  const results = await postRenegat(env, png, caption, alt);
+  const posted = results.some((r) => r.ok);
+  const lastUri = results.find((r) => r.ok)?.id;
 
   if (!posted) {
     throw new Error("Aucun réseau n'a accepté la publication.");

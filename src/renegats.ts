@@ -34,8 +34,15 @@ function listImagesRecursive(dir: string): string[] {
   return out;
 }
 
-/** Générer avis de recherche avec numéro (100-999). */
-export function generateRenegatCaption(seed: string, forceNumero?: number, lang?: Lang): Renegat {
+/** Générer avis de recherche avec numéro (100-999).
+ * `forceImagePath` (ex: choix fait dans la galerie Iris) court-circuite le
+ * tirage aléatoire dans RENEGATS_SOURCE_DIR et impose cette photo précise. */
+export function generateRenegatCaption(
+  seed: string,
+  forceNumero?: number,
+  lang?: Lang,
+  forceImagePath?: string
+): Renegat {
   const rng = rngFor(seed, `renegat:caption:${lang || "fr"}`);
   lang = lang || ("fr" as Lang);
 
@@ -43,7 +50,7 @@ export function generateRenegatCaption(seed: string, forceNumero?: number, lang?
   // n'utilise que numéro + texte) ; seuls les posts avec photo l'exigent.
   const images = fs.existsSync(RENEGATS_SOURCE_DIR) ? listImagesRecursive(RENEGATS_SOURCE_DIR) : [];
 
-  const imagePath = images.length ? pick(rng, images) : "";
+  const imagePath = forceImagePath || (images.length ? pick(rng, images) : "");
   const numero = forceNumero || (100 + Math.floor(rng() * 900)); // 100-999
 
   const captions = [
