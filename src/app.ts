@@ -140,12 +140,12 @@ window.renderInterception = (data, fmt = "carre") => {
 // côté Node (lecture du vault, hors de portée du renderer) et passée telle
 // quelle, comme pour l'interception.
 declare global {
-  interface Window { renderGlossaire: (entry: GlossaireEntry, fmt?: PosterFormat) => string }
+  interface Window { renderGlossaire: (entry: GlossaireEntry, fmt?: PosterFormat, frame?: { head: string; rectitude: boolean }) => string }
 }
-window.renderGlossaire = (entry, fmt = "carre") => {
+window.renderGlossaire = (entry, fmt = "carre", frame) => {
   const { w, h } = FORMATS[fmt];
   canvas.width = w; canvas.height = h;
-  drawGlossaire(ctx, entry, fmt);
+  drawGlossaire(ctx, entry, fmt, frame);
   return canvas.toDataURL("image/png");
 };
 

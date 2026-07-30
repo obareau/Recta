@@ -14,7 +14,7 @@ import { microNouvelleFor } from "./micronouvelle";
 import { beatCaptions, INTRO } from "./i18n-captions";
 import { GGR_MENTION, LANGS, type Lang } from "./i18n";
 import { generateZinePDF } from "./zine-gen";
-import { glossaireOfDay } from "./glossaire";
+import { glossaireOfDay, frameOf } from "./glossaire";
 import { findInterception } from "./interception";
 
 // Tous les modes offscreen (--n/--beat/--micro/--campaign/…) ne servent qu'à
@@ -262,7 +262,7 @@ function runGlossaire(): void {
   win.webContents.once("did-finish-load", () => {
     setTimeout(async () => {
       const dataUrl = await win.webContents.executeJavaScript(
-        `window.renderGlossaire(${JSON.stringify(data)}, ${JSON.stringify(format)})`,
+        `window.renderGlossaire(${JSON.stringify(data)}, ${JSON.stringify(format)}, ${JSON.stringify(frameOf(data))})`,
       ) as string;
       fs.writeFileSync(out, Buffer.from(dataUrl.replace(/^data:image\/png;base64,/, ""), "base64"));
       console.log(out);

@@ -494,6 +494,7 @@ export function drawGlossaire(
   ctx: CanvasRenderingContext2D,
   entry: { terme: string; definition: string; abbreviation?: string; categorie?: string },
   format: PosterFormat,
+  frame?: { head: string; rectitude: boolean },
 ): void {
   const { w, h } = FORMATS[format];
   const M = Math.round(w * 0.07);
@@ -511,11 +512,18 @@ export function drawGlossaire(
   let y = h * 0.16;
   ctx.fillStyle = C2;
   ctx.font = `bold ${Math.round(w * 0.024)}px monospace`;
-  ctx.fillText("ORACULUM — REGISTRE TERMINOLOGIQUE", cx, y);
+  // Le bandeau change selon l'origine : le pouvoir DÉFINIT, la résistance FUITE.
+  // C'est la première chose lue, et elle doit trancher entre les deux régimes.
+  ctx.fillText(frame?.head ?? "ORACULUM — REGISTRE TERMINOLOGIQUE", cx, y);
   y += w * 0.03;
   ctx.fillStyle = C1;
   ctx.font = `${Math.round(w * 0.017)}px monospace`;
-  ctx.fillText("NOTE DE DÉFINITION — USAGE CANONIQUE", cx, y);
+  ctx.fillText(
+    frame && !frame.rectitude
+      ? "FRAGMENT NON AUTORISÉ — ORIGINE NON CERTIFIÉE"
+      : "NOTE DE DÉFINITION — USAGE CANONIQUE",
+    cx, y,
+  );
 
   // Le terme : c'est lui le sujet, il occupe la place. On l'ajuste plutôt que
   // de le tronquer — un terme coupé dans une fiche de définition serait absurde.
@@ -568,7 +576,12 @@ export function drawGlossaire(
   ctx.fillText("robotariis.com", cx, h - M * 1.25);
   ctx.fillStyle = C1;
   ctx.font = `${Math.round(w * 0.016)}px monospace`;
-  ctx.fillText("extrait du registre — définition opposable", cx, h - M * 0.9);
+  ctx.fillText(
+    frame && !frame.rectitude
+      ? "document intercepté — l'Oraculum décline toute garantie"
+      : "extrait du registre — définition opposable",
+    cx, h - M * 0.9,
+  );
   ctx.globalAlpha = 0.7;
   const ggr = fitBlock(measurerFor(ctx, (s) => `${Math.round(s)}px monospace`),
     GGR_MENTION["fr"], w - M * 2.2, w * 0.02, w * 0.014, 1.2, w * 0.01);

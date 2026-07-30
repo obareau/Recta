@@ -14,7 +14,7 @@ import { execFileSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import { glossaireOfDay } from "./glossaire";
+import { glossaireOfDay, frameOf, recordPublished, loadCache } from "./glossaire";
 import { glossaireCaptions } from "./i18n-captions";
 import { loadEnv } from "./social/env";
 import { broadcast, networksFromArgs } from "./social/broadcast";
@@ -29,7 +29,8 @@ async function main(): Promise<void> {
   const dry = process.argv.includes("--dry");
   const networks = networksFromArgs(process.argv);
 
-  const entry = glossaireOfDay({ terme: argOf("terme") });
+  const force = process.argv.includes("--force");
+  const entry = glossaireOfDay({ terme: argOf("terme"), seed: argOf("seed"), force });
   if (!entry) {
     // Pas une erreur : le vault n'est pas dans ce dépôt (public), donc une
     // machine sans vault n'a simplement rien à publier.
@@ -51,12 +52,19 @@ async function main(): Promise<void> {
   }
   if (!fs.existsSync(png)) throw new Error(`Affiche introuvable : ${png}`);
 
-  const caps = glossaireCaptions(entry);
+  const frame = frameOf(entry);
+  const caps = glossaireCaptions(entry, frame);
   const results = await broadcast(env, fs.readFileSync(png), caps, networks, { dry });
   if (results.filter((r) => !r.ok).length === results.length) {
     throw new Error("Aucun réseau n'a accepté la fiche terminologique.");
   }
-  console.log(`Fiche « ${entry.terme} » traitée.`);
+  // On ne mémorise QU'APRÈS une diffusion réussie : un échec réseau ne doit pas
+  // consommer un terme, sinon il ne ressortirait qu'au prochain cycle complet.
+  if (!dry) {
+    recordPublished(entry.anchor);
+    console.log(`  → cache : ${loadCache().length} définition(s) déjà publiée(s)`);
+  }
+  console.log(`Fiche « ${entry.terme} » (${frame.rectitude ? "Rectitude" : "Archives Libres"}) traitée.`);
 }
 
 main().catch((e) => {

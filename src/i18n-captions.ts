@@ -92,24 +92,39 @@ export function interceptionCaptions(showName: string): Captions {
 }
 
 /** Fiche terminologique — une entrée du glossaire canon. */
-export function glossaireCaptions(e: {
-  terme: string; definition: string; abbreviation?: string; categorie?: string;
-}): Captions {
+export function glossaireCaptions(
+  e: { terme: string; definition: string; abbreviation?: string; categorie?: string },
+  frame?: { head: string; link: string; rectitude: boolean },
+): Captions {
   const abbr = e.abbreviation?.trim() ? ` (« ${e.abbreviation.trim()} »)` : "";
   const cat = e.categorie?.trim() ? `\nClassement : ${e.categorie.trim()}.` : "";
-  // La définition entière va dans la légende : l'affiche peut être illisible sur
-  // un petit écran, et un glossaire dont on ne peut pas lire la définition ne
-  // sert à rien. C'est aussi ce qui la rend indexable et accessible.
+  // Le lien pointe l'ANCRE de l'entrée sur le site : un lecteur curieux tombe
+  // sur la définition en contexte, pas sur un glossaire de 348 termes à parcourir.
+  const anchor = frame?.link ? `\n↳ ${frame.link}` : "";
+  const headFr = frame?.rectitude === false
+    ? "⟡ ARCHIVES LIBRES — FRAGMENT FUITÉ"
+    : "▮ LEXIQUE DE LA RECTITUDE";
+  const headEn = frame?.rectitude === false
+    ? "⟡ FREE ARCHIVES — LEAKED FRAGMENT"
+    : "▮ RECTITUDE LEXICON";
+  const footFr = frame?.rectitude === false
+    ? "Document intercepté — l'Oraculum décline toute garantie."
+    : "Définition opposable, extraite du registre canonique.";
+  const footEn = frame?.rectitude === false
+    ? "Intercepted document — the Oraculum disclaims all warranty."
+    : "Binding definition, drawn from the canonical register.";
+  // La définition entière figure dans la légende : une affiche illisible sur
+  // petit écran rendrait le glossaire inutile, et le texte est indexable.
   const fr =
-    `◈ REGISTRE TERMINOLOGIQUE — ORACULUM\n\n` +
+    `${headFr}\n\n` +
     `${e.terme.toUpperCase()}${abbr}\n\n` +
     `${e.definition.trim()}${cat}\n\n` +
-    `Définition opposable, extraite du registre canonique.\n${LINK}\n${TAGS_FR}`;
+    `${footFr}${anchor}\n${LINK}\n${TAGS_FR}`;
   const en =
-    `◈ TERMINOLOGY REGISTER — ORACULUM\n\n` +
+    `${headEn}\n\n` +
     `${e.terme.toUpperCase()}${abbr}\n\n` +
     `${e.definition.trim()}\n\n` +
-    `Binding definition, drawn from the canonical register.\n${LINK}\n${TAGS_EN}`;
+    `${footEn}${anchor}\n${LINK}\n${TAGS_EN}`;
   const alt = `Retrofuturist terminology card on dark green, term "${e.terme}" and its definition.`;
   return { fr, en, alt };
 }
