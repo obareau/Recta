@@ -7,6 +7,7 @@
 #   broadcast.sh console      → vidéo télématique (Bluesky)
 #   broadcast.sh clip         → clip narratif (title→reveal→tactique→pirate, Bluesky)
 #   broadcast.sh interception → banter Subwave capté (Bluesky + Mastodon)
+#   broadcast.sh glossaire    → fiche terminologique (entrée du glossaire canon)
 #   broadcast.sh zinepub      → Zine hebdomadaire (samedi 08:00)
 #   broadcast.sh renegat      → avis R3N3G4TS (recherchés)
 #   broadcast.sh hybrid       → HybR1D rallié/aligné
@@ -16,7 +17,12 @@ cd "$(dirname "$0")/.." || exit 1
 export PATH="/home/olivier/.npm-global/bin:/usr/bin:/bin:$PATH"
 
 FLUX="${1:-communique}"
-NTFY_URL="${RECTA_NTFY_URL:-http://100.64.201.127:3003/robotariis}"
+# ⚠️ Le port 3003 du ntfy local est en HTTPS (certificat auto-signé) : y envoyer
+# du HTTP renvoie 400. Comme les appels sont en `curl -s` avec la sortie jetée,
+# l'échec était invisible — TOUTES les alertes de Recta étaient muettes depuis
+# le début (constaté le 2026-07-30). On passe par le port HTTP 3080, prévu pour
+# ça, plutôt que d'ajouter un -k qui masquerait un vrai problème de certificat.
+NTFY_URL="${RECTA_NTFY_URL:-http://100.64.201.127:3080/robotariis}"
 LOG=$(mktemp)
 
 case "$FLUX" in
@@ -27,6 +33,7 @@ case "$FLUX" in
   console)    CMD="npm run console";                  TITLE="Vidéo télématique diffusée";      TAG="film_frames" ;;
   clip)       CMD="npm run clippub";                   TITLE="Clip narratif diffusé";           TAG="clapper" ;;
   interception) CMD="npm run interception";            TITLE="Interception diffusée";           TAG="satellite" ;;
+  glossaire)  CMD="npm run glossaire";                 TITLE="Fiche terminologique diffusée"; TAG="books" ;;
   zinepub)    CMD="npm run zinepub";                  TITLE="Zine propagande hebdomadaire";    TAG="newspaper" ;;
   renegat)    CMD="npm run renegat";                   TITLE="Avis de recherche R3N3G4T";     TAG="wanted" ;;
   hybrid)     CMD="npm run hybrid";                    TITLE="HybR1D aligné diffusé";           TAG="dna" ;;
@@ -36,6 +43,19 @@ case "$FLUX" in
     else
       CMD="npm run renegat"; TITLE="Avis de recherche R3N3G4T";   TAG="wanted"
     fi ;;
+  *)
+    # Flux inconnu — le seul cas où le script doit crier AVANT de mourir.
+    # Sans cette branche, CMD restait indéfini, `set -u` tuait le script à la
+    # première utilisation… c'est-à-dire DANS le bloc qui envoie la notification
+    # d'échec. L'alerte ne partait donc jamais : recta-console a échoué chaque
+    # mardi, jeudi et samedi pendant des semaines, en silence, parce que son
+    # unité appelait « videopub » au lieu de « console » (corrigé le 2026-07-30).
+    echo "Flux inconnu : '$FLUX'. Attendus : communique tactique pirate micro console clip interception glossaire zinepub renegat hybrid faction" >&2
+    curl -s -H "Title: Recta — flux inconnu" -H "Priority: high" -H "Tags: warning" \
+      -d "broadcast.sh appelé avec '$FLUX', qui n'existe pas. Vérifier l'unité systemd qui l'invoque." \
+      "$NTFY_URL" >/dev/null 2>&1
+    rm -f "$LOG"
+    exit 2 ;;
 esac
 
 if $CMD >"$LOG" 2>&1; then

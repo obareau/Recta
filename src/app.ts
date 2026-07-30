@@ -1,8 +1,9 @@
 // Recta — aperçu, régénération, export PNG.
 // En mode batch (Electron), window.batchRender(i) rend et renvoie un dataURL.
 
+import type { GlossaireEntry } from "./glossaire";
 import { communiqueFor } from "./logic";
-import { drawPiratePoster, drawPoster, drawTactique, drawMicroNouvelle, drawInterception, FORMATS, type PosterFormat } from "./poster";
+import { drawPiratePoster, drawPoster, drawTactique, drawMicroNouvelle, drawInterception, FORMATS, type PosterFormat, drawGlossaire } from "./poster";
 import type { Interception } from "./interception";
 import { drawBanner, drawInvite, drawLogo } from "./brand";
 import { pirateFor } from "./pirate-content";
@@ -132,6 +133,19 @@ window.renderInterception = (data, fmt = "carre") => {
   const { w, h } = FORMATS[fmt];
   canvas.width = w; canvas.height = h;
   drawInterception(ctx, data, fmt);
+  return canvas.toDataURL("image/png");
+};
+
+// Fiche terminologique — une entrée du glossaire canon. La donnée est résolue
+// côté Node (lecture du vault, hors de portée du renderer) et passée telle
+// quelle, comme pour l'interception.
+declare global {
+  interface Window { renderGlossaire: (entry: GlossaireEntry, fmt?: PosterFormat) => string }
+}
+window.renderGlossaire = (entry, fmt = "carre") => {
+  const { w, h } = FORMATS[fmt];
+  canvas.width = w; canvas.height = h;
+  drawGlossaire(ctx, entry, fmt);
   return canvas.toDataURL("image/png");
 };
 

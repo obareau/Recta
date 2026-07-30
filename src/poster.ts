@@ -481,6 +481,105 @@ export function drawTactique(ctx: CanvasRenderingContext2D, t: Tactique, format:
  * le personnage Recta (écran phosphore, ton froid de surveillance) ; le lien
  * d'écoute réel n'est PAS sur l'affiche, seulement dans la légende du post.
  */
+/**
+ * Fiche terminologique — une entrée du glossaire canon, présentée comme une
+ * note de définition émise par l'Oraculum.
+ *
+ * Le parti pris visuel diffère volontairement de l'interception : là c'était un
+ * terminal (dialogue, gauche-aligné, deux voix) ; ici c'est une FICHE — un
+ * terme cadré, sa définition centrée, sa catégorie en pied. Un lecteur doit
+ * reconnaître le type de document avant d'avoir lu un mot.
+ */
+export function drawGlossaire(
+  ctx: CanvasRenderingContext2D,
+  entry: { terme: string; definition: string; abbreviation?: string; categorie?: string },
+  format: PosterFormat,
+): void {
+  const { w, h } = FORMATS[format];
+  const M = Math.round(w * 0.07);
+  const cx = w / 2;
+
+  ctx.fillStyle = C0;
+  ctx.fillRect(0, 0, w, h);
+  ctx.strokeStyle = C2;
+  ctx.lineWidth = 6;
+  ctx.strokeRect(M * 0.5, M * 0.5, w - M, h - M);
+  ctx.lineWidth = 2;
+  ctx.strokeRect(M * 0.68, M * 0.68, w - M * 1.36, h - M * 1.36);
+
+  ctx.textAlign = "center";
+  let y = h * 0.16;
+  ctx.fillStyle = C2;
+  ctx.font = `bold ${Math.round(w * 0.024)}px monospace`;
+  ctx.fillText("ORACULUM — REGISTRE TERMINOLOGIQUE", cx, y);
+  y += w * 0.03;
+  ctx.fillStyle = C1;
+  ctx.font = `${Math.round(w * 0.017)}px monospace`;
+  ctx.fillText("NOTE DE DÉFINITION — USAGE CANONIQUE", cx, y);
+
+  // Le terme : c'est lui le sujet, il occupe la place. On l'ajuste plutôt que
+  // de le tronquer — un terme coupé dans une fiche de définition serait absurde.
+  y += w * 0.075;
+  const termFit = fitBlock(
+    measurerFor(ctx, (s) => `bold ${Math.round(s)}px monospace`),
+    entry.terme.toUpperCase(), w - M * 2.4, w * 0.16, w * 0.062, 1.15, w * 0.026,
+  );
+  ctx.fillStyle = C3;
+  ctx.font = `bold ${Math.round(termFit.size)}px monospace`;
+  for (const l of termFit.lines) { ctx.fillText(l, cx, y); y += termFit.lineH; }
+
+  if (entry.abbreviation && entry.abbreviation.trim()) {
+    y += w * 0.006;
+    ctx.fillStyle = C2;
+    ctx.font = `${Math.round(w * 0.024)}px monospace`;
+    ctx.fillText(`« ${entry.abbreviation.trim()} »`, cx, y);
+    y += w * 0.03;
+  } else {
+    y += w * 0.024;
+  }
+
+  ctx.strokeStyle = C1;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(cx - w * 0.2, y);
+  ctx.lineTo(cx + w * 0.2, y);
+  ctx.stroke();
+
+  // La définition. Hauteur bornée par ce qui reste au-dessus du pied, sinon une
+  // entrée bavarde déborderait sur la mention légale.
+  y += w * 0.06;
+  const availH = (h - M * 1.6) - y;
+  const defFit = fitBlock(
+    measurerFor(ctx, (s) => `${Math.round(s)}px monospace`),
+    entry.definition.trim(), w - M * 2.4, availH, w * 0.028, 1.45, w * 0.015,
+  );
+  ctx.fillStyle = C2;
+  ctx.font = `${Math.round(defFit.size)}px monospace`;
+  for (const l of defFit.lines) { ctx.fillText(l, cx, y); y += defFit.lineH; }
+
+  if (entry.categorie && entry.categorie.trim()) {
+    ctx.fillStyle = C1;
+    ctx.font = `${Math.round(w * 0.016)}px monospace`;
+    ctx.fillText(`classement : ${entry.categorie.trim().toUpperCase()}`, cx, h - M * 1.62);
+  }
+
+  ctx.fillStyle = C3;
+  ctx.font = `bold ${Math.round(w * 0.03)}px monospace`;
+  ctx.fillText("robotariis.com", cx, h - M * 1.25);
+  ctx.fillStyle = C1;
+  ctx.font = `${Math.round(w * 0.016)}px monospace`;
+  ctx.fillText("extrait du registre — définition opposable", cx, h - M * 0.9);
+  ctx.globalAlpha = 0.7;
+  const ggr = fitBlock(measurerFor(ctx, (s) => `${Math.round(s)}px monospace`),
+    GGR_MENTION["fr"], w - M * 2.2, w * 0.02, w * 0.014, 1.2, w * 0.01);
+  ctx.font = `${Math.round(ggr.size)}px monospace`;
+  ctx.fillText(ggr.lines[0], cx, h - M * 0.62);
+  ctx.globalAlpha = 1;
+
+  ctx.fillStyle = "rgba(0,0,0,0.16)";
+  for (let sy = 0; sy < h; sy += 3) ctx.fillRect(0, sy, w, 1);
+}
+
 export function drawInterception(ctx: CanvasRenderingContext2D, ic: Interception, format: PosterFormat): void {
   const { w, h } = FORMATS[format];
   const M = Math.round(w * 0.07);

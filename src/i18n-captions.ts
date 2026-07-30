@@ -91,6 +91,29 @@ export function interceptionCaptions(showName: string): Captions {
   return { fr, en, alt };
 }
 
+/** Fiche terminologique — une entrée du glossaire canon. */
+export function glossaireCaptions(e: {
+  terme: string; definition: string; abbreviation?: string; categorie?: string;
+}): Captions {
+  const abbr = e.abbreviation?.trim() ? ` (« ${e.abbreviation.trim()} »)` : "";
+  const cat = e.categorie?.trim() ? `\nClassement : ${e.categorie.trim()}.` : "";
+  // La définition entière va dans la légende : l'affiche peut être illisible sur
+  // un petit écran, et un glossaire dont on ne peut pas lire la définition ne
+  // sert à rien. C'est aussi ce qui la rend indexable et accessible.
+  const fr =
+    `◈ REGISTRE TERMINOLOGIQUE — ORACULUM\n\n` +
+    `${e.terme.toUpperCase()}${abbr}\n\n` +
+    `${e.definition.trim()}${cat}\n\n` +
+    `Définition opposable, extraite du registre canonique.\n${LINK}\n${TAGS_FR}`;
+  const en =
+    `◈ TERMINOLOGY REGISTER — ORACULUM\n\n` +
+    `${e.terme.toUpperCase()}${abbr}\n\n` +
+    `${e.definition.trim()}\n\n` +
+    `Binding definition, drawn from the canonical register.\n${LINK}\n${TAGS_EN}`;
+  const alt = `Retrofuturist terminology card on dark green, term "${e.terme}" and its definition.`;
+  return { fr, en, alt };
+}
+
 /** Transmission pirate (détournement Nova 7 / Renégats). */
 export function pirateCaptions(p: Pirate): Captions {
   const fr =

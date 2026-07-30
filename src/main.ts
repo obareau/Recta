@@ -14,6 +14,7 @@ import { microNouvelleFor } from "./micronouvelle";
 import { beatCaptions, INTRO } from "./i18n-captions";
 import { GGR_MENTION, LANGS, type Lang } from "./i18n";
 import { generateZinePDF } from "./zine-gen";
+import { glossaireOfDay } from "./glossaire";
 import { findInterception } from "./interception";
 
 // Tous les modes offscreen (--n/--beat/--micro/--campaign/…) ne servent qu'à
@@ -239,6 +240,37 @@ function runInvite(): void {
  * manuel via `electron . --interception`). Échoue proprement (exit 2, pas de
  * fichier) si aucun banter à deux voix n'a été trouvé.
  */
+function runGlossaire(): void {
+  const out = path.resolve(argOf("glossaireout") || "export/glossaire.png");
+  const format = argOf("format") === "story" ? "story" : "carre";
+  const dataPath = argOf("glossairedata");
+  // Comme pour l'interception : la donnée est résolue UNE fois côté publieur et
+  // passée par fichier. Ici c'est moins critique (le vault ne bouge pas pendant
+  // la publication) mais ça garantit que l'affiche et la légende parlent du
+  // MÊME terme, y compris si la date change entre les deux appels à minuit.
+  const data = dataPath
+    ? JSON.parse(fs.readFileSync(dataPath, "utf-8"))
+    : glossaireOfDay({ terme: argOf("terme") });
+  if (!data) {
+    console.error("Aucune entrée de glossaire disponible (vault absent ou vide ?).");
+    app.exit(2);
+    return;
+  }
+  fs.mkdirSync(path.dirname(out), { recursive: true });
+  const win = new BrowserWindow({ show: true, width: 1200, height: 1200 });
+  void win.loadFile(path.join(__dirname, "index.html"));
+  win.webContents.once("did-finish-load", () => {
+    setTimeout(async () => {
+      const dataUrl = await win.webContents.executeJavaScript(
+        `window.renderGlossaire(${JSON.stringify(data)}, ${JSON.stringify(format)})`,
+      ) as string;
+      fs.writeFileSync(out, Buffer.from(dataUrl.replace(/^data:image\/png;base64,/, ""), "base64"));
+      console.log(out);
+      app.quit();
+    }, 500);
+  });
+}
+
 function runInterception(): void {
   const out = path.resolve(argOf("interceptionout") || "export/interception.png");
   const format = argOf("format") === "story" ? "story" : "carre";
@@ -396,6 +428,10 @@ app.whenReady().then(() => {
   }
   if (process.argv.some((a) => a === "--interception")) {
     runInterception();
+    return;
+  }
+  if (process.argv.some((a) => a.startsWith("--glossaire"))) {
+    runGlossaire();
     return;
   }
   if (process.argv.some((a) => a.startsWith("--invite"))) {
