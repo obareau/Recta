@@ -11,18 +11,21 @@
 #   broadcast.sh zinepub      → Zine hebdomadaire (samedi 08:00)
 #   broadcast.sh renegat      → avis R3N3G4TS (recherchés)
 #   broadcast.sh hybrid       → HybR1D rallié/aligné
-# En cas d'échec total, notifie via ntfy (topic robotariis).
+# En cas d'échec total, alerte via ~/scripts/notify.sh (Discord).
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
 export PATH="/home/olivier/.npm-global/bin:/usr/bin:/bin:$PATH"
 
 FLUX="${1:-communique}"
-# ⚠️ Le port 3003 du ntfy local est en HTTPS (certificat auto-signé) : y envoyer
-# du HTTP renvoie 400. Comme les appels sont en `curl -s` avec la sortie jetée,
-# l'échec était invisible — TOUTES les alertes de Recta étaient muettes depuis
-# le début (constaté le 2026-07-30). On passe par le port HTTP 3080, prévu pour
-# ça, plutôt que d'ajouter un -k qui masquerait un vrai problème de certificat.
-NTFY_URL="${RECTA_NTFY_URL:-http://100.64.201.127:3080/robotariis}"
+# ⚠️ Les alertes passaient par ntfy et n'ont JAMAIS fonctionné : le port 3003
+# local est en HTTPS, on y postait du HTTP, le serveur répondait 400 — et comme
+# l'appel était en `curl -s` avec la sortie jetée, personne ne pouvait le voir.
+# Constaté le 2026-07-30, ntfy abandonné.
+#
+# Tout passe désormais par notify.sh, hors de ce dépôt : celui-ci est PUBLIC et
+# l'URL du webhook Discord est un secret. Le script lit sa configuration dans
+# ~/.config/robotariis/notify.env et vérifie le code de retour HTTP.
+NOTIFY="${RECTA_NOTIFY:-$HOME/scripts/notify.sh}"
 LOG=$(mktemp)
 
 case "$FLUX" in
@@ -51,9 +54,8 @@ case "$FLUX" in
     # mardi, jeudi et samedi pendant des semaines, en silence, parce que son
     # unité appelait « videopub » au lieu de « console » (corrigé le 2026-07-30).
     echo "Flux inconnu : '$FLUX'. Attendus : communique tactique pirate micro console clip interception glossaire zinepub renegat hybrid faction" >&2
-    curl -s -H "Title: Recta — flux inconnu" -H "Priority: high" -H "Tags: warning" \
-      -d "broadcast.sh appelé avec '$FLUX', qui n'existe pas. Vérifier l'unité systemd qui l'invoque." \
-      "$NTFY_URL" >/dev/null 2>&1
+    "$NOTIFY" -p "Recta — flux inconnu" \
+      "broadcast.sh appelé avec '$FLUX', qui n'existe pas. Vérifier l'unité systemd qui l'invoque." || true
     rm -f "$LOG"
     exit 2 ;;
 esac
@@ -68,10 +70,10 @@ if $CMD >"$LOG" 2>&1; then
   if [ "$FLUX" = "interception" ] && grep -q "rien à publier" "$LOG"; then
     rm -f "$LOG"; exit 0   # silence : pas de banter à deux voix récent, jour sans matière
   fi
-  curl -s -H "Title: $TITLE" -H "Tags: $TAG" \
-    -d "Diffusé — $OK réseau(x) OK, $KO en échec." "$NTFY_URL" >/dev/null 2>&1
+  # Bilan de diffusion : routine tant qu'au moins un réseau a accepté. Le mot
+  # « échec » y désigne un COMPTEUR, pas l'issue — ne pas le lire comme une alerte.
+  "$NOTIFY" "$TITLE" "Diffusé — $OK réseau(x) OK, $KO en échec." || true
 else
-  curl -s -H "Title: $TITLE — ÉCHEC" -H "Priority: high" -H "Tags: warning" \
-    -d "Diffusion échouée. $(tail -3 "$LOG" | tr '\n' ' ')" "$NTFY_URL" >/dev/null 2>&1
+  "$NOTIFY" -p "$TITLE — ÉCHEC" "Diffusion échouée. $(tail -3 "$LOG" | tr '\n' ' ')" || true
 fi
 rm -f "$LOG"
