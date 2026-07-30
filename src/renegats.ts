@@ -53,6 +53,25 @@ function listImagesWithRating(dir: string): ImageCandidate[] {
   return out;
 }
 
+
+/** Tirage pondéré : chaque candidat pèse `weightOf(rating)`. Déterministe pour
+ * une seed donnée, comme tout le reste de Recta — deux exécutions le même jour
+ * doivent sortir la même photo, sinon l'archive du feuilleton mentirait. */
+function pickWeighted(
+  rng: () => number,
+  items: ImageCandidate[],
+  weightOf: (rating: number) => number,
+): string {
+  const weights = items.map((c) => weightOf(c.rating));
+  const total = weights.reduce((a, b) => a + b, 0);
+  let r = rng() * total;
+  for (let i = 0; i < items.length; i++) {
+    r -= weights[i];
+    if (r <= 0) return items[i].path;
+  }
+  return items[items.length - 1].path; // garde-fou d'arrondi flottant
+}
+
 /** Générer avis de recherche avec numéro (100-999).
  * `forceImagePath` (ex: choix fait dans la galerie Iris) court-circuite le
  * tirage aléatoire dans RENEGATS_SOURCE_DIR et impose cette photo précise. */
@@ -67,15 +86,22 @@ export function generateRenegatCaption(
 
   // Lister images du dossier — absent/vide n'empêche pas la légende (le zine
   // n'utilise que numéro + texte) ; seuls les posts avec photo l'exigent.
-  // Priorité aux mieux notées : on tire au sort uniquement parmi celles qui
-  // portent la meilleure note trouvée (0 si aucune photo n'a jamais été
-  // notée dans Iris — le tirage reste alors uniforme sur tout le dossier,
-  // comportement inchangé pour qui n'utilise pas la notation).
-  const candidates = fs.existsSync(RENEGATS_SOURCE_DIR) ? listImagesWithRating(RENEGATS_SOURCE_DIR) : [];
-  const bestRating = candidates.length ? Math.max(...candidates.map((c) => c.rating)) : 0;
-  const topTier = candidates.filter((c) => c.rating === bestRating).map((c) => c.path);
+    // Priorité aux mieux notées, par PONDÉRATION et non par exclusion.
+    //
+    // ⚠️ La version précédente ne tirait que parmi les photos portant la
+    // meilleure note trouvée. Son repli « aucune note → tirage uniforme » ne
+    // jouait que si AUCUNE photo n'était notée : dès la première étoile posée
+    // dans Iris, tout le reste disparaissait. Mesuré le 2026-07-30 — 383 photos
+    // classées dont 378 non notées, 1 à trois étoiles, 2 à quatre et 2 à cinq :
+    // Recta ne tirait plus que parmi DEUX images et republiait la même en
+    // boucle. Noter une photo ne doit pas écarter les autres.
+    //
+    // Poids : une cinq étoiles sort deux fois plus souvent qu'une non notée, et
+    // pas davantage — la notation guide le tirage, elle ne le confisque pas.
+    const candidates = fs.existsSync(RENEGATS_SOURCE_DIR) ? listImagesWithRating(RENEGATS_SOURCE_DIR) : [];
+    const weightOf = (rating: number) => 1 + Math.max(0, Math.min(5, rating)) / 5;
 
-  const imagePath = forceImagePath || (topTier.length ? pick(rng, topTier) : "");
+    const imagePath = forceImagePath || (candidates.length ? pickWeighted(rng, candidates, weightOf) : "");
   const numero = forceNumero || (100 + Math.floor(rng() * 900)); // 100-999
 
   const captions = [
