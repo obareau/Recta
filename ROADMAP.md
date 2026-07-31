@@ -1,8 +1,60 @@
 # Recta — Roadmap
 
+> Brouillon factuel du 2026-07-31. Chaque ligne est adossée à un fait
+> constatable, avec sa preuve entre parenthèses — rien n'est déduit du seul
+> nom d'un fichier. À corriger et à élaguer : c'est un point de départ, pas
+> une intention.
+
+## État constaté
+
+- **15 timers actifs**, tous passés dans les dernières 24 h sauf les
+  hebdomadaires (`zinepub` samedi, `micro` lundi/jeudi) — nominal.
+- **6 langues** : `fr en es it de ja` (`src/i18n.ts:11`).
+- **1 commit d'avance sur `origin/master`, 0 de retard** — le dépôt est
+  aligné avec l'amont.
+- `recta-console` apparaît en `failed` : état **résiduel**, pas actif. Son
+  unité a été corrigée le 2026-07-30 à 22h22 et le dernier échec date du
+  même jour à 20h00, deux heures plus tôt. S'efface au prochain passage.
+
 ## À faire
 
-- [ ] Définir les prochaines étapes
+### Dette de publication
+
+- [ ] Écrire les entrées de CHANGELOG manquantes — 54 commits depuis la seule
+      entrée existante (`0.1.0`, 2026-07-08), qui est le gabarit provisionné
+      par Argus. Six mois de fonctionnalités ne sont datés nulle part :
+      allemand et japonais, zine hebdomadaire, clip narratif, interception
+      Subwave, glossaire, publication Facebook, tracker de métriques.
+- [ ] Nettoyer l'état `failed` résiduel de `recta-console`
+      (`systemctl --user reset-failed recta-console.service`) — sinon un
+      contrôle de santé le comptera comme une panne alors qu'il est réparé.
+
+### Migration des alertes (ntfy → Discord, entamée le 2026-07-30)
+
+- [ ] Corriger le commentaire d'en-tête de `src/social/stats.ts:3`, qui
+      annonce encore que « le script relaie à ntfy ». Le chemin réel passe
+      par `~/scripts/notify.sh` (Discord) depuis le 2026-07-30. Un commentaire
+      faux sur un chemin d'alerte se paie cher : c'est déjà ce qui a masqué
+      des semaines d'échecs silencieux de `recta-console`.
+- [ ] Vérifier qu'aucun flux ne notifie plus dans le vide — les alertes ntfy
+      n'ont **jamais** fonctionné (port 3003, constaté le 2026-07-30), donc
+      chaque flux migré est un flux dont on découvre seulement maintenant
+      s'il échouait.
+
+### Intégration Iris (instable)
+
+- [ ] Stabiliser le tirage des photos Renégat : quatre correctifs en dix
+      jours (recherche récursive, `_classees` seul, notation qui écartait
+      toutes les autres, préférence aux mieux notées — 21 au 30 juillet).
+      Cette densité de correctifs sur un même chemin signale un contrat mal
+      défini avec Iris plutôt qu'une suite de bogues indépendants.
+- [ ] Décider ce qui se passe quand Iris n'a aucune photo classée
+      disponible : aujourd'hui le comportement n'est pas documenté.
+
+### Glossaire (posé le 2026-07-30, jeune)
+
+- [ ] Éprouver la fusion affiche/texte sur plusieurs semaines — le cadrage et
+      le cache partagés datent du 2026-07-30, aucun recul.
 
 ## Demandes externes (Argus)
 
@@ -16,3 +68,7 @@
 - [ ] ⚑ Intégration d'un système de validation lore
       _pourquoi : Actuellement, je ne vérifie pas si les images et notes de lore générées sont conformes au canon. Une intégration avec l'Atlas pourrait m'aider à garantir la cohérence._
 <!-- argus:end -->
+
+---
+
+*Dernière mise à jour : 2026-07-31*
