@@ -16,7 +16,7 @@ const HUB = "https://obareau.github.io/robotariis-hub/";
 const LORE = "https://robotariis.com";
 const RECTA_REPO = "https://github.com/obareau/Recta";
 const TERRA_REPO = "https://github.com/obareau/Terra-Incognita";
-const RADIO = "https://obareau.github.io/Terra-Incognita/radio/";
+const RADIO = "https://obareau.github.io/terra-incognita/radio/";
 
 interface RedditPost {
   file: string;
