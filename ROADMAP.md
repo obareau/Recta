@@ -76,6 +76,20 @@ base des Renégats est tirée au hasard parmi cinq variantes de langue,
 allemands. Il n'existe d'ailleurs aucune légende allemande alors que `de` est
 dans `LANGS`. Peut être voulu (fréquence pirate), à trancher.
 
+### Bios sociales (2026-08-01)
+
+- [x] `update-bio` gère **Bluesky ET Mastodon** (il ne faisait que Bluesky).
+      Bio à 224 caractères, limite Bluesky 256 — le script refuse de partir
+      au-delà plutôt que de laisser le réseau tronquer en silence.
+- [x] Corrigé « 5 langues » → **6** : `LANGS` en compte six depuis le
+      2026-07-12, la bio mentait depuis.
+- [x] Les deux bios pointent vers `robotariis.com/transparence` et distinguent
+      affiches procédurales / photos R3N3G4TS générées par IA.
+
+⚠️ **Mastodon veut du multipart sur `update_credentials`**, pas du JSON : un
+envoi en `application/json` renvoie 200 sans rien changer. L'illusion parfaite.
+Toujours relire le profil côté serveur après coup, jamais se fier au code HTTP.
+
 ### Glossaire (posé le 2026-07-30, jeune)
 
 - [ ] Éprouver la fusion affiche/texte sur plusieurs semaines — le cadrage et

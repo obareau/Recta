@@ -108,3 +108,24 @@ export async function postImage(env: Env, png: Buffer, text: string, alt: string
   if (!sres.ok || sdata.error) throw new Error(`Mastodon statut : ${sdata.error ?? sres.status}`);
   return sdata.url ?? "?";
 }
+
+/** Met à jour la bio (`note`) et éventuellement le nom affiché.
+ *
+ * Mastodon attend du multipart sur `update_credentials`, pas du JSON — un
+ * envoi en `application/json` est accepté avec un 200 mais ne change rien,
+ * ce qui donne l'illusion que ça a marché. */
+export async function updateProfile(env: Env, bio: string, displayName?: string): Promise<void> {
+  const token = env.RECTA_MASTO_TOKEN;
+  if (!token) throw new Error("RECTA_MASTO_TOKEN manquant");
+
+  const form = new FormData();
+  form.append("note", bio);
+  if (displayName) form.append("display_name", displayName);
+
+  const res = await fetch(`${base(env)}/api/v1/accounts/update_credentials`, {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${token}` },
+    body: form,
+  });
+  if (!res.ok) throw new Error(`Mastodon ${res.status} : ${await res.text()}`);
+}
