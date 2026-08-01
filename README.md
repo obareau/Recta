@@ -1,6 +1,6 @@
 # Recta — Communiqués de la Rectitude
 
-> **Générateur d'affiches de propagande du C.G.U.** pour l'univers **ROBOTARIIS**.
+> **Générateur d'affiches de propagande du C.G.U.** pour l'univers **ROBŌTARIIS**.
 > L'Oraculum diffuse. Vous écoutez.
 
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -61,7 +61,7 @@ npm start        # fenêtre Electron de prévisualisation
 npm test         # grammaire : déterminisme, variété, élision, numéros
 ```
 
-Fait partie de l'écosystème **ROBOTARIIS** ([cartes Terra-Incognita](https://obareau.github.io/terra-incognita/),
-[Radio Robotariis](https://obareau.github.io/terra-incognita/radio/)).
+Fait partie de l'écosystème **ROBŌTARIIS** ([cartes Terra-Incognita](https://obareau.github.io/terra-incognita/),
+[Radio Robōtariis](https://obareau.github.io/terra-incognita/radio/)).
 
 *La désobéissance commence par la lecture.*
