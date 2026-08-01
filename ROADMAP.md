@@ -51,6 +51,31 @@
 - [ ] Décider ce qui se passe quand Iris n'a aucune photo classée
       disponible : aujourd'hui le comportement n'est pas documenté.
 
+### Transparence IA (posée le 2026-08-01)
+
+- [x] Déclarer les avis R3N3G4TS : ils publient une photo de la bibliothèque
+      Iris, générée par modèle de diffusion. Mention localisée en 6 langues
+      (`IA_MENTION` dans `i18n.ts`) dans la légende, plus le texte alternatif.
+      Art. 50 du règlement (UE) 2024/1689, applicable au 2026-08-02.
+- [x] **Ne rien déclarer ailleurs** — affiches, tactiques, zines et clips sont
+      procéduraux (fractales, tirages ensemencés par la date, vérifié en
+      lisant le code : aucun appel LLM, aucun modèle, aucune image externe
+      composée ; les deux seuls `drawImage` sont auto-référentiels). Y coller
+      une mention IA serait faux.
+- [ ] Réexaminer si un modèle entre un jour dans le pipeline des affiches :
+      la mention devra être posée **le même jour**, sinon l'omission devient
+      le mensonge qu'on cherchait à éviter.
+- [ ] Décidé de ne PAS estampiller « image procédurale · graine · aucun
+      modèle » sur les affiches pour l'instant — à rouvrir si la question
+      « c'est de l'IA ? » revient assez souvent pour mériter la densité
+      visuelle en pied d'affiche.
+
+⚠️ Bizarrerie préexistante repérée en chemin, non corrigée : la légende de
+base des Renégats est tirée au hasard parmi cinq variantes de langue,
+**indépendamment de `lang`** — d'où des posts à texte italien et hashtags
+allemands. Il n'existe d'ailleurs aucune légende allemande alors que `de` est
+dans `LANGS`. Peut être voulu (fréquence pirate), à trancher.
+
 ### Glossaire (posé le 2026-07-30, jeune)
 
 - [ ] Éprouver la fusion affiche/texte sur plusieurs semaines — le cadrage et

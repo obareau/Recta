@@ -49,7 +49,7 @@ async function main(): Promise<void> {
 
   // 4. Publier sur Facebook + Bluesky + Mastodon
   const env = loadEnv();
-  const alt = `R3N3G4T wanted notice #${numero}`;
+  const alt = `R3N3G4T wanted notice #${numero} — AI-generated image`;
   const results = await postRenegat(env, png, caption, alt);
   const posted = results.some((r) => r.ok);
   const lastUri = results.find((r) => r.ok)?.id;

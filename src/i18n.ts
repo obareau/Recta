@@ -21,6 +21,22 @@ export const LANG_LABEL: Record<Lang, string> = {
  * et non maintenu — il peut donc se tromper. In-universe : justifie les glitches
  * et ajoute du lore (un appareil de propagande qui se dégrade tout seul).
  */
+// Transparence IA — art. 50 du règlement (UE) 2024/1689, applicable au
+// 2 août 2026. Ne concerne QUE les avis R3N3G4TS : ils publient une photo
+// venue de la bibliothèque Iris, générée par modèle de diffusion. Tout le
+// reste de Recta (affiches, tactiques, zines, clips) est procédural —
+// fractales et tirages ensemencés par la date, aucun modèle — et n'a donc
+// rien à déclarer. Ne pas propager cette mention aux autres sorties : ce
+// serait faux, et l'inverse exact du but recherché.
+export const IA_MENTION: Record<Lang, string> = {
+  fr: "Image générée par IA · robotariis.com/transparence",
+  en: "AI-generated image · robotariis.com/transparence",
+  es: "Imagen generada por IA · robotariis.com/transparence",
+  it: "Immagine generata dall'IA · robotariis.com/transparence",
+  de: "KI-generiertes Bild · robotariis.com/transparence",
+  ja: "AI生成画像 · robotariis.com/transparence",
+};
+
 export const GGR_MENTION: Record<Lang, string> = {
   fr: "Produit par le Générateur de Grammaire Réglementaire — obsolète, non maintenu. Peut contenir des erreurs.",
   en: "Produced by the Regulatory Grammar Generator — obsolete, unmaintained. May contain errors.",

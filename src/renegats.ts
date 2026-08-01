@@ -8,7 +8,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { rngFor, pick } from "./rng";
 import { tagsFor } from "./i18n-captions";
-import type { Lang } from "./i18n";
+import { IA_MENTION, type Lang } from "./i18n";
 
 const RENEGATS_DIR = path.join(process.env.HOME || "/root", "renegats-photos");
 // Iris trie dans _classees/ (traité) et _a_trier/ (staging, jamais publiable) —
@@ -114,7 +114,12 @@ export function generateRenegatCaption(
 
   const baseCaption = pick(rng, captions);
   const tags = tagsFor(lang);
-  const caption = `${baseCaption}\n${tags}`;
+  // La mention IA est une constante : elle ne consomme PAS de tirage sur
+  // `rng`, donc elle ne décale aucune des séries seedées. Placée avant les
+  // hashtags pour rester lisible — une divulgation noyée après les tags
+  // n'en est plus une.
+  const mentionIA = IA_MENTION[lang] || IA_MENTION.fr;
+  const caption = `${baseCaption}\n${mentionIA}\n${tags}`;
 
   return { imagePath, numero, caption };
 }

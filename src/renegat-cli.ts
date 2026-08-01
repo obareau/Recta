@@ -61,7 +61,7 @@ async function main(): Promise<void> {
   }
 
   const png = loadRenegatImage(imagePath);
-  const alt = `R3N3G4T wanted notice #${numero}`;
+  const alt = `R3N3G4T wanted notice #${numero} — AI-generated image`;
   const results = await postRenegat(loadEnv(), png, caption, alt);
   const posted = results.some((r) => r.ok);
 
