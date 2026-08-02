@@ -95,6 +95,27 @@ Toujours relire le profil côté serveur après coup, jamais se fier au code HTT
 - [ ] Éprouver la fusion affiche/texte sur plusieurs semaines — le cadrage et
       le cache partagés datent du 2026-07-30, aucun recul.
 
+### Affiche de show — SCORIES (2026-08-02)
+
+- [x] `drawScories()` dans `brand.ts` + mode Electron `--scories` + script
+      `npm run scories` (rend l'affiche ET publie sur Bluesky, Mastodon,
+      Facebook). Publié le 2026-08-02.
+- [x] Registre **pirate et non C.G.U.** : « fréquence non répertoriée », cadre
+      rompu aux quatre coins, pas d'emblème. Scories passe *quand la Rectitude
+      ne surveille plus les fréquences* — une convocation officielle du Conseil
+      pour l'annoncer serait un contresens narratif.
+- [x] Mention « voix et musique de synthèse » + lien transparence en pied :
+      une affiche qui annonce des DJ ne doit pas laisser croire à des humains.
+
+ℹ️ **Gabarit réutilisable** pour annoncer d'autres shows — c'est le premier
+visuel de Recta qui ne soit pas un communiqué. L'affiche est **rendue à la
+volée** par le script de publication, jamais lue dans `export/` : sinon une
+affiche périmée peut accompagner un texte à jour.
+
+⚠️ À `0.145` de corps, les capitales du titre remontent bien au-dessus de la
+ligne de base et mordaient sur l'en-tête. L'interligne après un très gros titre
+doit valoir au moins 1,2× son corps, pas 0,7×.
+
 ## Demandes externes (Argus)
 
 <!-- argus:begin -->

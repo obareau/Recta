@@ -122,6 +122,90 @@ export function drawBanner(ctx: CanvasRenderingContext2D, w = 1640, h = 624): vo
  * Affiche d'invitation — carré 1080, style C.G.U. « convocation ».
  * Le Conseil vous convoque à rejoindre la fréquence : sarcasme officiel.
  */
+/**
+ * Affiche d'annonce du show SCORIES (webradio, dimanche 02h-06h).
+ *
+ * Registre volontairement PIRATE et non C.G.U. : Scories passe « quand la
+ * Rectitude ne surveille plus les fréquences ». Une convocation officielle
+ * pour annoncer un show clandestin serait un contresens narratif — d'où le
+ * cadre rompu, la mention d'interception et l'absence d'emblème.
+ */
+export function drawScories(ctx: CanvasRenderingContext2D, size = 1080): void {
+  const w = size, h = size, cx = w / 2;
+  const M = Math.round(w * 0.07);
+  ctx.fillStyle = C0;
+  ctx.fillRect(0, 0, w, h);
+  radarGrid(ctx, w, h);
+
+  // Cadre volontairement interrompu aux quatre coins : la bordure pleine de
+  // drawInvite dit « institution », celle-ci dit « signal capté ».
+  ctx.strokeStyle = C1;
+  ctx.lineWidth = 6;
+  const seg = w * 0.14, o = M * 0.5, W = w - M, H = h - M;
+  const coin = (x: number, y: number, dx: number, dy: number) => {
+    ctx.beginPath();
+    ctx.moveTo(x + dx * seg, y); ctx.lineTo(x, y); ctx.lineTo(x, y + dy * seg);
+    ctx.stroke();
+  };
+  coin(o, o, 1, 1); coin(o + W, o, -1, 1); coin(o, o + H, 1, -1); coin(o + W, o + H, -1, -1);
+
+  ctx.textAlign = "center";
+  let y = h * 0.115;
+  ctx.fillStyle = C1;
+  ctx.font = `${Math.round(w * 0.021)}px monospace`;
+  ctx.fillText("FRÉQUENCE NON RÉPERTORIÉE — ORIGINE INCONNUE", cx, y);
+
+  // +0.175 et non +0.10 : à 0.145 de corps, les capitales remontent bien
+  // au-dessus de la ligne de base et mordaient sur l'en-tête.
+  y += w * 0.175;
+  ctx.fillStyle = C3;
+  ctx.font = `bold ${Math.round(w * 0.145)}px monospace`;
+  ctx.fillText("SCORIES", cx, y);
+
+  y += w * 0.045;
+  ctx.fillStyle = C2;
+  ctx.font = `${Math.round(w * 0.026)}px monospace`;
+  ctx.fillText("indus · dark ambient · powernoise", cx, y);
+
+  // Les deux voix, côte à côte, séparées par une barre — elles se répondent.
+  y += w * 0.155;
+  ctx.fillStyle = C1;
+  ctx.font = `${Math.round(w * 0.019)}px monospace`;
+  ctx.fillText("AUX PLATINES", cx, y);
+  y += w * 0.055;
+  ctx.fillStyle = C3;
+  ctx.font = `bold ${Math.round(w * 0.048)}px monospace`;
+  ctx.fillText("VESPERA NYX", cx - w * 0.20, y);
+  ctx.fillText("IRIS", cx + w * 0.24, y);
+  ctx.strokeStyle = C2;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(cx + w * 0.035, y - w * 0.038);
+  ctx.lineTo(cx + w * 0.035, y + w * 0.012);
+  ctx.stroke();
+
+  y += w * 0.150;
+  ctx.fillStyle = C2;
+  ctx.font = `bold ${Math.round(w * 0.058)}px monospace`;
+  ctx.fillText("02:00 — 06:00", cx, y);
+  y += w * 0.055;
+  ctx.fillStyle = C3;
+  ctx.font = `${Math.round(w * 0.030)}px monospace`;
+  ctx.fillText("chaque nuit de samedi à dimanche", cx, y);
+  y += w * 0.042;
+  ctx.fillStyle = C1;
+  ctx.font = `italic ${Math.round(w * 0.021)}px monospace`;
+  ctx.fillText("toutes les semaines — quand plus personne ne surveille", cx, y);
+
+  ctx.fillStyle = C3;
+  ctx.font = `bold ${Math.round(w * 0.034)}px monospace`;
+  ctx.fillText("radio.robotariis.com", cx, h - M * 1.30);
+  ctx.fillStyle = C1;
+  ctx.font = `${Math.round(w * 0.017)}px monospace`;
+  ctx.fillText("webradio — voix et musique de synthèse · robotariis.com/transparence", cx, h - M * 0.80);
+}
+
+
 export function drawInvite(ctx: CanvasRenderingContext2D, size = 1080): void {
   const w = size, h = size, cx = w / 2;
   const M = Math.round(w * 0.07);

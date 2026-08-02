@@ -30,7 +30,8 @@
     "interception": "tsx build.ts && tsx src/interception-publish.ts",
     "zinepub": "tsx build.ts && tsx src/zine-publish.ts",
     "update-bio": "tsx build.ts && tsx src/bio-update.ts",
-    "pregen": "tsx build.ts && tsx src/pregen.ts"
+    "pregen": "tsx build.ts && tsx src/pregen.ts",
+    "scories": "tsx build.ts && tsx src/scories-publish.ts"
   },
   "dependencies": {
     "pdfkit": "^0.14.0",

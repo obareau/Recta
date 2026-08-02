@@ -5,7 +5,7 @@ import type { GlossaireEntry } from "./glossaire";
 import { communiqueFor } from "./logic";
 import { drawPiratePoster, drawPoster, drawTactique, drawMicroNouvelle, drawInterception, FORMATS, type PosterFormat, drawGlossaire } from "./poster";
 import type { Interception } from "./interception";
-import { drawBanner, drawInvite, drawLogo } from "./brand";
+import { drawBanner, drawInvite, drawScories, drawLogo } from "./brand";
 import { pirateFor } from "./pirate-content";
 import { resolveTactique } from "./tactiques-gen";
 import { narrativeBeat } from "./narrative";
@@ -110,6 +110,16 @@ declare global {
 window.renderInvite = () => {
   canvas.width = 1080; canvas.height = 1080;
   drawInvite(ctx, 1080);
+  return canvas.toDataURL("image/png");
+};
+
+// Affiche d'annonce du show SCORIES — appelé par --scories.
+declare global {
+  interface Window { renderScories: () => string }
+}
+window.renderScories = () => {
+  canvas.width = 1080; canvas.height = 1080;
+  drawScories(ctx, 1080);
   return canvas.toDataURL("image/png");
 };
 

@@ -230,6 +230,22 @@ function runInvite(): void {
   });
 }
 
+/** --scories[=fichier.png] : affiche d'annonce du show Scories, puis quitte. */
+function runScories(): void {
+  const out = path.resolve(argOf("scories") || "export/scories.png");
+  fs.mkdirSync(path.dirname(out), { recursive: true });
+  const win = new BrowserWindow({ show: true, width: 1200, height: 1200 });
+  void win.loadFile(path.join(__dirname, "index.html"));
+  win.webContents.once("did-finish-load", () => {
+    setTimeout(async () => {
+      const dataUrl = await win.webContents.executeJavaScript(`window.renderScories()`) as string;
+      fs.writeFileSync(out, Buffer.from(dataUrl.replace(/^data:image\/png;base64,/, ""), "base64"));
+      console.log(out);
+      app.quit();
+    }, 500);
+  });
+}
+
 /**
  * --interception --interceptionout=<fichier.png> [--interceptiondata=<json>]
  * [--format=story] : rend l'affiche à partir d'un objet Interception déjà
@@ -438,6 +454,10 @@ app.whenReady().then(() => {
     runInvite();
     return;
   }
+    if (process.argv.some((a) => a.startsWith("--scories"))) {
+      runScories();
+      return;
+    }
   if (process.argv.some((a) => a.startsWith("--pirate="))) {
     runPirate();
     return;
